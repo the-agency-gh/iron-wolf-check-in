@@ -5,7 +5,7 @@ import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
 import * as SplashScreen from "expo-splash-screen";
 import { StyleSheet, Text, View } from "react-native";
-import { initializeTable } from "./utils/database";
+import { initializeTable, retrieveSetting } from "./utils/database";
 //Screens
 import HomeScreen from "./screens/HomeScreen";
 import SettingsScreen from "./screens/SettingsScreen";
@@ -16,35 +16,50 @@ SplashScreen.preventAutoHideAsync();
 const Stack = createStackNavigator();
 
 export default function App() {
-  const [appLoaded, setAppLoaded] = useState(false);
+  const [initialState, setInitialState] = useState({
+    loaded: false,
+    error: false,
+  });
   useEffect(() => {
-    setAppLoaded(true);
     (async () => {
       try {
         await initializeTable();
-        setAppLoaded(true);
+        console.log(await retrieveSetting(), "retrieving");
+        setInitialState((curr) => ({
+          ...curr,
+          loaded: true,
+        }));
       } catch (err) {
         console.error(err);
+        setInitialState((curr) => ({
+          ...curr,
+          loaded: true,
+          error: true,
+        }));
       }
     })();
   }, []);
   const onLayoutRootView = useCallback(async () => {
-    if (appLoaded) {
+    if (initialState.loaded) {
       await SplashScreen.hideAsync();
     }
-  }, [appLoaded]);
-  if (!appLoaded) return null;
+  }, [initialState.loaded]);
+  if (!initialState.loaded) return null;
   return (
     <>
-      <StatusBar style="auto" />
+      <StatusBar style="light" />
       <View style={styles.container} onLayout={onLayoutRootView}>
-        <NavigationContainer>
-          <Stack.Navigator initialRouteName="Home">
-            <Stack.Screen name="Home" component={HomeScreen} />
-            <Stack.Screen name="Settings" component={SettingsScreen} />
-            <Stack.Screen name="Submissions" component={SubmissionsScreen} />
-          </Stack.Navigator>
-        </NavigationContainer>
+        {!initialState.error ? (
+          <NavigationContainer>
+            <Stack.Navigator initialRouteName="Home">
+              <Stack.Screen name="Home" component={HomeScreen} />
+              <Stack.Screen name="Settings" component={SettingsScreen} />
+              <Stack.Screen name="Submissions" component={SubmissionsScreen} />
+            </Stack.Navigator>
+          </NavigationContainer>
+        ) : (
+          <Text style={styles.errorText}>Failed To Initialize</Text>
+        )}
       </View>
     </>
   );
@@ -53,6 +68,12 @@ export default function App() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
     backgroundColor: "#161616",
+  },
+  errorText: {
+    color: "#f8f8f8",
   },
 });
