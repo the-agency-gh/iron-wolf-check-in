@@ -12,6 +12,9 @@ export function initializeTable() {
             id INTEGER PRIMARY KEY NOT NULL,
             firstName TEXT NOT NULL,
             lastName TEXT NOT NULL,
+            email TEXT NOT NULL,
+            phoneNumber TEXT NOT NULL,
+            birthDate DATE NOT NULL,
             profileUri TEXT NOT NULL,
             licenseUri TEXT NOT NULL,
             pdfUri TEXT NOT NULL,
@@ -54,17 +57,42 @@ export function initializeTable() {
 interface SubmissionProps {
   firstName: string;
   lastName: string;
+  email: string;
+  phoneNumber: string;
+  birthDate: Date;
   profileUri: string;
   licenseUri: string;
   pdfUri: string;
 }
-export function addSubmissions({ firstName, lastName, profileUri, licenseUri, pdfUri }: SubmissionProps) {
+export function addSubmissions({ firstName, lastName, email, phoneNumber, birthDate, profileUri, licenseUri, pdfUri }: SubmissionProps) {
   return new Promise((resolve, reject) => {
     database.transaction((tx) => {
       tx.executeSql(
-        "INSERT INTO submissions (firstName, lastName, profileUri, licenseUri, pdfUri) VALUES (?, ?, ?, ?, ?)",
-        [firstName, lastName, profileUri, licenseUri, pdfUri],
+        "INSERT INTO submissions (firstName, lastName, email, phoneNumber, birthDate, profileUri, licenseUri, pdfUri) VALUES (?, ?, ?, ?, ?, ?, ?)",
+        [firstName, lastName, email, phoneNumber, birthDate.toString(), profileUri, licenseUri, pdfUri],
         (_, result) => {
+          resolve(result);
+        },
+        (_, error) => {
+          reject(error);
+          return true;
+        }
+      );
+    });
+  });
+}
+export function deleteSubmission(id: string) {
+  return new Promise(async (resolve, reject) => {
+    const selected = (await retrieveSubmission(id)) as SubmissionProps;
+    database.transaction((tx) => {
+      tx.executeSql(
+        "DELETE FROM submissions WHERE id = ?",
+        [id],
+        async (_, result) => {
+          const deleteProfilePicture = deleteAsync(selected.profileUri);
+          const deleteLicensePicture = deleteAsync(selected.licenseUri);
+          const deletePdf = deleteAsync(selected.pdfUri);
+          await Promise.all([deleteProfilePicture, deleteLicensePicture, deletePdf]);
           resolve(result);
         },
         (_, error) => {
@@ -82,7 +110,25 @@ export function retrieveSubmissions() {
         "SELECT * FROM submissions",
         [],
         (_, result) => {
-          resolve(result);
+          resolve(result.rows._array);
+        },
+        (_, error) => {
+          reject(error);
+          return true;
+        }
+      );
+    });
+  });
+}
+export function retrieveSubmission(id: string) {
+  return new Promise((resolve, reject) => {
+    database.transaction((tx) => {
+      tx.executeSql(
+        "SELECT * FROM submissions WHERE id = ?",
+        [id],
+        (_, result) => {
+          const data = result.rows._array[0];
+          resolve(data);
         },
         (_, error) => {
           reject(error);
@@ -124,7 +170,7 @@ export function addSetting({ email, saveSubmission = false }: SettingProps) {
     });
   });
 }
-export function updateSetting({ email, saveSubmission }: SettingProps) {
+export function updateSetting({ email, saveSubmission = false }: SettingProps) {
   return new Promise(async (resolve, reject) => {
     const currentSetting = (await retrieveSetting()) as SettingProps;
     if (currentSetting) {
