@@ -14,7 +14,7 @@ export function initializeTable() {
             lastName TEXT NOT NULL,
             profileUri TEXT NOT NULL,
             licenseUri TEXT NOT NULL,
-            formUri TEXT NOT NULL,
+            pdfUri TEXT NOT NULL,
             submissionDate TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )`,
         [],
@@ -51,7 +51,47 @@ export function initializeTable() {
 }
 
 //submissions query
-
+interface SubmissionProps {
+  firstName: string;
+  lastName: string;
+  profileUri: string;
+  licenseUri: string;
+  pdfUri: string;
+}
+export function addSubmissions({ firstName, lastName, profileUri, licenseUri, pdfUri }: SubmissionProps) {
+  return new Promise((resolve, reject) => {
+    database.transaction((tx) => {
+      tx.executeSql(
+        "INSERT INTO submissions (firstName, lastName, profileUri, licenseUri, pdfUri) VALUES (?, ?, ?, ?, ?)",
+        [firstName, lastName, profileUri, licenseUri, pdfUri],
+        (_, result) => {
+          resolve(result);
+        },
+        (_, error) => {
+          reject(error);
+          return true;
+        }
+      );
+    });
+  });
+}
+export function retrieveSubmissions() {
+  return new Promise((resolve, reject) => {
+    database.transaction((tx) => {
+      tx.executeSql(
+        "SELECT * FROM submissions",
+        [],
+        (_, result) => {
+          resolve(result);
+        },
+        (_, error) => {
+          reject(error);
+          return true;
+        }
+      );
+    });
+  });
+}
 // settings query
 interface SettingProps {
   id?: number;
@@ -65,9 +105,13 @@ export function addSetting({ email, saveSubmission = false }: SettingProps) {
       reject("setting already exits! Please Request Update Instead.");
       return;
     }
+    if (!email) {
+      reject("Email need to be valid.");
+      return;
+    }
     database.transaction((tx) => {
       tx.executeSql(
-        "INTER INTO setting (email, saveSubmission) VALUES(?, ?)",
+        "INSERT INTO setting (email, saveSubmission) VALUES(?, ?)",
         [email || "", saveSubmission ? 1 : 0],
         (_, result) => {
           resolve(result);
@@ -89,7 +133,7 @@ export function updateSetting({ email, saveSubmission }: SettingProps) {
     database.transaction((tx) => {
       tx.executeSql(
         `UPDATE settings SET email=?,saveSubmission=? WHERE id=?`,
-        [email || "", saveSubmission ? 1 : 0, currentSetting.id || ""],
+        [email || (currentSetting.email as string), saveSubmission ? 1 : 0, currentSetting.id || ""],
         (_, result) => {
           resolve(result);
         },
