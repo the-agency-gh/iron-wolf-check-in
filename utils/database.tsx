@@ -37,6 +37,7 @@ export function initializeTable() {
         `CREATE TABLE IF NOT EXISTS settings (
             id INTEGER PRIMARY KEY NOT NULL,
             email TEXT NOT NULL,
+            password TEXT NOT NULL,
             saveSubmission BOOLEAN DEFAULT FALSE
         )`,
         [],
@@ -68,7 +69,7 @@ export function addSubmissions({ firstName, lastName, email, phoneNumber, birthD
   return new Promise((resolve, reject) => {
     database.transaction((tx) => {
       tx.executeSql(
-        "INSERT INTO submissions (firstName, lastName, email, phoneNumber, birthDate, profileUri, licenseUri, pdfUri) VALUES (?, ?, ?, ?, ?, ?, ?)",
+        "INSERT INTO submissions (firstName, lastName, email, phoneNumber, birthDate, profileUri, licenseUri, pdfUri) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
         [firstName, lastName, email, phoneNumber, birthDate.toString(), profileUri, licenseUri, pdfUri],
         (_, result) => {
           resolve(result);
@@ -140,25 +141,22 @@ export function retrieveSubmission(id: string) {
 }
 // settings query
 interface SettingProps {
-  id?: number;
-  email?: string;
+  id?: string;
+  email: string;
+  password: string;
   saveSubmission?: boolean;
 }
-export function addSetting({ email, saveSubmission = false }: SettingProps) {
+export function addSetting({ email, password, saveSubmission = false }: SettingProps) {
   return new Promise(async (resolve, reject) => {
     const currentSetting = await retrieveSetting();
     if (currentSetting) {
       reject("setting already exits! Please Request Update Instead.");
       return;
     }
-    if (!email) {
-      reject("Email need to be valid.");
-      return;
-    }
     database.transaction((tx) => {
       tx.executeSql(
-        "INSERT INTO setting (email, saveSubmission) VALUES(?, ?)",
-        [email || "", saveSubmission ? 1 : 0],
+        "INSERT INTO setting (email, password, saveSubmission) VALUES(?, ?, ?)",
+        [email, password, saveSubmission ? 1 : 0],
         (_, result) => {
           resolve(result);
         },
@@ -170,7 +168,7 @@ export function addSetting({ email, saveSubmission = false }: SettingProps) {
     });
   });
 }
-export function updateSetting({ email, saveSubmission = false }: SettingProps) {
+export function updateSetting({ email, password, saveSubmission = false }: SettingProps) {
   return new Promise(async (resolve, reject) => {
     const currentSetting = (await retrieveSetting()) as SettingProps;
     if (currentSetting) {
@@ -178,8 +176,13 @@ export function updateSetting({ email, saveSubmission = false }: SettingProps) {
     }
     database.transaction((tx) => {
       tx.executeSql(
-        `UPDATE settings SET email=?,saveSubmission=? WHERE id=?`,
-        [email || (currentSetting.email as string), saveSubmission ? 1 : 0, currentSetting.id || ""],
+        `UPDATE settings SET email=?, password=?, saveSubmission=? WHERE id=?`,
+        [
+          email || (currentSetting.email as string),
+          password || (currentSetting.password as string),
+          saveSubmission ? 1 : 0,
+          currentSetting.id || "",
+        ],
         (_, result) => {
           resolve(result);
         },
