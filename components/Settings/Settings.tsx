@@ -29,6 +29,7 @@ const Settings: FC<SettingsProps> = ({ onSubmit, onError, settingData }) => {
   const {
     control,
     handleSubmit,
+    setValue,
     formState: { isSubmitting, errors },
   } = useForm({
     defaultValues: {
@@ -37,6 +38,8 @@ const Settings: FC<SettingsProps> = ({ onSubmit, onError, settingData }) => {
     },
   });
   const handleCancel = () => {
+    setValue("email", (settingData as settingDataProp)?.email);
+    setValue("password", (settingData as settingDataProp)?.password);
     setSettingStatus((curr) => ({
       ...curr,
       update: false,
