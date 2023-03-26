@@ -1,11 +1,23 @@
 import { StyleSheet, SafeAreaView, View, Text } from "react-native";
 import { colors } from "../styles/variables";
-import ScreenContentView from "../components/ScreenContentView";
-const HomeScreen = () => {
+import { StackScreenProps } from "@react-navigation/stack";
+import { FC, useLayoutEffect } from "react";
+import SettingsIcon from "../components/navigation/SettingsIcon";
+
+interface HomeProps extends StackScreenProps<any> {}
+
+const HomeScreen: FC<HomeProps> = ({ navigation }) => {
+  useLayoutEffect(() => {
+    navigation.setOptions({
+      headerRight: () => {
+        return <SettingsIcon onPress={() => {}} />;
+      },
+    });
+  }, [navigation]);
   return (
-    <ScreenContentView style={styles.screen}>
+    <SafeAreaView style={styles.screen}>
       <Text style={styles.text}>where is this home screen? HomeScreen</Text>
-    </ScreenContentView>
+    </SafeAreaView>
   );
 };
 

@@ -4,7 +4,9 @@ import { StatusBar } from "expo-status-bar";
 import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
 import * as SplashScreen from "expo-splash-screen";
-import { StyleSheet, Text, View } from "react-native";
+import { SafeAreaView, StyleSheet, Text, View } from "react-native";
+import { QueryClient, QueryClientProvider } from "react-query";
+//custom funcs or vars
 import { initializeTable, retrieveSetting } from "./utils/database";
 import { colors } from "./styles/variables";
 //Screens
@@ -15,8 +17,10 @@ import SubmissionsScreen from "./screens/SubmissionsScreen";
 SplashScreen.preventAutoHideAsync();
 
 const Stack = createStackNavigator();
+const queryClient = new QueryClient();
 
 export default function App() {
+  //initializer
   const [initialState, setInitialState] = useState({
     loaded: false,
     settingInitialized: false,
@@ -52,27 +56,42 @@ export default function App() {
   return (
     <>
       <StatusBar style="light" />
-      <View style={styles.container} onLayout={onLayoutRootView}>
-        {!initialState.error ? (
-          <NavigationContainer>
-            <Stack.Navigator
-              initialRouteName="Home"
-              screenOptions={{
-                headerShown: false,
-                cardStyle: {
-                  backgroundColor: colors.baseBlack,
-                },
-              }}
-            >
-              <Stack.Screen name="Home" component={HomeScreen} />
-              <Stack.Screen name="Settings" component={SettingsScreen} />
-              <Stack.Screen name="Submissions" component={SubmissionsScreen} />
-            </Stack.Navigator>
-          </NavigationContainer>
-        ) : (
-          <Text style={styles.errorText}>Failed To Initialize</Text>
-        )}
-      </View>
+      <QueryClientProvider client={queryClient}>
+        <SafeAreaView style={styles.container} onLayout={onLayoutRootView}>
+          {!initialState.error ? (
+            <NavigationContainer>
+              <Stack.Navigator
+                initialRouteName={initialState.settingInitialized ? "Home" : "Settings"}
+                screenOptions={{
+                  headerStyle: {
+                    backgroundColor: colors.baseBlack,
+                    height: 85,
+                  },
+                  headerTintColor: colors.white,
+                  headerTitleAlign: "center",
+                  cardStyle: {
+                    backgroundColor: colors.baseBlack,
+                  },
+                }}
+              >
+                <Stack.Screen
+                  name="Home"
+                  component={HomeScreen}
+                  options={{
+                    title: "Waiver Form",
+                  }}
+                />
+                <Stack.Screen name="Settings" component={SettingsScreen} />
+                <Stack.Screen name="Submissions" component={SubmissionsScreen} />
+              </Stack.Navigator>
+            </NavigationContainer>
+          ) : (
+            <View style={styles.errorContainer}>
+              <Text style={styles.errorText}>Failed To Initialize</Text>
+            </View>
+          )}
+        </SafeAreaView>
+      </QueryClientProvider>
     </>
   );
 }
@@ -82,7 +101,13 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: colors.baseBlack,
   },
+  errorContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
   errorText: {
     color: "#f8f8f8",
+    fontSize: 20,
   },
 });
