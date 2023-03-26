@@ -55,7 +55,7 @@ export function initializeTable() {
 }
 
 //submissions query
-interface SubmissionProps {
+export interface SubmissionProps {
   firstName: string;
   lastName: string;
   email: string;
@@ -140,7 +140,7 @@ export function retrieveSubmission(id: string) {
   });
 }
 // settings query
-interface SettingProps {
+export interface SettingProps {
   id?: string;
   email: string;
   password: string;

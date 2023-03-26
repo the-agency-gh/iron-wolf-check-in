@@ -6,6 +6,7 @@ import { createStackNavigator } from "@react-navigation/stack";
 import * as SplashScreen from "expo-splash-screen";
 import { StyleSheet, Text, View } from "react-native";
 import { initializeTable, retrieveSetting } from "./utils/database";
+import { colors } from "./styles/variables";
 //Screens
 import HomeScreen from "./screens/HomeScreen";
 import SettingsScreen from "./screens/SettingsScreen";
@@ -18,22 +19,25 @@ const Stack = createStackNavigator();
 export default function App() {
   const [initialState, setInitialState] = useState({
     loaded: false,
+    settingInitialized: false,
     error: false,
   });
   useEffect(() => {
     (async () => {
       try {
         await initializeTable();
-        console.log(await retrieveSetting(), "retrieving");
+        const initSetting = await retrieveSetting();
         setInitialState((curr) => ({
           ...curr,
           loaded: true,
+          settingInitialized: !!initSetting,
         }));
       } catch (err) {
         console.error(err);
         setInitialState((curr) => ({
           ...curr,
           loaded: true,
+          settingInitialized: false,
           error: true,
         }));
       }
@@ -51,7 +55,15 @@ export default function App() {
       <View style={styles.container} onLayout={onLayoutRootView}>
         {!initialState.error ? (
           <NavigationContainer>
-            <Stack.Navigator initialRouteName="Home">
+            <Stack.Navigator
+              initialRouteName="Home"
+              screenOptions={{
+                headerShown: false,
+                cardStyle: {
+                  backgroundColor: colors.baseBlack,
+                },
+              }}
+            >
               <Stack.Screen name="Home" component={HomeScreen} />
               <Stack.Screen name="Settings" component={SettingsScreen} />
               <Stack.Screen name="Submissions" component={SubmissionsScreen} />
@@ -68,10 +80,7 @@ export default function App() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    display: "flex",
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "#161616",
+    backgroundColor: colors.baseBlack,
   },
   errorText: {
     color: "#f8f8f8",
