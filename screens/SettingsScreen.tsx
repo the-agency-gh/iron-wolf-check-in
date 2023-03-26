@@ -4,9 +4,11 @@ import { FieldValues } from "react-hook-form";
 import { StyleSheet, SafeAreaView, Text, Alert } from "react-native";
 import { useQuery } from "react-query";
 
+import { retrieveSetting } from "../utils/database";
+
 import BackIcon from "../components/navigation/BackIcon";
 import Settings from "../components/Settings/Settings";
-import { retrieveSetting } from "../utils/database";
+import LoadingView from "../components/LoadingView";
 interface SettingsProps extends StackScreenProps<any> {}
 type settingDataProp = { email: string; password: string; [rest: string]: string };
 const SettingsScreen: FC<SettingsProps> = ({ navigation }) => {
@@ -42,9 +44,9 @@ const SettingsScreen: FC<SettingsProps> = ({ navigation }) => {
       {error ? (
         <Text>{error.toString()}</Text>
       ) : isLoading ? (
-        <Text>Loading</Text>
+        <LoadingView />
       ) : (
-        <Settings onSubmit={handleSettingSubmit} onError={handleSettingError} onUpdate={handleSettingUpdate} settingData={settingsData} />
+        <Settings onSubmit={handleSettingSubmit} onError={handleSettingError} settingData={settingsData} />
       )}
     </SafeAreaView>
   );

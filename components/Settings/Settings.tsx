@@ -4,12 +4,12 @@ import { useForm, Controller } from "react-hook-form";
 import FormButton from "./FormButton";
 import { colors } from "../../styles/variables";
 import { FieldValues } from "react-hook-form/dist/types";
+import LoadingView from "../LoadingView";
 
 type settingDataProp = { email: string; password: string; [rest: string]: string };
 interface SettingsProps {
   onSubmit: (data: FieldValues) => void;
   onError: (error: FieldValues) => void;
-  onUpdate: (data: FieldValues) => void;
   settingData: settingDataProp | unknown;
 }
 
@@ -21,7 +21,7 @@ const ErrorMsg: FC<{ children: string }> = ({ children }) => {
   );
 };
 
-const Settings: FC<SettingsProps> = ({ onSubmit, onError, onUpdate, settingData }) => {
+const Settings: FC<SettingsProps> = ({ onSubmit, onError, settingData }) => {
   const [settingStatus, setSettingStatus] = useState({
     initialized: !!settingData,
     update: false,
@@ -29,11 +29,11 @@ const Settings: FC<SettingsProps> = ({ onSubmit, onError, onUpdate, settingData 
   const {
     control,
     handleSubmit,
-    formState: { errors },
+    formState: { isSubmitting, errors },
   } = useForm({
     defaultValues: {
-      email: settingData ? (settingData as settingDataProp).email : "",
-      password: settingData ? (settingData as settingDataProp).password : "",
+      email: (settingData as settingDataProp)?.email || "",
+      password: (settingData as settingDataProp)?.password || "",
     },
   });
   const handleCancel = () => {
@@ -44,55 +44,64 @@ const Settings: FC<SettingsProps> = ({ onSubmit, onError, onUpdate, settingData 
   };
   return (
     <View style={styles.container}>
-      {!(settingStatus.initialized && settingStatus.update) ? (
-        <View style={styles.settingForm}>
-          <View style={styles.inputCont}>
-            <Text style={[styles.defaultText, styles.label]}>Email</Text>
-            <Controller
-              name="email"
-              control={control}
-              rules={{
-                required: "Email is required",
-                pattern: {
-                  value: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
-                  message: "Please Type in Valid Email",
-                },
-              }}
-              render={({ field: { onChange, onBlur, value } }) => (
-                <TextInput style={[styles.input, styles.defaultText]} onBlur={onBlur} onChangeText={onChange} value={value} />
-              )}
-            />
-            {errors.email && <Text style={[styles.errorMsg]}>{errors.email.message}</Text>}
-          </View>
-          <View style={styles.inputCont}>
-            <Text style={[styles.defaultText, styles.label]}>Password</Text>
-            <Controller
-              name="password"
-              control={control}
-              rules={{
-                required: "Passwword is required",
-              }}
-              render={({ field: { onChange, onBlur, value } }) => (
-                <TextInput style={[styles.input, styles.defaultText]} onBlur={onBlur} onChangeText={onChange} value={value} />
-              )}
-            />
-            {errors.password && <Text style={[styles.errorMsg]}>{errors.password.message}</Text>}
-          </View>
-          <View style={styles.buttonCont}>
-            <FormButton onPress={handleSubmit(onSubmit, onError)} style={styles.submitBtn}>
-              <Text style={[styles.defaultText]}>{!settingStatus.initialized ? "Submit" : "Update"}</Text>
-            </FormButton>
-            <FormButton onPress={handleCancel} style={styles.cancelBtn}>
-              <Text style={[styles.defaultText]}>Cancel</Text>
-            </FormButton>
-          </View>
-        </View>
-      ) : (
-        <Pressable style={styles.settingForm} onPress={() => {}}>
-          <Text>{(settingData as settingDataProp).email}</Text>
-          <Text>{(settingData as settingDataProp).password}</Text>
-        </Pressable>
-      )}
+      <View style={styles.mainSettings}>
+        {!(settingStatus.initialized && settingStatus.update) ? (
+          !isSubmitting ? (
+            <View style={styles.settingForm}>
+              <View style={styles.inputCont}>
+                <Text style={[styles.defaultText, styles.label]}>Email</Text>
+                <Controller
+                  name="email"
+                  control={control}
+                  rules={{
+                    required: "Email is required",
+                    minLength: 8,
+                    pattern: {
+                      value: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
+                      message: "Please Type in Valid Email",
+                    },
+                  }}
+                  render={({ field: { ref, onChange, ...fields } }) => (
+                    <TextInput id="email" ref={ref} style={[styles.input, styles.defaultText]} {...fields} onChangeText={onChange} />
+                  )}
+                />
+                {errors.email && <Text style={[styles.errorMsg]}>{errors.email.message as string}</Text>}
+              </View>
+              <View style={styles.inputCont}>
+                <Text style={[styles.defaultText, styles.label]}>Password</Text>
+                <Controller
+                  name="password"
+                  control={control}
+                  rules={{
+                    required: "Password is required",
+                  }}
+                  render={({ field: { ref, onChange, ...fields } }) => (
+                    <TextInput ref={ref} id="password" style={[styles.input, styles.defaultText]} {...fields} onChangeText={onChange} />
+                  )}
+                />
+                {errors.password && <Text style={[styles.errorMsg]}>{errors.password.message as string}</Text>}
+              </View>
+              <View style={styles.buttonCont}>
+                <FormButton onPress={handleSubmit(onSubmit, onError)} style={styles.submitBtn}>
+                  <Text style={[styles.defaultText, styles.btnText]}>{!settingStatus.initialized ? "Register" : "Update"}</Text>
+                </FormButton>
+                {settingStatus.initialized && (
+                  <FormButton onPress={handleCancel} style={styles.cancelBtn}>
+                    <Text style={[styles.defaultText, styles.btnText]}>Cancel</Text>
+                  </FormButton>
+                )}
+              </View>
+            </View>
+          ) : (
+            <LoadingView />
+          )
+        ) : (
+          <Pressable style={styles.settingForm} onPress={() => {}}>
+            <Text>{(settingData as settingDataProp).email}</Text>
+            <Text>{(settingData as settingDataProp).password}</Text>
+          </Pressable>
+        )}
+      </View>
     </View>
   );
 };
@@ -100,22 +109,29 @@ const Settings: FC<SettingsProps> = ({ onSubmit, onError, onUpdate, settingData 
 export default Settings;
 
 const styles = StyleSheet.create({
-  container: {},
+  container: {
+    flex: 1,
+  },
+  mainSettings: {
+    borderWidth: 2,
+    borderColor: colors.white,
+    padding: 20,
+    paddingLeft: 25,
+    paddingRight: 25,
+  },
   settingForm: {
-    padding: 10,
-    alignItems: "center",
-    minWidth: "50%",
+    minWidth: "100%",
     rowGap: 40,
   },
   defaultText: {
     color: colors.white,
-    fontSize: 20,
+    fontSize: 18,
   },
   inputCont: {
     position: "relative",
     borderColor: colors.white,
-    borderWidth: 1,
-    borderRadius: 10,
+    borderWidth: 2,
+    borderRadius: 5,
     padding: 14,
     width: "100%",
   },
@@ -141,6 +157,9 @@ const styles = StyleSheet.create({
   buttonCont: {
     flexDirection: "row",
     columnGap: 25,
+  },
+  btnText: {
+    fontWeight: "bold",
   },
   submitBtn: {},
   cancelBtn: {
