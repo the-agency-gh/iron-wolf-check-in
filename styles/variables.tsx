@@ -4,6 +4,9 @@ export const colors = {
   baseBlack: "#161616",
   white: "#f8f8f8",
   lightBlue: "#9fc3e0",
+  darkBlue: "#4178a5",
+  amber: "#d30910",
+  amber2: "#c4191f",
 };
 
 export const shadow = {

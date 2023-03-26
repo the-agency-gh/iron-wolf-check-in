@@ -7,11 +7,15 @@ import SettingsIcon from "../components/navigation/SettingsIcon";
 interface HomeProps extends StackScreenProps<any> {}
 
 const HomeScreen: FC<HomeProps> = ({ navigation }) => {
+  const handleSettingPress = () => {
+    navigation.navigate("Settings");
+  };
   useLayoutEffect(() => {
     navigation.setOptions({
       headerRight: () => {
-        return <SettingsIcon onPress={() => {}} />;
+        return <SettingsIcon onPress={handleSettingPress} />;
       },
+      headerLeft: () => null,
     });
   }, [navigation]);
   return (
