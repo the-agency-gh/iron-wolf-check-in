@@ -72,7 +72,6 @@ const Settings: FC<SettingsProps> = ({ settingData, submissionRedirect }) => {
     }));
     setSaveSub(!!(settingData as settingDataProp)?.saveSubmission);
   };
-
   return (
     <View style={styles.container}>
       {!settingStatus.initialized || settingStatus.update ? (
