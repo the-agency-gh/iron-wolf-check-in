@@ -1,6 +1,5 @@
 import { StackScreenProps } from "@react-navigation/stack";
-import { FC, useLayoutEffect, useMemo, useState } from "react";
-import { FieldValues } from "react-hook-form";
+import { FC, useLayoutEffect, useMemo } from "react";
 import { StyleSheet, SafeAreaView, Text, Alert } from "react-native";
 import { useQuery } from "react-query";
 
@@ -10,27 +9,19 @@ import BackIcon from "../components/navigation/BackIcon";
 import Settings from "../components/Settings/Settings";
 import LoadingView from "../components/LoadingView";
 interface SettingsProps extends StackScreenProps<any> {}
-type settingDataProp = { email: string; password: string; [rest: string]: string };
 const SettingsScreen: FC<SettingsProps> = ({ navigation }) => {
   const { isLoading, error, data } = useQuery("settingData", () => retrieveSetting());
-  const [settingsData, setSettingsData] = useState<settingDataProp | unknown>(data);
-  const settingsDatas = useMemo(() => data, [data]);
+  const settingsData = useMemo(() => data, [data]);
   const handleBackPress = () => {
     if (isLoading) return;
-    if (!settingsDatas) {
+    if (!settingsData) {
       Alert.alert("Default Setting Required", "Please enter in your initial setting");
     } else {
       navigation.navigate("Home");
     }
   };
-  const handleSettingSubmit = (data: FieldValues) => {
-    console.log(data);
-  };
-  const handleSettingError = (error: FieldValues) => {
-    console.error(error);
-  };
-  const handleSettingUpdate = (data: FieldValues) => {
-    console.log(data);
+  const handleSubmissionRedirect = () => {
+    navigation.navigate("Submissions");
   };
   useLayoutEffect(() => {
     navigation.setOptions({
@@ -46,7 +37,7 @@ const SettingsScreen: FC<SettingsProps> = ({ navigation }) => {
       ) : isLoading ? (
         <LoadingView />
       ) : (
-        <Settings onSubmit={handleSettingSubmit} onError={handleSettingError} settingData={settingsData} />
+        <Settings settingData={settingsData} submissionRedirect={handleSubmissionRedirect} />
       )}
     </SafeAreaView>
   );

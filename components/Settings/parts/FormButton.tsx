@@ -1,6 +1,6 @@
 import { FC, ReactNode } from "react";
-import { Pressable, StyleSheet } from "react-native";
-import { colors } from "../../styles/variables";
+import { Pressable, Text, StyleSheet } from "react-native";
+import { colors } from "../../../styles/variables";
 
 interface FormButtonProps {
   onPress: () => void;
@@ -11,7 +11,7 @@ interface FormButtonProps {
 const FormButton: FC<FormButtonProps> = ({ onPress, children, style }) => {
   return (
     <Pressable style={[styles.submitBtn, style]} onPress={onPress}>
-      {children}
+      <Text style={styles.buttonText}>{children}</Text>
     </Pressable>
   );
 };
@@ -28,5 +28,10 @@ const styles = StyleSheet.create({
     paddingRight: 20,
     paddingLeft: 20,
     borderRadius: 5,
+  },
+  buttonText: {
+    color: colors.white,
+    fontSize: 18,
+    fontWeight: "bold",
   },
 });
