@@ -1,17 +1,21 @@
-import { FC, useState } from "react";
-import { View, Text, TextInput, StyleSheet, useWindowDimensions, Pressable, Animated } from "react-native";
+import { FC, useLayoutEffect, useState } from "react";
+import { View, Text, TextInput, StyleSheet, Pressable, Animated, Alert } from "react-native";
 import { useForm, Controller } from "react-hook-form";
+import { FieldValues } from "react-hook-form/dist/types";
+import { useNavigation } from "@react-navigation/native";
+import { StackNavigationProp } from "@react-navigation/stack";
+//--components
 import FormButton from "./parts/FormButton";
 import { colors } from "../../styles/variables";
-import { FieldValues } from "react-hook-form/dist/types";
 import LoadingView from "../LoadingView";
 import HorizontalRule from "../HorizontalRule";
 import { addSetting, updateSetting } from "../../utils/database";
+import BackIcon from "../navigation/BackIcon";
+import { RootStackParamList } from "../../App";
 
 type settingDataProp = { email: string; password: string; designatedEmail: string; [rest: string]: string };
 interface SettingsProps {
   settingData: settingDataProp | unknown;
-  submissionRedirect: () => void;
 }
 
 const ErrorMsg: FC<{ children: string }> = ({ children }) => {
@@ -22,7 +26,8 @@ const ErrorMsg: FC<{ children: string }> = ({ children }) => {
   );
 };
 
-const Settings: FC<SettingsProps> = ({ settingData, submissionRedirect }) => {
+const Settings: FC<SettingsProps> = ({ settingData }) => {
+  const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
   const [settingStatus, setSettingStatus] = useState({
     initialized: !!settingData,
     update: false,
@@ -47,6 +52,7 @@ const Settings: FC<SettingsProps> = ({ settingData, submissionRedirect }) => {
     const formData = { email: data.email, password: data.password, designatedEmail: data.designatedEmail, saveSubmission: saveSub };
     if (!settingStatus.initialized) {
       await addSetting(formData);
+      navigation.navigate("Home");
     } else {
       await updateSetting(formData);
     }
@@ -72,6 +78,17 @@ const Settings: FC<SettingsProps> = ({ settingData, submissionRedirect }) => {
     }));
     setSaveSub(!!(settingData as settingDataProp)?.saveSubmission);
   };
+  const handleSubmissionsRedirect = () => {
+    navigation.navigate("Submissions");
+  };
+  useLayoutEffect(() => {
+    navigation.setOptions({
+      title: settingStatus.initialized ? "Settings" : "Initial Settings",
+      headerLeft: () => {
+        return settingStatus.initialized && <BackIcon onPress={() => navigation.navigate("Home")} />;
+      },
+    });
+  }, [navigation]);
   return (
     <View style={styles.container}>
       {!settingStatus.initialized || settingStatus.update ? (
@@ -199,7 +216,7 @@ const Settings: FC<SettingsProps> = ({ settingData, submissionRedirect }) => {
               </FormButton>
             </View>
           </View>
-          <Pressable style={styles.submissionButton} onPress={submissionRedirect}>
+          <Pressable style={styles.submissionButton} onPress={handleSubmissionsRedirect}>
             <Text style={[styles.defaultText, { fontWeight: "bold" }]}>Previous Submissions</Text>
           </Pressable>
         </>

@@ -1,8 +1,8 @@
 import "react-native-gesture-handler";
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, FC } from "react";
 import { StatusBar } from "expo-status-bar";
 import { NavigationContainer } from "@react-navigation/native";
-import { createStackNavigator } from "@react-navigation/stack";
+import { createStackNavigator, StackScreenProps } from "@react-navigation/stack";
 import * as SplashScreen from "expo-splash-screen";
 import { SafeAreaView, StyleSheet, Text, View } from "react-native";
 import { QueryClient, QueryClientProvider } from "react-query";
@@ -15,8 +15,12 @@ import SettingsScreen from "./screens/SettingsScreen";
 import SubmissionsScreen from "./screens/SubmissionsScreen";
 
 SplashScreen.preventAutoHideAsync();
-
-const Stack = createStackNavigator();
+export type RootStackParamList = {
+  Home: undefined;
+  Settings: undefined;
+  Submissions: undefined;
+};
+const Stack = createStackNavigator<RootStackParamList>();
 const queryClient = new QueryClient();
 
 export default function App() {
@@ -67,6 +71,7 @@ export default function App() {
                     backgroundColor: colors.baseBlack,
                     height: 85,
                   },
+                  presentation: "modal",
                   headerTintColor: colors.white,
                   headerTitleAlign: "center",
                   cardStyle: {

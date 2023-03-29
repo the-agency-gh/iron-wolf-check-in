@@ -1,12 +1,14 @@
-import { StyleSheet, SafeAreaView, View, Text } from "react-native";
+import { StyleSheet, SafeAreaView, View, Text, ScrollView } from "react-native";
 import { colors } from "../styles/variables";
-import { StackScreenProps } from "@react-navigation/stack";
+import { StackNavigationProp } from "@react-navigation/stack";
 import { FC, useLayoutEffect } from "react";
 import SettingsIcon from "../components/navigation/SettingsIcon";
+import { useNavigation } from "@react-navigation/native";
+import { RootStackParamList } from "../App";
+import InitialProfileScreen from "../components/Home/InitialProfileScreen";
 
-interface HomeProps extends StackScreenProps<any> {}
-
-const HomeScreen: FC<HomeProps> = ({ navigation }) => {
+const HomeScreen: FC = () => {
+  const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
   const handleSettingPress = () => {
     navigation.navigate("Settings");
   };
@@ -20,7 +22,7 @@ const HomeScreen: FC<HomeProps> = ({ navigation }) => {
   }, [navigation]);
   return (
     <SafeAreaView style={styles.screen}>
-      <Text style={styles.text}>where is this home screen? HomeScreen</Text>
+      <InitialProfileScreen />
     </SafeAreaView>
   );
 };
@@ -30,8 +32,5 @@ export default HomeScreen;
 const styles = StyleSheet.create({
   screen: {
     flex: 1,
-  },
-  text: {
-    color: colors.white,
   },
 });
