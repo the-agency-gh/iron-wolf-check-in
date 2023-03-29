@@ -2,12 +2,12 @@ import { create } from "zustand";
 import { addSubmissions, SubmissionProps } from "./database";
 
 interface FormAction {
-  handleAddSubmission: () => void;
+  updateState: (data: SubmissionProps) => void;
+  handleAddSubmission: () => Promise<unknown>;
 }
 
 //sqlite date for mat in string yyyy-MM-dd HH:mm:ss
-
-export const useFormStore = create<SubmissionProps & FormAction>((set, get) => ({
+const initialState: SubmissionProps = {
   firstName: "",
   lastName: "",
   birthDate: new Date(),
@@ -16,7 +16,18 @@ export const useFormStore = create<SubmissionProps & FormAction>((set, get) => (
   profileUri: "",
   licenseUri: "",
   pdfUri: "",
+};
+
+export const useFormStore = create<SubmissionProps & FormAction>((set, get) => ({
+  ...initialState,
+  updateState: (data: SubmissionProps) =>
+    set(() => ({
+      ...data,
+    })),
+  resetState: () => {
+    set(initialState);
+  },
   handleAddSubmission: () => {
-    addSubmissions();
+    return addSubmissions(get());
   },
 }));

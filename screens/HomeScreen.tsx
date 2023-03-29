@@ -1,11 +1,10 @@
 import { StyleSheet, SafeAreaView, View, Text, ScrollView } from "react-native";
-import { colors } from "../styles/variables";
 import { StackNavigationProp } from "@react-navigation/stack";
 import { FC, useLayoutEffect } from "react";
 import SettingsIcon from "../components/navigation/SettingsIcon";
 import { useNavigation } from "@react-navigation/native";
 import { RootStackParamList } from "../App";
-import InitialProfileScreen from "../components/Home/InitialProfileScreen";
+import ProfileForm from "../components/Home/ProfileForm";
 
 const HomeScreen: FC = () => {
   const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
@@ -22,7 +21,7 @@ const HomeScreen: FC = () => {
   }, [navigation]);
   return (
     <SafeAreaView style={styles.screen}>
-      <InitialProfileScreen />
+      <ProfileForm />
     </SafeAreaView>
   );
 };

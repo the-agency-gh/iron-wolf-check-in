@@ -18,6 +18,7 @@ const SubmissionsScreen: FC = () => {
   return (
     <SafeAreaView style={styles.screen}>
       <Text>SubmissionsScreen</Text>
+      <Text>SubmissionsScreen</Text>
     </SafeAreaView>
   );
 };

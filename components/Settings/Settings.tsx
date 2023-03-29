@@ -1,4 +1,4 @@
-import { FC, useLayoutEffect, useState } from "react";
+import { FC, useEffect, useLayoutEffect, useState } from "react";
 import { View, Text, TextInput, StyleSheet, Pressable, Animated, Alert } from "react-native";
 import { useForm, Controller } from "react-hook-form";
 import { FieldValues } from "react-hook-form/dist/types";
@@ -6,36 +6,30 @@ import { useNavigation } from "@react-navigation/native";
 import { StackNavigationProp } from "@react-navigation/stack";
 //--components
 import FormButton from "./parts/FormButton";
-import { colors } from "../../styles/variables";
 import LoadingView from "../LoadingView";
 import HorizontalRule from "../HorizontalRule";
-import { addSetting, updateSetting } from "../../utils/database";
 import BackIcon from "../navigation/BackIcon";
+import FormInputField from "../FormInputField";
+import { colors } from "../../styles/variables";
+import { addSetting, updateSetting } from "../../utils/database";
 import { RootStackParamList } from "../../App";
 
-type settingDataProp = { email: string; password: string; designatedEmail: string; [rest: string]: string };
 interface SettingsProps {
-  settingData: settingDataProp | unknown;
+  settingData: settingDataProp;
 }
 
-const ErrorMsg: FC<{ children: string }> = ({ children }) => {
-  return (
-    <Animated.View style={[styles.errorMsgCont]}>
-      <Text style={[styles.errorMsg]}>{children}</Text>;
-    </Animated.View>
-  );
-};
+export type settingDataProp = { email: string; password: string; designatedEmail: string; saveSubmission: 1 | 0; [rest: string]: any };
 
 const Settings: FC<SettingsProps> = ({ settingData }) => {
   const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
   const [settingStatus, setSettingStatus] = useState({
     initialized: !!settingData,
     update: false,
-    email: (settingData as settingDataProp)?.email,
-    password: (settingData as settingDataProp)?.password,
-    designatedEmail: (settingData as settingDataProp)?.designatedEmail,
+    email: settingData?.email,
+    password: settingData?.password,
+    designatedEmail: settingData?.designatedEmail,
   });
-  const [saveSub, setSaveSub] = useState(+(settingData as settingDataProp)?.saveSubmission === 1);
+  const [saveSub, setSaveSub] = useState(+settingData.saveSubmission === 1);
   const {
     control,
     handleSubmit,
@@ -43,9 +37,9 @@ const Settings: FC<SettingsProps> = ({ settingData }) => {
     formState: { isSubmitting, errors },
   } = useForm({
     defaultValues: {
-      email: (settingData as settingDataProp)?.email || "",
-      password: (settingData as settingDataProp)?.password || "",
-      designatedEmail: (settingData as settingDataProp)?.designatedEmail || "",
+      email: settingStatus.email || "",
+      password: settingStatus.password || "",
+      designatedEmail: settingStatus.designatedEmail || "",
     },
   });
   const handleSettingSubmit = async (data: FieldValues) => {
@@ -81,6 +75,20 @@ const Settings: FC<SettingsProps> = ({ settingData }) => {
   const handleSubmissionsRedirect = () => {
     navigation.navigate("Submissions");
   };
+  useEffect(() => {
+    setSettingStatus((curr) => ({
+      ...curr,
+      initialized: !!settingData,
+      update: false,
+      email: settingData?.email,
+      password: settingData?.password,
+      designatedEmail: settingData?.designatedEmail,
+    }));
+    setSaveSub(+settingData?.saveSubmission === 1);
+    setValue("email", settingData.email);
+    setValue("password", settingData.password);
+    setValue("designatedEmail", settingData.designatedEmail);
+  }, [settingData]);
   useLayoutEffect(() => {
     navigation.setOptions({
       title: settingStatus.initialized ? "Settings" : "Initial Settings",
@@ -94,78 +102,42 @@ const Settings: FC<SettingsProps> = ({ settingData }) => {
       {!settingStatus.initialized || settingStatus.update ? (
         !isSubmitting ? (
           <View style={styles.settingForm}>
-            <View style={styles.inputCont}>
-              <Text style={[styles.defaultText, styles.label]}>Email</Text>
-              <Controller
-                control={control}
-                rules={{
-                  required: "Email is required",
-                  pattern: {
-                    value: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
-                    message: "Please Type in Valid Email",
-                  },
-                }}
-                render={({ field: { onChange, onBlur, value, ...fields } }) => (
-                  <TextInput
-                    id="email"
-                    style={[styles.input, styles.defaultText]}
-                    onBlur={onBlur}
-                    onChangeText={onChange}
-                    value={value}
-                    {...fields}
-                  />
-                )}
-                name="email"
-              />
-              {errors.email && <Text style={[styles.errorMsg]}>{errors.email.message as string}</Text>}
-            </View>
-            <View style={styles.inputCont}>
-              <Text style={[styles.defaultText, styles.label]}>Password</Text>
-              <Controller
-                control={control}
-                rules={{
-                  required: "Password is required",
-                }}
-                render={({ field: { onChange, onBlur, value, ...fields } }) => (
-                  <TextInput
-                    id="password"
-                    style={[styles.input, styles.defaultText]}
-                    onBlur={onBlur}
-                    onChangeText={onChange}
-                    value={value}
-                    {...fields}
-                  />
-                )}
-                name="password"
-              />
-              {errors.password && <Text style={[styles.errorMsg]}>{errors.password.message as string}</Text>}
-            </View>
+            <FormInputField
+              control={control}
+              rules={{
+                required: "Email is required",
+                pattern: {
+                  value: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
+                  message: "Please Type in Valid Email",
+                },
+              }}
+              name="email"
+              label="Email"
+              error={errors.email}
+            />
+            <FormInputField
+              control={control}
+              rules={{
+                required: "Password is required",
+              }}
+              name="password"
+              label="Password"
+              error={errors.password}
+            />
             <HorizontalRule />
-            <View style={styles.inputCont}>
-              <Text style={[styles.defaultText, styles.label]}>Designated Email</Text>
-              <Controller
-                control={control}
-                rules={{
-                  required: "Designated Email is required",
-                  pattern: {
-                    value: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
-                    message: "Please Type in Valid Email",
-                  },
-                }}
-                render={({ field: { onChange, onBlur, value, ...fields } }) => (
-                  <TextInput
-                    id="designatedEmail"
-                    style={[styles.input, styles.defaultText]}
-                    onBlur={onBlur}
-                    onChangeText={onChange}
-                    value={value}
-                    {...fields}
-                  />
-                )}
-                name="designatedEmail"
-              />
-              {errors.designatedEmail && <Text style={[styles.errorMsg]}>{errors.designatedEmail.message as string}</Text>}
-            </View>
+            <FormInputField
+              control={control}
+              rules={{
+                required: "Designated Email is required",
+                pattern: {
+                  value: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
+                  message: "Please Type in Valid Email",
+                },
+              }}
+              name="designatedEmail"
+              label="Designated Email"
+              error={errors.designatedEmail}
+            />
             <View style={styles.saveSubCont}>
               <Pressable
                 onPress={() => setSaveSub((curr) => !curr)}
@@ -243,33 +215,6 @@ const styles = StyleSheet.create({
   defaultText: {
     color: colors.white,
     fontSize: 18,
-  },
-  inputCont: {
-    position: "relative",
-    borderColor: colors.white,
-    borderWidth: 2,
-    borderRadius: 5,
-    padding: 14,
-    width: "100%",
-  },
-  label: {
-    position: "absolute",
-    fontWeight: "bold",
-    textTransform: "uppercase",
-    top: 0,
-    left: 5,
-    transform: [{ translateY: -14 }],
-    backgroundColor: colors.baseBlack,
-  },
-  input: {},
-  errorMsgCont: {},
-  errorMsg: {
-    position: "absolute",
-    bottom: 0,
-    left: 0,
-    color: colors.amber,
-    fontSize: 16,
-    transform: [{ translateY: 24 }],
   },
   buttonCont: {
     flexDirection: "row",
