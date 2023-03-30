@@ -1,5 +1,5 @@
 import { FC, useEffect, useLayoutEffect, useState } from "react";
-import { View, Text, TextInput, StyleSheet, Pressable, Animated, Alert } from "react-native";
+import { View, Text, Switch, StyleSheet, Pressable } from "react-native";
 import { useForm, Controller } from "react-hook-form";
 import { FieldValues } from "react-hook-form/dist/types";
 import { useNavigation } from "@react-navigation/native";
@@ -139,10 +139,13 @@ const Settings: FC<SettingsProps> = ({ settingData }) => {
               error={errors.designatedEmail}
             />
             <View style={styles.saveSubCont}>
-              <Pressable
-                onPress={() => setSaveSub((curr) => !curr)}
-                style={[styles.saveSubCheckbox, { backgroundColor: saveSub ? colors.lightBlue : "transparent" }]}
-              ></Pressable>
+              <Switch
+                trackColor={{ false: "#767577", true: colors.darkBlue }}
+                thumbColor={saveSub ? colors.lightBlue : colors.amber}
+                ios_backgroundColor="#3e3e3e"
+                onValueChange={() => setSaveSub((curr) => !curr)}
+                value={saveSub}
+              />
               <Text style={[styles.defaultText, styles.saveSubmissionLabel]}>Save Submission</Text>
             </View>
             <View style={styles.buttonCont}>
@@ -224,13 +227,8 @@ const styles = StyleSheet.create({
     width: "100%",
     flexDirection: "row",
     alignItems: "center",
+    justifyContent: "center",
     columnGap: 25,
-  },
-  saveSubCheckbox: {
-    width: 50,
-    height: 50,
-    borderWidth: 2,
-    borderColor: colors.white,
   },
   saveSubmissionLabel: {
     fontWeight: "bold",

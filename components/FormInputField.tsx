@@ -1,7 +1,8 @@
 import { FC } from "react";
-import { View, Text, TextInput, StyleSheet } from "react-native";
+import { View, Text, TextInput, StyleSheet, StyleProp } from "react-native";
 import { colors } from "../styles/variables";
 import { Control, Controller, FieldError, FieldErrorsImpl, Merge } from "react-hook-form";
+import { KeyboardTypeOptions } from "react-native/Libraries/Components/TextInput/TextInput";
 
 interface FormInputFieldProps {
   control: Control<any>;
@@ -9,11 +10,21 @@ interface FormInputFieldProps {
   name: string;
   label: string;
   rules?: object;
-  style?: object;
+  style?: StyleProp<any>;
   placeholder?: string;
+  keyboardType?: KeyboardTypeOptions;
 }
 
-const FormInputField: FC<FormInputFieldProps> = ({ style, control, error, name, label, rules, placeholder = "" }) => {
+const FormInputField: FC<FormInputFieldProps> = ({
+  style,
+  control,
+  error,
+  name,
+  label,
+  rules,
+  placeholder = "",
+  keyboardType = "default",
+}) => {
   return (
     <View style={[styles.inputCont, style]}>
       <Text style={[styles.defaultText, styles.label]}>{label}</Text>
@@ -27,9 +38,10 @@ const FormInputField: FC<FormInputFieldProps> = ({ style, control, error, name, 
             onBlur={onBlur}
             onChangeText={onChange}
             value={value}
-            {...fields}
             placeholder={placeholder}
             placeholderTextColor={"#777777"}
+            keyboardType={keyboardType}
+            {...fields}
           />
         )}
         name={name}

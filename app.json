@@ -5,6 +5,12 @@
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
+    "plugins": [[
+      "expo-camera",
+      {
+        "cameraPermission": "Allow Iron Wolf to access your camera."
+      }
+    ]],
     "platforms":[
       "android"
     ],
