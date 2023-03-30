@@ -32,7 +32,7 @@ const styles = StyleSheet.create({
     padding: 20,
   },
   text: {
-    fontSize: 30,
+    fontSize: 26,
     fontWeight: "bold",
     textTransform: "uppercase",
   },

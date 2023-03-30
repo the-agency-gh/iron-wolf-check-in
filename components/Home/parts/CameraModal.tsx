@@ -11,7 +11,7 @@ interface CameraModalProps {
 }
 
 const CameraModal: FC<CameraModalProps> = ({ closeModal, forId }) => {
-  const [type, setType] = useState(CameraType.back);
+  const [type, setType] = useState(CameraType.front);
   const [permission, requestPermission] = Camera.useCameraPermissions();
   if (!permission) {
     return (
@@ -50,6 +50,7 @@ const CameraModal: FC<CameraModalProps> = ({ closeModal, forId }) => {
       <View style={styles.container}>
         <Camera style={styles.camera} type={type}>
           <CloseButton style={styles.closeButton} onPress={() => closeModal(forId, false)} />
+          <View style={styles.cameraContent}></View>
         </Camera>
       </View>
     </Modal>
@@ -100,6 +101,12 @@ const styles = StyleSheet.create({
   },
   cameraContent: {
     flex: 1,
+    borderWidth: 4,
+    borderColor: "blue",
   },
-  closeButton: {},
+  closeButton: {
+    position: "absolute",
+    top: 20,
+    right: 15,
+  },
 });
