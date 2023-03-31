@@ -4,6 +4,7 @@ import { Camera, CameraType } from "expo-camera";
 //------components, etc
 import { colors, shadow } from "../../../styles/variables";
 import CloseButton from "./CloseButton";
+import PersonOutline from "../../../assets/icons/person-outline.svg";
 
 interface CameraModalProps {
   forId: "profile" | "photoId";
@@ -11,7 +12,10 @@ interface CameraModalProps {
 }
 
 const CameraModal: FC<CameraModalProps> = ({ closeModal, forId }) => {
-  const [type, setType] = useState(CameraType.front);
+  const [cameraState, setCameraState] = useState<{ type: CameraType; imageUri: string | undefined }>({
+    type: CameraType.front,
+    imageUri: undefined,
+  });
   const [permission, requestPermission] = Camera.useCameraPermissions();
   if (!permission) {
     return (
@@ -48,9 +52,14 @@ const CameraModal: FC<CameraModalProps> = ({ closeModal, forId }) => {
   return (
     <Modal style={styles.screen} animationType="fade">
       <View style={styles.container}>
-        <Camera style={styles.camera} type={type}>
-          <CloseButton style={styles.closeButton} onPress={() => closeModal(forId, false)} />
-          <View style={styles.cameraContent}></View>
+        <Camera style={styles.camera} type={cameraState.type}>
+          <View style={styles.cameraContent}>
+            <CloseButton style={styles.closeButton} onPress={() => closeModal(forId, false)} />
+            <View style={styles.cameraIndicatorCont}>
+              {forId === "profile" ? <PersonOutline /> : <View style={styles.cardShape}></View>}
+            </View>
+            <View style={styles.controls}></View>
+          </View>
         </Camera>
       </View>
     </Modal>
@@ -65,7 +74,7 @@ const styles = StyleSheet.create({
   },
   container: {
     flex: 1,
-    backgroundColor: colors.baseBlack,
+    backgroundColor: "colors.baseBlack",
   },
   permissionScreen: {
     alignItems: "center",
@@ -101,12 +110,30 @@ const styles = StyleSheet.create({
   },
   cameraContent: {
     flex: 1,
-    borderWidth: 4,
-    borderColor: "blue",
+    justifyContent: "space-between",
+  },
+  cameraIndicatorCont: {
+    flex: 1,
+    width: "100%",
+    opacity: 0.4,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  cardShape: {
+    width: "70%",
+    aspectRatio: "3625/2375",
+    borderWidth: 5,
+    borderColor: colors.white,
+    borderRadius: 25,
   },
   closeButton: {
+    zIndex: 1,
     position: "absolute",
-    top: 20,
-    right: 15,
+    top: 15,
+    right: 10,
+  },
+  controls: {
+    height: "12%",
+    backgroundColor: colors.baseBlack,
   },
 });

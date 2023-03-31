@@ -29,7 +29,7 @@ const Settings: FC<SettingsProps> = ({ settingData }) => {
     password: settingData?.password,
     designatedEmail: settingData?.designatedEmail,
   });
-  const [saveSub, setSaveSub] = useState(+settingData.saveSubmission === 1);
+  const [saveSub, setSaveSub] = useState(+settingData?.saveSubmission === 1);
   const {
     control,
     handleSubmit,
@@ -70,7 +70,7 @@ const Settings: FC<SettingsProps> = ({ settingData }) => {
       ...curr,
       update: false,
     }));
-    setSaveSub(!!(settingData as settingDataProp)?.saveSubmission);
+    setSaveSub(+settingData?.saveSubmission === 1);
   };
   const handleSubmissionsRedirect = () => {
     navigation.navigate("Submissions");
@@ -85,9 +85,9 @@ const Settings: FC<SettingsProps> = ({ settingData }) => {
       designatedEmail: settingData?.designatedEmail,
     }));
     setSaveSub(+settingData?.saveSubmission === 1);
-    setValue("email", settingData.email);
-    setValue("password", settingData.password);
-    setValue("designatedEmail", settingData.designatedEmail);
+    setValue("email", settingData?.email);
+    setValue("password", settingData?.password);
+    setValue("designatedEmail", settingData?.designatedEmail);
   }, [settingData]);
   useLayoutEffect(() => {
     navigation.setOptions({
@@ -114,6 +114,7 @@ const Settings: FC<SettingsProps> = ({ settingData }) => {
               name="email"
               label="Email"
               error={errors.email}
+              keyboardType={"email-address"}
             />
             <FormInputField
               control={control}
@@ -137,6 +138,7 @@ const Settings: FC<SettingsProps> = ({ settingData }) => {
               name="designatedEmail"
               label="Designated Email"
               error={errors.designatedEmail}
+              keyboardType={"email-address"}
             />
             <View style={styles.saveSubCont}>
               <Switch
