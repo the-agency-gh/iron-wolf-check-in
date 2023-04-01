@@ -1,10 +1,12 @@
-import { FC, useState } from "react";
+import { FC, useRef, useState } from "react";
 import { Modal, Text, StyleSheet, View, Pressable } from "react-native";
 import { Camera, CameraType } from "expo-camera";
 //------components, etc
 import { colors, shadow } from "../../../styles/variables";
-import CloseButton from "./CloseButton";
+import CloseButton from "./buttons/CloseButton";
 import PersonOutline from "../../../assets/icons/person-outline.svg";
+import ShootButton from "./buttons/ShootButton";
+import RotateButton from "./buttons/RotateButton";
 
 interface CameraModalProps {
   forId: "profile" | "photoId";
@@ -12,7 +14,9 @@ interface CameraModalProps {
 }
 
 const CameraModal: FC<CameraModalProps> = ({ closeModal, forId }) => {
-  const [cameraState, setCameraState] = useState<{ type: CameraType; imageUri: string | undefined }>({
+  const camera = useRef<Camera>(null);
+  const [cameraState, setCameraState] = useState<{ ready: boolean; type: CameraType; imageUri: string | undefined }>({
+    ready: false,
     type: CameraType.front,
     imageUri: undefined,
   });
@@ -49,18 +53,40 @@ const CameraModal: FC<CameraModalProps> = ({ closeModal, forId }) => {
       </Modal>
     );
   }
+  const handlePhotoShoot = async () => {
+    console.log("hi?avs", cameraState.ready);
+    if (!cameraState.ready) return;
+    const camOptions = {};
+    const photo = await camera.current?.takePictureAsync();
+    console.log(photo);
+  };
+  console.log(cameraState);
   return (
     <Modal style={styles.screen} animationType="fade">
       <View style={styles.container}>
-        <Camera style={styles.camera} type={cameraState.type}>
-          <View style={styles.cameraContent}>
-            <CloseButton style={styles.closeButton} onPress={() => closeModal(forId, false)} />
-            <View style={styles.cameraIndicatorCont}>
-              {forId === "profile" ? <PersonOutline /> : <View style={styles.cardShape}></View>}
-            </View>
-            <View style={styles.controls}></View>
-          </View>
+        <CloseButton style={styles.closeButton} onPress={() => closeModal(forId, false)} />
+        <Camera
+          ref={camera}
+          style={styles.camera}
+          type={cameraState.type}
+          onCameraReady={() => {
+            setCameraState((curr) => ({ ...curr, ready: true }));
+          }}
+        >
+          <View style={styles.cameraIndicatorCont}>{forId === "profile" ? <PersonOutline /> : <View style={styles.cardShape}></View>}</View>
         </Camera>
+        <View style={styles.controls}>
+          <ShootButton onPress={handlePhotoShoot} />
+          <RotateButton
+            onPress={() => {
+              if (!cameraState.ready) return;
+              setCameraState((curr) => ({
+                ...curr,
+                type: curr.type === CameraType.front ? CameraType.back : CameraType.front,
+              }));
+            }}
+          />
+        </View>
       </View>
     </Modal>
   );
@@ -108,10 +134,6 @@ const styles = StyleSheet.create({
   camera: {
     flex: 1,
   },
-  cameraContent: {
-    flex: 1,
-    justifyContent: "space-between",
-  },
   cameraIndicatorCont: {
     flex: 1,
     width: "100%",
@@ -133,7 +155,12 @@ const styles = StyleSheet.create({
     right: 10,
   },
   controls: {
-    height: "12%",
-    backgroundColor: colors.baseBlack,
+    position: "relative",
+    height: "14%",
+    padding: 25,
+    backgroundColor: colors.darkBlack,
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
   },
 });

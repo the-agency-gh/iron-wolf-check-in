@@ -1,6 +1,6 @@
 import { FC } from "react";
 import { Pressable, StyleSheet, StyleProp } from "react-native";
-import XIcon from "../../../assets/icons/x-icon.svg";
+import XIcon from "../../../../assets/icons/x-icon.svg";
 interface CloseButtonProps {
   onPress: () => void;
   style?: StyleProp<any>;
