@@ -66,7 +66,7 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     textTransform: "uppercase",
     top: 0,
-    left: 5,
+    left: 8,
     transform: [{ translateY: -14 }],
     backgroundColor: colors.baseBlack,
   },

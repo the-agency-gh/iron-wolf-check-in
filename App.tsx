@@ -2,8 +2,9 @@ import "react-native-gesture-handler";
 import { useEffect, useState, useCallback, FC } from "react";
 import { StatusBar } from "expo-status-bar";
 import { NavigationContainer } from "@react-navigation/native";
-import { createStackNavigator, StackScreenProps } from "@react-navigation/stack";
+import { createStackNavigator } from "@react-navigation/stack";
 import * as SplashScreen from "expo-splash-screen";
+import NetInfo from "@react-native-community/netinfo";
 import { SafeAreaView, StyleSheet, Text, View } from "react-native";
 import { QueryClient, QueryClientProvider } from "react-query";
 //custom funcs or vars
@@ -29,8 +30,15 @@ export default function App() {
     loaded: false,
     settingInitialized: false,
     error: false,
+    isConnected: true,
   });
   useEffect(() => {
+    const unsubscribe = NetInfo.addEventListener((state) => {
+      setInitialState((curr) => ({
+        ...curr,
+        isConnected: !!state.isConnected,
+      }));
+    });
     (async () => {
       try {
         await initializeTable();
@@ -50,6 +58,9 @@ export default function App() {
         }));
       }
     })();
+    return () => {
+      unsubscribe();
+    };
   }, []);
   const onLayoutRootView = useCallback(async () => {
     if (initialState.loaded) {
@@ -62,7 +73,13 @@ export default function App() {
       <StatusBar style="light" />
       <QueryClientProvider client={queryClient}>
         <SafeAreaView style={styles.container} onLayout={onLayoutRootView}>
-          {!initialState.error ? (
+          {initialState.error || !initialState.isConnected ? (
+            <View style={styles.errorContainer}>
+              <Text style={styles.errorText}>
+                {initialState.error ? "Failed To Initialize Database" : "Failed to Connect to The Internet"}
+              </Text>
+            </View>
+          ) : (
             <NavigationContainer>
               <Stack.Navigator
                 initialRouteName={initialState.settingInitialized ? "Home" : "Settings"}
@@ -91,10 +108,6 @@ export default function App() {
                 <Stack.Screen name="Submissions" component={SubmissionsScreen} />
               </Stack.Navigator>
             </NavigationContainer>
-          ) : (
-            <View style={styles.errorContainer}>
-              <Text style={styles.errorText}>Failed To Initialize</Text>
-            </View>
           )}
         </SafeAreaView>
       </QueryClientProvider>

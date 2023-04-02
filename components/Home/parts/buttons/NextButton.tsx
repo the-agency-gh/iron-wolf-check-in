@@ -9,9 +9,9 @@ interface NextButtonProps {
   onPress: () => void;
 }
 
-const NextButton: FC<NextButtonProps> = ({ text, style, textStyle }) => {
+const NextButton: FC<NextButtonProps> = ({ onPress, text, style, textStyle }) => {
   return (
-    <Pressable style={[styles.button, style]} android_ripple={{ color: colors.baseBlack }}>
+    <Pressable style={[styles.button, style]} android_ripple={{ color: colors.baseBlack }} onPress={onPress}>
       <Text style={[styles.text, textStyle]}>{text}</Text>
     </Pressable>
   );
@@ -28,10 +28,12 @@ const styles = StyleSheet.create({
     backgroundColor: colors.yellow,
     width: "50%",
     alignSelf: "flex-end",
+    alignItems: "center",
+    justifyContent: "center",
+    flexDirection: "row",
   },
   text: {
     color: colors.darkBlack,
-    textAlign: "center",
     fontSize: 22,
     fontWeight: "bold",
   },

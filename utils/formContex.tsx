@@ -1,7 +1,7 @@
 import { create } from "zustand";
 import { addSubmissions, SubmissionProps } from "./database";
 
-interface FormAction {
+export interface FormAction {
   updateState: (data: SubmissionProps) => void;
   handleAddSubmission: () => Promise<unknown>;
 }
@@ -16,7 +16,7 @@ const initialState: SubmissionProps = {
   email: "",
   phoneNumber: "",
   profileUri: "",
-  licenseUri: "",
+  photoIdUri: "",
   pdfUri: "",
 };
 
@@ -30,6 +30,7 @@ export const useFormStore = create<SubmissionProps & FormAction>((set, get) => (
     set(initialState);
   },
   handleAddSubmission: () => {
+    console.log(get());
     return addSubmissions(get());
   },
 }));

@@ -18,9 +18,9 @@ const CameraShowButton: FC<CameraShowButtonProps> = ({ text, style, onPress, bac
           <CameraIcon />
         </View>
       ) : (
-        <ImageBackground source={{ uri: backgroundImg }} resizeMode="cover" style={styles.indicatorCont} />
+        <ImageBackground source={{ uri: backgroundImg }} resizeMode="cover" style={[styles.indicatorCont, { padding: 0, opacity: 0.7 }]} />
       )}
-      <Text style={styles.text}>{text}</Text>
+      <Text style={[styles.text, { color: !backgroundImg ? colors.darkBlack : colors.darkBlue }]}>{text}</Text>
     </Pressable>
   );
 };
@@ -33,10 +33,10 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     backgroundColor: colors.white,
     borderRadius: 20,
-    padding: 20,
     width: "100%",
     height: "100%",
     minHeight: 100,
+    overflow: "hidden",
   },
   text: {
     fontSize: 26,
@@ -48,7 +48,8 @@ const styles = StyleSheet.create({
     position: "absolute",
     height: "100%",
     width: "100%",
-    opacity: 0.3,
+    opacity: 0.2,
     overflow: "hidden",
+    padding: 20,
   },
 });

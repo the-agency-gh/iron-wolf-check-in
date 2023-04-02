@@ -1,11 +1,12 @@
 import { FC, useState } from "react";
-import { useForm } from "react-hook-form";
+import { FieldValues, useForm } from "react-hook-form";
 import { View, Text, StyleSheet, Pressable, KeyboardAvoidingView, Platform } from "react-native";
 import DateTimePicker, { DateTimePickerEvent } from "@react-native-community/datetimepicker";
 
 //-----components
 import { colors, shadow } from "../../styles/variables";
 import { SubmissionProps } from "../../utils/database";
+import { FormAction, useFormStore } from "../../utils/formContex";
 import FormInputField from "../FormInputField";
 import CameraShowButton from "./parts/CameraShowButton";
 import CameraModal from "./parts/CameraModal";
@@ -14,17 +15,13 @@ import NextButton from "./parts/buttons/NextButton";
 interface ProfileFormProps {}
 
 const ProfileForm: FC<ProfileFormProps> = () => {
+  const formCtx = useFormStore((state) => state.firstName);
   const {
     control,
     handleSubmit,
-    formState: { isSubmitting, errors },
+    formState: { isSubmitting, errors, isDirty },
   } = useForm();
-  const [profileFormFields, setProfileFormFields] = useState<Omit<SubmissionProps, "pdfUri">>({
-    firstName: "",
-    lastName: "",
-    email: "",
-    phoneNumber: "",
-    birthDate: new Date(),
+  const [imageStatus, setImageStatus] = useState<{ profileUri: string | undefined; photoIdUri: string | undefined }>({
     profileUri: "",
     photoIdUri: "",
   });
@@ -53,11 +50,14 @@ const ProfileForm: FC<ProfileFormProps> = () => {
     }));
   };
   const handleCameraInput = (forId: "profile" | "photoId", photoUri: string) => {
-    setProfileFormFields((curr) => ({
+    setImageStatus((curr) => ({
       ...curr,
       profileUri: forId === "profile" ? photoUri : curr.profileUri,
       photoIdUri: forId === "photoId" ? photoUri : curr.photoIdUri,
     }));
+  };
+  const handleProfileFormSubmit = (data: FieldValues) => {
+    console.log(data);
   };
   return (
     <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"} enabled={false} style={styles.container}>
@@ -107,11 +107,11 @@ const ProfileForm: FC<ProfileFormProps> = () => {
           label="Phone Number"
           error={errors?.phoneNumber}
           placeholder="000-000-0000"
-          keyboardType={"phone-pad"}
+          keyboardType={"number-pad"}
           rules={{
             required: "Phone Number is Required",
             pattern: {
-              value: /^\d{3}-\d{3}-\d{4}$/,
+              value: /^(\+\d{1,2}\s?)?\(?\d{3}\)?[\s.-]?\d{3}[\s.-]?\d{4}$/,
               message: "Please Type in Valid Phone Number",
             },
           }}
@@ -119,7 +119,7 @@ const ProfileForm: FC<ProfileFormProps> = () => {
         <View style={styles.datePickerCont}>
           {datePickerStatus.picked && (
             <Text style={styles.defaultFont}>
-              Date Of Birth:{" "}
+              Date of Birth:{" "}
               <Text style={{ fontWeight: "bold" }}>
                 {datePickerStatus.date.toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" })}
               </Text>
@@ -148,12 +148,11 @@ const ProfileForm: FC<ProfileFormProps> = () => {
           )}
         </View>
       </View>
-
       <View style={styles.cameraCont}>
         <CameraShowButton
-          text={!!profileFormFields.photoIdUri ? "Retake" : "Profile"}
+          text={!!imageStatus.profileUri ? "Retake Profile Picture" : "Profile"}
           onPress={handleCameraShowPress.bind(null, "profile", true)}
-          backgroundImg={profileFormFields.profileUri || undefined}
+          backgroundImg={imageStatus.profileUri || undefined}
         />
         {cameraStatus.profileShow && (
           <CameraModal forId="profile" closeModal={handleCameraShowPress} handleCameraInput={handleCameraInput} />
@@ -161,13 +160,13 @@ const ProfileForm: FC<ProfileFormProps> = () => {
       </View>
       <View style={styles.cameraCont}>
         <CameraShowButton
-          text={!!profileFormFields.photoIdUri ? "Retake" : "Photo ID"}
+          text={!!imageStatus.photoIdUri ? "Retake Photo ID Picture" : "Photo ID"}
           onPress={handleCameraShowPress.bind(null, "photoId", true)}
-          backgroundImg={profileFormFields.photoIdUri || undefined}
+          backgroundImg={imageStatus.photoIdUri || undefined}
         />
         {cameraStatus.idShow && <CameraModal forId="photoId" closeModal={handleCameraShowPress} handleCameraInput={handleCameraInput} />}
       </View>
-      <NextButton onPress={() => {}} text="Next" />
+      <NextButton onPress={handleSubmit(handleProfileFormSubmit)} text="Next" />
     </KeyboardAvoidingView>
   );
 };
@@ -183,6 +182,7 @@ const styles = StyleSheet.create({
   },
   formContent: {
     rowGap: 40,
+    marginBottom: 20,
   },
   nameCont: {
     flexDirection: "row",
