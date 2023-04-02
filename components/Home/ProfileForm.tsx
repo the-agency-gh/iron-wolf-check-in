@@ -15,7 +15,7 @@ import NextButton from "./parts/buttons/NextButton";
 interface ProfileFormProps {}
 
 const ProfileForm: FC<ProfileFormProps> = () => {
-  const formCtx = useFormStore((state) => state.firstName);
+  const formCtx = useFormStore((state) => state);
   const {
     control,
     handleSubmit,

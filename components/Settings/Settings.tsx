@@ -217,6 +217,7 @@ const styles = StyleSheet.create({
     padding: 20,
     paddingLeft: 25,
     paddingRight: 25,
+    borderRadius: 5,
   },
   defaultText: {
     color: colors.white,
@@ -258,6 +259,6 @@ const styles = StyleSheet.create({
     borderColor: colors.white,
     alignItems: "center",
     padding: 20,
-    borderRadius: 10,
+    borderRadius: 5,
   },
 });
