@@ -42,7 +42,9 @@ const ProfileForm: FC<ProfileFormProps> = () => {
       idShow: selected === "photoId" && open,
     }));
   };
-  const handleCameraInput = () => {};
+  const handleCameraInput = (photoUri: string) => {
+    console.log(photoUri);
+  };
   return (
     <View style={styles.container}>
       <View style={styles.nameCont}>
@@ -132,11 +134,13 @@ const ProfileForm: FC<ProfileFormProps> = () => {
       </View>
       <View style={styles.cameraCont}>
         <CameraShowButton text="Profile" onPress={handleCameraShowPress.bind(null, "profile", true)} />
-        {cameraStatus.profileShow && <CameraModal forId="profile" closeModal={handleCameraShowPress} />}
+        {cameraStatus.profileShow && (
+          <CameraModal forId="profile" closeModal={handleCameraShowPress} handleCameraInput={handleCameraInput} />
+        )}
       </View>
       <View style={styles.cameraCont}>
         <CameraShowButton text="Photo ID" onPress={handleCameraShowPress.bind(null, "photoId", true)} />
-        {cameraStatus.idShow && <CameraModal forId="photoId" closeModal={handleCameraShowPress} />}
+        {cameraStatus.idShow && <CameraModal forId="photoId" closeModal={handleCameraShowPress} handleCameraInput={handleCameraInput} />}
       </View>
     </View>
   );

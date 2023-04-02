@@ -13,9 +13,10 @@ import LoadingView from "../../LoadingView";
 interface CameraModalProps {
   forId: "profile" | "photoId";
   closeModal: (selected: "profile" | "photoId", open: boolean) => void;
+  handleCameraInput: (photoUri: string) => void;
 }
 
-const CameraModal: FC<CameraModalProps> = ({ closeModal, forId }) => {
+const CameraModal: FC<CameraModalProps> = ({ closeModal, forId, handleCameraInput }) => {
   const camera = useRef<Camera>(null);
   const [cameraState, setCameraState] = useState<{ ready: boolean; loading: boolean; type: CameraType; imageUri: string | undefined }>({
     ready: false,
@@ -80,7 +81,15 @@ const CameraModal: FC<CameraModalProps> = ({ closeModal, forId }) => {
       imageUri: undefined,
     }));
   };
-  const handleConfirm = () => {};
+  const handleConfirm = () => {
+    if (!cameraState.imageUri) return;
+    handleCameraInput(cameraState.imageUri as string);
+    setCameraState((curr) => ({
+      ...curr,
+      imageUri: undefined,
+    }));
+    closeModal(forId, false);
+  };
   return (
     <Modal style={styles.screen} animationType="fade">
       <View style={styles.container}>
