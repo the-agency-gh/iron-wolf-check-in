@@ -16,7 +16,7 @@ export function initializeTable() {
             phoneNumber TEXT NOT NULL,
             birthDate DATE NOT NULL,
             profileUri TEXT NOT NULL,
-            licenseUri TEXT NOT NULL,
+            photoIdUri TEXT NOT NULL,
             pdfUri TEXT NOT NULL,
             submissionDate TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )`,
@@ -63,15 +63,15 @@ export interface SubmissionProps {
   phoneNumber: string;
   birthDate: Date;
   profileUri: string;
-  licenseUri: string;
+  photoIdUri: string;
   pdfUri: string;
 }
-export function addSubmissions({ firstName, lastName, email, phoneNumber, birthDate, profileUri, licenseUri, pdfUri }: SubmissionProps) {
+export function addSubmissions({ firstName, lastName, email, phoneNumber, birthDate, profileUri, photoIdUri, pdfUri }: SubmissionProps) {
   return new Promise((resolve, reject) => {
     database.transaction((tx) => {
       tx.executeSql(
-        "INSERT INTO submissions (firstName, lastName, email, phoneNumber, birthDate, profileUri, licenseUri, pdfUri) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
-        [firstName, lastName, email, phoneNumber, birthDate.toString(), profileUri, licenseUri, pdfUri],
+        "INSERT INTO submissions (firstName, lastName, email, phoneNumber, birthDate, profileUri, photoIdUri, pdfUri) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+        [firstName, lastName, email, phoneNumber, birthDate.toString(), profileUri, photoIdUri, pdfUri],
         (_, result) => {
           resolve(result);
         },
@@ -92,7 +92,7 @@ export function deleteSubmission(id: string) {
         [id],
         async (_, result) => {
           const deleteProfilePicture = deleteAsync(selected.profileUri);
-          const deleteLicensePicture = deleteAsync(selected.licenseUri);
+          const deleteLicensePicture = deleteAsync(selected.photoIdUri);
           const deletePdf = deleteAsync(selected.pdfUri);
           await Promise.all([deleteProfilePicture, deleteLicensePicture, deletePdf]);
           resolve(result);

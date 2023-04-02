@@ -8,7 +8,7 @@ export const colors = {
   darkBlue: "#4178a5",
   amber: "#d30910",
   amber2: "#c4191f",
-  yellow: "#c4b319",
+  yellow: "#dbc81a",
 };
 
 export const shadow = {

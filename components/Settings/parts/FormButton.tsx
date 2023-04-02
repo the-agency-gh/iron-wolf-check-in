@@ -1,17 +1,18 @@
 import { FC, ReactNode } from "react";
-import { Pressable, Text, StyleSheet } from "react-native";
+import { Pressable, Text, StyleSheet, StyleProp, TextStyle, ViewStyle } from "react-native";
 import { colors, shadow } from "../../../styles/variables";
 
 interface FormButtonProps {
   onPress: () => void;
   children: ReactNode;
-  style?: object;
+  style?: StyleProp<ViewStyle>;
+  textStyle?: StyleProp<TextStyle>;
 }
 
-const FormButton: FC<FormButtonProps> = ({ onPress, children, style }) => {
+const FormButton: FC<FormButtonProps> = ({ onPress, children, style, textStyle }) => {
   return (
     <Pressable android_ripple={{ color: "#dddddd88" }} style={[styles.submitBtn, shadow, style]} onPress={onPress}>
-      <Text style={styles.buttonText}>{children}</Text>
+      <Text style={[styles.buttonText, textStyle]}>{children}</Text>
     </Pressable>
   );
 };

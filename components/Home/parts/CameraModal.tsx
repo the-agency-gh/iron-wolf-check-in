@@ -13,7 +13,7 @@ import LoadingView from "../../LoadingView";
 interface CameraModalProps {
   forId: "profile" | "photoId";
   closeModal: (selected: "profile" | "photoId", open: boolean) => void;
-  handleCameraInput: (photoUri: string) => void;
+  handleCameraInput: (forId: "profile" | "photoId", photoUri: string) => void;
 }
 
 const CameraModal: FC<CameraModalProps> = ({ closeModal, forId, handleCameraInput }) => {
@@ -58,12 +58,11 @@ const CameraModal: FC<CameraModalProps> = ({ closeModal, forId, handleCameraInpu
     );
   }
   const handlePhotoShoot = async () => {
-    if (!cameraState.ready) return;
+    if (!cameraState.ready || !camera.current) return;
     setCameraState((curr) => ({ ...curr, loading: true }));
     const camOptions = {};
-    const photo = await camera.current?.takePictureAsync();
-    console.log(photo);
-    setCameraState((curr) => ({ ...curr, loading: false, imageUri: photo?.uri }));
+    const photo = await camera.current.takePictureAsync();
+    setCameraState((curr) => ({ ...curr, loading: false, imageUri: photo.uri }));
   };
   const handleRetake = async () => {
     setCameraState((curr) => ({
@@ -83,20 +82,19 @@ const CameraModal: FC<CameraModalProps> = ({ closeModal, forId, handleCameraInpu
   };
   const handleConfirm = () => {
     if (!cameraState.imageUri) return;
-    handleCameraInput(cameraState.imageUri as string);
+    handleCameraInput(forId, cameraState.imageUri as string);
     setCameraState((curr) => ({
       ...curr,
       imageUri: undefined,
     }));
     closeModal(forId, false);
   };
+
   return (
     <Modal style={styles.screen} animationType="fade">
       <View style={styles.container}>
         <CloseButton style={styles.closeButton} onPress={() => closeModal(forId, false)} />
-        {cameraState.loading ? (
-          <LoadingView />
-        ) : !cameraState.imageUri ? (
+        <View style={styles.camera}>
           <Camera
             ref={camera}
             style={styles.camera}
@@ -109,11 +107,14 @@ const CameraModal: FC<CameraModalProps> = ({ closeModal, forId, handleCameraInpu
               {forId === "profile" ? <PersonOutline /> : <View style={styles.cardShape}></View>}
             </View>
           </Camera>
-        ) : (
-          <View style={styles.camera}>
-            <Image style={{ flex: 1 }} source={{ uri: cameraState.imageUri }} resizeMode="cover" />
-          </View>
-        )}
+          {cameraState.loading && <LoadingView style={styles.previewCont} />}
+          {cameraState.imageUri && (
+            <View style={[styles.camera, styles.previewCont]}>
+              <Image style={{ flex: 1 }} source={{ uri: cameraState.imageUri }} resizeMode="cover" />
+            </View>
+          )}
+        </View>
+
         <View style={styles.controls}>
           {!cameraState.imageUri ? (
             <>
@@ -186,6 +187,13 @@ const styles = StyleSheet.create({
   },
   camera: {
     flex: 1,
+  },
+  previewCont: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    width: "100%",
+    height: "100%",
   },
   cameraIndicatorCont: {
     flex: 1,

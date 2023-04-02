@@ -1,6 +1,6 @@
 import { FC, useEffect, useLayoutEffect, useState } from "react";
-import { View, Text, Switch, StyleSheet, Pressable } from "react-native";
-import { useForm, Controller } from "react-hook-form";
+import { View, Text, Switch, StyleSheet, Pressable, KeyboardAvoidingView, Platform } from "react-native";
+import { useForm } from "react-hook-form";
 import { FieldValues } from "react-hook-form/dist/types";
 import { useNavigation } from "@react-navigation/native";
 import { StackNavigationProp } from "@react-navigation/stack";
@@ -98,7 +98,7 @@ const Settings: FC<SettingsProps> = ({ settingData }) => {
     });
   }, [navigation]);
   return (
-    <View style={styles.container}>
+    <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"} style={styles.container}>
       {!settingStatus.initialized || settingStatus.update ? (
         !isSubmitting ? (
           <View style={styles.settingForm}>
@@ -182,6 +182,7 @@ const Settings: FC<SettingsProps> = ({ settingData }) => {
             <View style={{ flexDirection: "row" }}>
               <FormButton
                 style={styles.updateBtn}
+                textStyle={{ color: colors.darkBlack }}
                 onPress={() => {
                   setSettingStatus((curr) => ({
                     ...curr,
@@ -198,7 +199,7 @@ const Settings: FC<SettingsProps> = ({ settingData }) => {
           </Pressable>
         </>
       )}
-    </View>
+    </KeyboardAvoidingView>
   );
 };
 
