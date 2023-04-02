@@ -13,6 +13,7 @@ const HomeScreen: FC = () => {
   };
   useLayoutEffect(() => {
     navigation.setOptions({
+      headerTitleAlign: "left",
       headerRight: () => {
         return <SettingsIcon onPress={handleSettingPress} />;
       },

@@ -74,6 +74,7 @@ export default function App() {
                   presentation: "modal",
                   headerTintColor: colors.white,
                   headerTitleAlign: "center",
+                  headerTitleStyle: { fontWeight: "bold", fontSize: 22 },
                   cardStyle: {
                     backgroundColor: colors.baseBlack,
                   },

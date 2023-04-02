@@ -1,12 +1,14 @@
 import { FC } from "react";
-import { View, StyleSheet, ActivityIndicator } from "react-native";
+import { View, StyleSheet, StyleProp, ActivityIndicator } from "react-native";
 import { colors } from "../styles/variables";
 
-interface LoadingViewProps {}
+interface LoadingViewProps {
+  style?: StyleProp<any>;
+}
 
-const LoadingView: FC<LoadingViewProps> = () => {
+const LoadingView: FC<LoadingViewProps> = ({ style }) => {
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, style]}>
       <ActivityIndicator size={"large"} color={colors.amber} />
     </View>
   );
