@@ -16,6 +16,7 @@ interface ProfileFormProps {}
 
 const ProfileForm: FC<ProfileFormProps> = () => {
   const formCtx = useFormStore((state) => state);
+  console.log(formCtx);
   const {
     control,
     handleSubmit,
