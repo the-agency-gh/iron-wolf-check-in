@@ -14,7 +14,7 @@ export function initializeTable() {
             lastName TEXT NOT NULL,
             email TEXT NOT NULL,
             phoneNumber TEXT NOT NULL,
-            birthDate DATE NOT NULL,
+            dataOfBirth DATE NOT NULL,
             profileUri TEXT NOT NULL,
             photoIdUri TEXT NOT NULL,
             pdfUri TEXT NOT NULL,
@@ -61,17 +61,17 @@ export interface SubmissionProps {
   lastName: string;
   email: string;
   phoneNumber: string;
-  birthDate: Date;
+  dataOfBirth: Date;
   profileUri: string;
   photoIdUri: string;
   pdfUri: string;
 }
-export function addSubmissions({ firstName, lastName, email, phoneNumber, birthDate, profileUri, photoIdUri, pdfUri }: SubmissionProps) {
+export function addSubmissions({ firstName, lastName, email, phoneNumber, dataOfBirth, profileUri, photoIdUri, pdfUri }: SubmissionProps) {
   return new Promise((resolve, reject) => {
     database.transaction((tx) => {
       tx.executeSql(
-        "INSERT INTO submissions (firstName, lastName, email, phoneNumber, birthDate, profileUri, photoIdUri, pdfUri) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
-        [firstName, lastName, email, phoneNumber, birthDate.toString(), profileUri, photoIdUri, pdfUri],
+        "INSERT INTO submissions (firstName, lastName, email, phoneNumber, dataOfBirth, profileUri, photoIdUri, pdfUri) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+        [firstName, lastName, email, phoneNumber, dataOfBirth.toString(), profileUri, photoIdUri, pdfUri],
         (_, result) => {
           resolve(result);
         },
