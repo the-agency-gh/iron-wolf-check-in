@@ -1,23 +1,54 @@
 import { FC, useRef, useState } from "react";
 import { ScrollView, StyleSheet, Dimensions } from "react-native";
+import { SubmissionProps } from "../../utils/database";
+//-------components
 import ProfileForm from "./ProfileForm";
+import WaiverForm from "./WaiverForm";
 interface CompleteFormProps {}
 const windowWidth = Dimensions.get("window").width;
+
 const CompleteForm: FC<CompleteFormProps> = () => {
-  const scrollableForm = useRef<ScrollView>(null);
-  const [pageStatus, setPageStatus] = useState({
-    page: 1,
+  const [submissionFields, setSubmissionFields] = useState<SubmissionProps>({
+    firstName: "",
+    lastName: "",
+    email: "",
+    phoneNumber: "",
+    dataOfBirth: new Date(),
+    profileUri: "",
+    photoIdUri: "",
+    pdfUri: "",
   });
-  const handleNextPress = (dir: "left" | "right", page: number) => {
-    console.log(page);
+  const scrollableForm = useRef<ScrollView>(null);
+  const handleChangePage = (dir: "left" | "right", page: number) => {
     scrollableForm.current?.scrollTo({
-      y: windowWidth * (page + 1),
+      y: windowWidth * (page + (dir === "left" ? -2 : 1)),
       animated: true,
     });
   };
+  //-------main form submit updater
+  const handleMainFormSubmit = (data: Partial<SubmissionProps>) => {
+    setSubmissionFields((curr) => ({
+      ...curr,
+      ...data,
+    }));
+  };
+  const handleReset = () => {
+    setSubmissionFields((curr) => ({
+      ...curr,
+      firstName: "",
+      lastName: "",
+      email: "",
+      phoneNumber: "",
+      dataOfBirth: new Date(),
+      profileUri: "",
+      photoIdUri: "",
+      pdfUri: "",
+    }));
+  };
   return (
     <ScrollView ref={scrollableForm} style={styles.formContainer} scrollEnabled={false} horizontal={true}>
-      <ProfileForm pressNext={handleNextPress} page={1} />
+      <WaiverForm changePage={handleChangePage} page={2} />
+      <ProfileForm changePage={handleChangePage} page={1} mainFormSubmission={handleMainFormSubmit} handleReset={handleReset} />
     </ScrollView>
   );
 };

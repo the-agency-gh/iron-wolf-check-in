@@ -6,7 +6,6 @@ import DateTimePicker, { DateTimePickerEvent } from "@react-native-community/dat
 //-----components
 import { colors, shadow } from "../../styles/variables";
 import { SubmissionProps } from "../../utils/database";
-import { StateType, useFormStore } from "../../utils/formContex";
 import FormInputField from "../FormInputField";
 import CameraShowButton from "./parts/CameraShowButton";
 import CameraModal from "./parts/CameraModal";
@@ -14,12 +13,13 @@ import NextButton from "./parts/buttons/NextButton";
 import LoadingView from "../LoadingView";
 
 interface ProfileFormProps {
-  pressNext: (dir: "left" | "right", page: number) => void;
+  changePage: (dir: "left" | "right", page: number) => void;
   page: number;
+  mainFormSubmission: (data: Partial<SubmissionProps>) => void;
+  handleReset: () => void;
 }
 
-const ProfileForm: FC<ProfileFormProps> = ({ pressNext, page }) => {
-  const [formSubmitCtx, formReset] = useFormStore((state) => [state.updateState, state.resetState]);
+const ProfileForm: FC<ProfileFormProps> = ({ changePage, page, mainFormSubmission, handleReset }) => {
   const {
     control,
     handleSubmit,
@@ -71,7 +71,9 @@ const ProfileForm: FC<ProfileFormProps> = ({ pressNext, page }) => {
       photoIdError: curr.photoIdError && forId !== "photoId",
     }));
   };
-  const handleProfileFormSubmit = (data: Partial<SubmissionProps>) => {
+
+  //----on submit and on error handler
+  const handleFormSubmit = (data: Partial<SubmissionProps>) => {
     if (!datePickerStatus.picked || !imageStatus.profileUri || !imageStatus.photoIdUri) {
       setImageStatus((curr) => ({
         ...curr,
@@ -84,20 +86,30 @@ const ProfileForm: FC<ProfileFormProps> = ({ pressNext, page }) => {
       }));
       return;
     }
-    const passableData: StateType = {
-      formState: {
-        ...data,
-        dataOfBirth: datePickerStatus.date,
-        profileUri: imageStatus.profileUri,
-        photoIdUri: imageStatus.photoIdUri,
-      },
-    };
-    formSubmitCtx(passableData);
-    pressNext("right", page);
+    mainFormSubmission({
+      ...data,
+      dataOfBirth: datePickerStatus.date,
+      profileUri: imageStatus.profileUri,
+      photoIdUri: imageStatus.photoIdUri,
+    });
+    changePage("right", page);
+  };
+  const handleFormError = () => {
+    !datePickerStatus.picked &&
+      setDatePickerStatus((curr) => ({
+        ...curr,
+        error: !!!datePickerStatus.picked,
+      }));
+    (!imageStatus.profileUri || !imageStatus.photoIdUri) &&
+      setImageStatus((curr) => ({
+        ...curr,
+        profileError: !imageStatus.profileUri,
+        photoIdError: !imageStatus.photoIdUri,
+      }));
   };
   const handleResetPress = () => {
-    formReset();
     reset();
+    handleReset();
     setImageStatus((curr) => ({
       ...curr,
       profileUri: undefined,
@@ -246,7 +258,7 @@ const ProfileForm: FC<ProfileFormProps> = ({ pressNext, page }) => {
           ) : (
             <View></View>
           )}
-          <NextButton onPress={handleSubmit(handleProfileFormSubmit)} text="Next" />
+          <NextButton onPress={handleSubmit(handleFormSubmit, handleFormError)} text="Next" />
         </View>
       </KeyboardAvoidingView>
     </>
@@ -254,11 +266,10 @@ const ProfileForm: FC<ProfileFormProps> = ({ pressNext, page }) => {
 };
 
 export default ProfileForm;
-const windowWidth = Dimensions.get("window").width;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    width: windowWidth,
+    width: Dimensions.get("window").width,
     padding: 25,
     rowGap: 30,
   },

@@ -1,13 +1,14 @@
 import { FC, useRef } from "react";
-import { Pressable, Animated, StyleSheet } from "react-native";
+import { Pressable, Animated, StyleSheet, StyleProp, ViewStyle } from "react-native";
 import { colors } from "../../../../styles/variables";
 import RotateIcon from "../../../../assets/icons/rotate.svg";
 
 interface RotateButtonProps {
   onPress: () => void;
+  style?: StyleProp<ViewStyle>;
 }
 
-const RotateButton: FC<RotateButtonProps> = ({ onPress }) => {
+const RotateButton: FC<RotateButtonProps> = ({ onPress, style }) => {
   const animatedRef = useRef(new Animated.Value(0)).current;
   const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
   const handleButtonPress = () => {
@@ -32,6 +33,7 @@ const RotateButton: FC<RotateButtonProps> = ({ onPress }) => {
             },
           ],
         },
+        style,
       ]}
     >
       <RotateIcon />
