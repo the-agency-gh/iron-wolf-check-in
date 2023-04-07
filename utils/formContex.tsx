@@ -9,7 +9,7 @@ export interface FormAction {
 }
 
 //var yyyyMMdd = date.toISOString().slice(0,10);
-//   var options = { year: 'numeric', month: '2-digit', day: '2-digit' };
+//var options = { year: 'numeric', month: '2-digit', day: '2-digit' };
 // var yyyyMMdd = date.toLocaleDateString('en-US', options).replace(/\//g, '-');
 //sqlite date for mat in string yyyy-MM-dd HH:mm:ss
 

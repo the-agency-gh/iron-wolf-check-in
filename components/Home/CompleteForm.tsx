@@ -9,15 +9,14 @@ interface CompleteFormProps {}
 const windowWidth = Dimensions.get("window").width;
 
 const CompleteForm: FC<CompleteFormProps> = () => {
-  const [submissionFields, setSubmissionFields] = useState<SubmissionProps>({
-    firstName: "",
-    lastName: "",
-    email: "",
-    phoneNumber: "",
+  const [submissionFields, setSubmissionFields] = useState<Partial<SubmissionProps>>({
+    firstName: "tesfirstNametfn",
+    lastName: "testlastNamefn",
+    email: "teemailstfn",
+    phoneNumber: "testphoneNumberfn",
     dataOfBirth: new Date(),
-    profileUri: "",
-    photoIdUri: "",
-    pdfUri: "",
+    profileUri: "testprofileUri",
+    photoIdUri: "testphotoIdUri",
   });
   const scrollableForm = useRef<ScrollView>(null);
   const handleChangePage = (toPage: 0 | 1) => {
@@ -49,7 +48,7 @@ const CompleteForm: FC<CompleteFormProps> = () => {
   return (
     <ScrollView ref={scrollableForm} style={styles.formContainer} scrollEnabled={false} horizontal={true}>
       <ProfileForm changePage={handleChangePage} mainFormSubmission={handleMainFormSubmit} handleReset={handleReset} />
-      <WaiverForm changePage={handleChangePage} />
+      <WaiverForm changePage={handleChangePage} submissionData={submissionFields} />
     </ScrollView>
   );
 };

@@ -16,7 +16,7 @@ interface CameraModalProps {
   handleCameraInput: (forId: "profile" | "photoId", photoUri: string) => void;
 }
 
-const CameraModal: FC<CameraModalProps> = ({ closeModal, forId, handleCameraInput }) => {
+const CameraModal: FC<CameraModalProps> = ({ forId, closeModal, handleCameraInput }) => {
   const camera = useRef<Camera>(null);
   const [cameraState, setCameraState] = useState<{ ready: boolean; loading: boolean; type: CameraType; imageUri: string | undefined }>({
     ready: false,

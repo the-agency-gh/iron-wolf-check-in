@@ -11,7 +11,7 @@ import HorizontalRule from "../HorizontalRule";
 import BackIcon from "../navigation/BackIcon";
 import FormInputField from "../FormInputField";
 import { colors } from "../../styles/variables";
-import { addSetting, updateSetting } from "../../utils/database";
+import { addSetting, updateSetting, SettingProps } from "../../utils/database";
 import { RootStackParamList } from "../../App";
 
 interface SettingsProps {
@@ -25,6 +25,7 @@ const Settings: FC<SettingsProps> = ({ settingData }) => {
   const [settingStatus, setSettingStatus] = useState({
     initialized: !!settingData,
     update: false,
+    host: settingData?.host,
     email: settingData?.email,
     password: settingData?.password,
     designatedEmail: settingData?.designatedEmail,
@@ -37,13 +38,20 @@ const Settings: FC<SettingsProps> = ({ settingData }) => {
     formState: { isSubmitting, errors },
   } = useForm({
     defaultValues: {
+      host: settingStatus.host || "",
       email: settingStatus.email || "",
       password: settingStatus.password || "",
       designatedEmail: settingStatus.designatedEmail || "",
     },
   });
-  const handleSettingSubmit = async (data: FieldValues) => {
-    const formData = { email: data.email, password: data.password, designatedEmail: data.designatedEmail, saveSubmission: saveSub };
+  const handleSettingSubmit = async (data: SettingProps) => {
+    const formData = {
+      host: data.host,
+      email: data.email,
+      password: data.password,
+      designatedEmail: data.designatedEmail,
+      saveSubmission: saveSub,
+    };
     if (!settingStatus.initialized) {
       await addSetting(formData);
       navigation.navigate("Home");
@@ -54,6 +62,7 @@ const Settings: FC<SettingsProps> = ({ settingData }) => {
       ...curr,
       initialized: true,
       update: false,
+      host: data.host,
       email: data.email,
       password: data.password,
       designatedEmail: data.designatedEmail,
@@ -63,6 +72,7 @@ const Settings: FC<SettingsProps> = ({ settingData }) => {
     console.error(error);
   };
   const handleCancel = () => {
+    setValue("host", settingStatus.host);
     setValue("email", settingStatus.email);
     setValue("password", settingStatus.password);
     setValue("designatedEmail", settingStatus.designatedEmail);
@@ -80,6 +90,7 @@ const Settings: FC<SettingsProps> = ({ settingData }) => {
       ...curr,
       initialized: !!settingData,
       update: false,
+      host: settingData?.host,
       email: settingData?.email,
       password: settingData?.password,
       designatedEmail: settingData?.designatedEmail,
@@ -96,12 +107,21 @@ const Settings: FC<SettingsProps> = ({ settingData }) => {
         return settingStatus.initialized && <BackIcon onPress={() => navigation.navigate("Home")} />;
       },
     });
-  }, [navigation]);
+  }, [navigation, settingData]);
   return (
     <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"} style={styles.container}>
       {!settingStatus.initialized || settingStatus.update ? (
         !isSubmitting ? (
           <View style={styles.settingForm}>
+            <FormInputField
+              control={control}
+              rules={{
+                required: "Host Address is required",
+              }}
+              name="host"
+              label="Host"
+              error={errors.host}
+            />
             <FormInputField
               control={control}
               rules={{
@@ -167,6 +187,9 @@ const Settings: FC<SettingsProps> = ({ settingData }) => {
       ) : (
         <>
           <View style={styles.settingForm}>
+            <Text style={styles.settingInfoText}>
+              Host: <Text style={styles.settingInfoTitle}>{settingStatus.host}</Text>
+            </Text>
             <Text style={styles.settingInfoText}>
               Email: <Text style={styles.settingInfoTitle}>{settingStatus.email}</Text>
             </Text>

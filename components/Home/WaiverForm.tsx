@@ -1,14 +1,17 @@
 import { FC, useEffect, useRef, useState } from "react";
-import { ScrollView, View, Text, StyleSheet, Dimensions, LayoutChangeEvent, GestureResponderEvent, Alert } from "react-native";
+import { View, Text, StyleSheet, Dimensions, GestureResponderEvent, Alert } from "react-native";
 import { Svg, Path } from "react-native-svg";
 import ViewShot, { captureRef } from "react-native-view-shot";
+import Constants from "expo-constants";
 
 import { colors } from "../../styles/variables";
 import WaiverTexts from "./parts/WaiverTexts";
 import NextButton from "./parts/buttons/NextButton";
 import RotateButton from "./parts/buttons/RotateButton";
+import PdfModal from "./parts/PdfModal";
+import { SubmissionProps } from "../../utils/database";
 interface WaiverFormProps {
-  clientName?: string;
+  submissionData: Partial<SubmissionProps>;
   changePage: (toPage: 0 | 1) => void;
 }
 type measurement = {
@@ -17,18 +20,18 @@ type measurement = {
   x: number;
   y: number;
 };
-const WaiverForm: FC<WaiverFormProps> = ({ clientName = "Placeholder", changePage }) => {
+const WaiverForm: FC<WaiverFormProps> = ({ submissionData, changePage }) => {
   const canvasRef = useRef(null);
   const containerRef = useRef<View>(null);
+  const [pdfModalStatus, setPdfModalStatus] = useState<{ visible: boolean; signature: string }>({ visible: false, signature: "" });
   const [boxBound, setBoxBound] = useState<measurement | null>(null);
-  const [path, setPath] = useState<string[]>([]);
-  const [paths, setPaths] = useState<string[]>([]);
+  const [paths, setPaths] = useState<{ single: string[]; multiple: string[] }>({ single: [], multiple: [] });
 
   useEffect(() => {
     setTimeout(() => {
       containerRef.current?.measure((fx, fy, width, height, px, py) => {
-        setBoxBound((curr) => ({
-          ...curr,
+        setBoxBound((prev) => ({
+          ...prev,
           width,
           height,
           x: px - Dimensions.get("window").width,
@@ -39,11 +42,10 @@ const WaiverForm: FC<WaiverFormProps> = ({ clientName = "Placeholder", changePag
   }, []);
 
   const onTouchMove = (e: GestureResponderEvent) => {
-    const completePath = [...path];
-    const touchX = e.nativeEvent.locationX,
-      touchY = e.nativeEvent.locationY,
-      pageX = e.nativeEvent.pageX,
-      pageY = e.nativeEvent.pageY;
+    const completePath = [...paths.single];
+    const {
+      nativeEvent: { locationX: touchX, locationY: touchY, pageX, pageY },
+    } = e;
     if (
       boxBound &&
       (pageX < boxBound.x + 1 ||
@@ -51,25 +53,39 @@ const WaiverForm: FC<WaiverFormProps> = ({ clientName = "Placeholder", changePag
         pageY < boxBound.y + 1 ||
         pageY > boxBound.y + boxBound.height - 1)
     ) {
-      if (path.length > 0) {
+      if (paths.single.length > 0) {
         onTouchEnd();
       }
       return;
     }
 
     const newPoint = `${completePath.length === 0 ? "M" : ""}${touchX.toFixed(0)},${touchY.toFixed(0)} `;
-    setPath((curr) => [...curr, newPoint]);
+    setPaths((prev) => ({
+      ...prev,
+      single: [...prev.single, newPoint],
+    }));
   };
   const onTouchEnd = () => {
-    setPaths((curr) => [...curr, path.join("")]);
-    setPath([]);
+    setPaths((prev) => ({
+      ...prev,
+      multiple: [...prev.multiple, prev.single.join("")],
+      single: [],
+    }));
   };
   const resetSignature = () => {
-    setPath([]);
-    setPaths([]);
+    setPaths((prev) => ({
+      ...prev,
+      single: [],
+      multiple: [],
+    }));
+    setPdfModalStatus((prev) => ({
+      ...prev,
+      visible: false,
+      signature: "",
+    }));
   };
   const handleVerify = async () => {
-    if (paths.length === 0) {
+    if (paths.multiple.length === 0) {
       Alert.alert("Signiture is Required", "");
       return;
     }
@@ -78,18 +94,23 @@ const WaiverForm: FC<WaiverFormProps> = ({ clientName = "Placeholder", changePag
       quality: 1,
       result: "data-uri",
     });
-    console.log(signature);
+    setPdfModalStatus((prev) => ({
+      ...prev,
+      visible: true,
+      signature,
+    }));
   };
+  const handleConfirm = async () => {};
   const handleBackPress = () => {
     resetSignature();
     changePage(0);
   };
   return (
     <View style={styles.container}>
-      <WaiverTexts clientName={clientName} handleBack={handleBackPress} />
+      <WaiverTexts clientName={`${submissionData.firstName} ${submissionData.lastName}`} handleBack={handleBackPress} />
       <View style={SignatureBoxStyles.container}>
         <View style={SignatureBoxStyles.canvasCont} onTouchMove={onTouchMove} onTouchEnd={onTouchEnd}>
-          {paths.length == 0 && path.length == 0 && (
+          {paths.multiple.length == 0 && paths.single.length == 0 && (
             <View style={SignatureBoxStyles.requiredTextCont}>
               <Text style={SignatureBoxStyles.requiredText}>Signature</Text>
             </View>
@@ -98,15 +119,15 @@ const WaiverForm: FC<WaiverFormProps> = ({ clientName = "Placeholder", changePag
             <ViewShot ref={canvasRef}>
               <Svg height="100%" width="100%">
                 <Path
-                  d={path.join("")}
+                  d={paths.single.join("")}
                   stroke={colors.white}
                   fill={"transparent"}
                   strokeWidth={2}
                   strokeLinejoin="round"
                   strokeLinecap="round"
                 />
-                {paths.length > 0 &&
-                  paths.map((path, i) => (
+                {paths.multiple.length > 0 &&
+                  paths.multiple.map((path, i) => (
                     <Path
                       key={`path-${i}`}
                       d={path}
@@ -122,15 +143,23 @@ const WaiverForm: FC<WaiverFormProps> = ({ clientName = "Placeholder", changePag
           </View>
         </View>
         <View style={SignatureBoxStyles.buttonsCont}>
-          <View>{paths.length > 0 && <RotateButton onPress={resetSignature} style={SignatureBoxStyles.resetBtnCont} />}</View>
+          <View>{paths.multiple.length > 0 && <RotateButton onPress={resetSignature} style={SignatureBoxStyles.resetBtnCont} />}</View>
           <NextButton
             onPress={handleVerify}
-            text="Confirm"
+            text="Verify"
             style={{ width: "100%", backgroundColor: colors.lightBlue }}
             textStyle={{ color: colors.darkBlack }}
           />
         </View>
       </View>
+      <PdfModal
+        visible={pdfModalStatus.visible}
+        signatureString={pdfModalStatus.signature}
+        onConfirm={handleConfirm}
+        onCancel={() => {
+          setPdfModalStatus((prev) => ({ ...prev, visible: false }));
+        }}
+      />
     </View>
   );
 };
