@@ -1,7 +1,7 @@
 import { FC } from "react";
 import { Pressable, StyleSheet } from "react-native";
 
-import BackSvg from "../../assets/icons/arrow-back.svg";
+import BackSvg from "../../assets/icons/arrow-left.svg";
 
 interface BackIconProps {
   onPress: () => void;

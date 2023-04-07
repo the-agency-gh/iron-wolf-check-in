@@ -1,11 +1,23 @@
-import { FC, useEffect } from "react";
-import { View, Text, StyleSheet, Dimensions } from "react-native";
+import { FC } from "react";
+import { View, Text, StyleSheet, Pressable } from "react-native";
 import { colors } from "../../../styles/variables";
-interface WaiverTextsProps {}
+import LeftArrow from "../../../assets/icons/arrow-left.svg";
+interface WaiverTextsProps {
+  clientName: string;
+  handleBack: () => void;
+}
 
-const WaiverTexts: FC<WaiverTextsProps> = () => {
+const WaiverTexts: FC<WaiverTextsProps> = ({ clientName, handleBack }) => {
   return (
     <View style={styles.container}>
+      <View style={styles.titleContainer}>
+        <Pressable style={styles.button} onPress={handleBack}>
+          <LeftArrow />
+        </Pressable>
+        <Text style={[styles.titleFont]}>
+          Name: <Text style={{ fontWeight: "bold" }}>{clientName}</Text>
+        </Text>
+      </View>
       <Text style={styles.defaultFonts}>
         In consideration of being allowed to participate in any way in the program, related events and activities, and use of equipment, I
         the undersigned, acknowledge, appreciate, and agree that:
@@ -52,6 +64,24 @@ export default WaiverTexts;
 const styles = StyleSheet.create({
   container: {
     rowGap: 10,
+  },
+  titleContainer: {
+    position: "relative",
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    columnGap: 20,
+    marginBottom: 15,
+  },
+  button: {
+    position: "absolute",
+    left: 0,
+    width: 50,
+    height: 40,
+  },
+  titleFont: {
+    color: colors.white,
+    fontSize: 22,
   },
   defaultFonts: {
     color: colors.white,

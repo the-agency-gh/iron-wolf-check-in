@@ -1,7 +1,7 @@
 import { FC } from "react";
 import { Pressable, Text, ImageBackground, StyleSheet, StyleProp, View } from "react-native";
-import { colors, shadow } from "../../../styles/variables";
-import CameraIcon from "../../../assets/icons/camera-icon.svg";
+import { colors, shadow } from "../../../../styles/variables";
+import CameraIcon from "../../../../assets/icons/camera-icon.svg";
 
 interface CameraShowButtonProps {
   text: string;

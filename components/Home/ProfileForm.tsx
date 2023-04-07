@@ -7,19 +7,18 @@ import DateTimePicker, { DateTimePickerEvent } from "@react-native-community/dat
 import { colors, shadow } from "../../styles/variables";
 import { SubmissionProps } from "../../utils/database";
 import FormInputField from "../FormInputField";
-import CameraShowButton from "./parts/CameraShowButton";
+import CameraShowButton from "./parts/buttons/CameraShowButton";
 import CameraModal from "./parts/CameraModal";
 import NextButton from "./parts/buttons/NextButton";
 import LoadingView from "../LoadingView";
 
 interface ProfileFormProps {
-  changePage: (dir: "left" | "right", page: number) => void;
-  page: number;
+  changePage: (toPage: 0 | 1) => void;
   mainFormSubmission: (data: Partial<SubmissionProps>) => void;
   handleReset: () => void;
 }
 
-const ProfileForm: FC<ProfileFormProps> = ({ changePage, page, mainFormSubmission, handleReset }) => {
+const ProfileForm: FC<ProfileFormProps> = ({ changePage, mainFormSubmission, handleReset }) => {
   const {
     control,
     handleSubmit,
@@ -92,7 +91,7 @@ const ProfileForm: FC<ProfileFormProps> = ({ changePage, page, mainFormSubmissio
       profileUri: imageStatus.profileUri,
       photoIdUri: imageStatus.photoIdUri,
     });
-    changePage("right", page);
+    changePage(1);
   };
   const handleFormError = () => {
     !datePickerStatus.picked &&
@@ -258,6 +257,12 @@ const ProfileForm: FC<ProfileFormProps> = ({ changePage, page, mainFormSubmissio
           ) : (
             <View></View>
           )}
+          <NextButton
+            onPress={() => {
+              changePage(1);
+            }}
+            text="NextPage"
+          />
           <NextButton onPress={handleSubmit(handleFormSubmit, handleFormError)} text="Next" />
         </View>
       </KeyboardAvoidingView>

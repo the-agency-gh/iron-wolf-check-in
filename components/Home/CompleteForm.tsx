@@ -4,6 +4,7 @@ import { SubmissionProps } from "../../utils/database";
 //-------components
 import ProfileForm from "./ProfileForm";
 import WaiverForm from "./WaiverForm";
+
 interface CompleteFormProps {}
 const windowWidth = Dimensions.get("window").width;
 
@@ -19,9 +20,9 @@ const CompleteForm: FC<CompleteFormProps> = () => {
     pdfUri: "",
   });
   const scrollableForm = useRef<ScrollView>(null);
-  const handleChangePage = (dir: "left" | "right", page: number) => {
+  const handleChangePage = (toPage: 0 | 1) => {
     scrollableForm.current?.scrollTo({
-      y: windowWidth * (page + (dir === "left" ? -2 : 1)),
+      y: windowWidth * toPage,
       animated: true,
     });
   };
@@ -47,8 +48,8 @@ const CompleteForm: FC<CompleteFormProps> = () => {
   };
   return (
     <ScrollView ref={scrollableForm} style={styles.formContainer} scrollEnabled={false} horizontal={true}>
-      <WaiverForm changePage={handleChangePage} page={2} />
-      <ProfileForm changePage={handleChangePage} page={1} mainFormSubmission={handleMainFormSubmit} handleReset={handleReset} />
+      <ProfileForm changePage={handleChangePage} mainFormSubmission={handleMainFormSubmit} handleReset={handleReset} />
+      <WaiverForm changePage={handleChangePage} />
     </ScrollView>
   );
 };
