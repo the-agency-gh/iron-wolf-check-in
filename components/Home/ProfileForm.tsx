@@ -6,6 +6,7 @@ import DateTimePicker, { DateTimePickerEvent } from "@react-native-community/dat
 //-----components
 import { colors, shadow } from "../../styles/variables";
 import { SubmissionProps } from "../../utils/database";
+import { useFormStore } from "../../utils/formContex";
 import FormInputField from "../FormInputField";
 import CameraShowButton from "./parts/buttons/CameraShowButton";
 import CameraModal from "./parts/CameraModal";
@@ -14,11 +15,10 @@ import LoadingView from "../LoadingView";
 
 interface ProfileFormProps {
   changePage: (toPage: 0 | 1) => void;
-  mainFormSubmission: (data: Partial<SubmissionProps>) => void;
-  handleReset: () => void;
 }
 
-const ProfileForm: FC<ProfileFormProps> = ({ changePage, mainFormSubmission, handleReset }) => {
+const ProfileForm: FC<ProfileFormProps> = ({ changePage }) => {
+  const [resetForm, updateState] = useFormStore((state) => [state.resetState, state.updateState]);
   const {
     control,
     handleSubmit,
@@ -85,11 +85,13 @@ const ProfileForm: FC<ProfileFormProps> = ({ changePage, mainFormSubmission, han
       }));
       return;
     }
-    mainFormSubmission({
-      ...data,
-      dataOfBirth: datePickerStatus.date,
-      profileUri: imageStatus.profileUri,
-      photoIdUri: imageStatus.photoIdUri,
+    updateState({
+      formState: {
+        ...data,
+        dataOfBirth: datePickerStatus.date,
+        profileUri: imageStatus.profileUri,
+        photoIdUri: imageStatus.photoIdUri,
+      },
     });
     changePage(1);
   };
@@ -108,7 +110,7 @@ const ProfileForm: FC<ProfileFormProps> = ({ changePage, mainFormSubmission, han
   };
   const handleResetPress = () => {
     reset();
-    handleReset();
+    resetForm();
     setImageStatus((curr) => ({
       ...curr,
       profileUri: undefined,

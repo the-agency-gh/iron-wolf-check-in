@@ -5,13 +5,14 @@ import ViewShot, { captureRef } from "react-native-view-shot";
 import Constants from "expo-constants";
 
 import { colors } from "../../styles/variables";
+import { SubmissionProps } from "../../utils/database";
+import { retrieveSetting } from "../../utils/database";
+import { useFormStore } from "../../utils/formContex";
 import WaiverTexts from "./parts/WaiverTexts";
 import NextButton from "./parts/buttons/NextButton";
 import RotateButton from "./parts/buttons/RotateButton";
 import PdfModal from "./parts/PdfModal";
-import { SubmissionProps } from "../../utils/database";
 interface WaiverFormProps {
-  submissionData: Partial<SubmissionProps>;
   changePage: (toPage: 0 | 1) => void;
 }
 type measurement = {
@@ -20,7 +21,8 @@ type measurement = {
   x: number;
   y: number;
 };
-const WaiverForm: FC<WaiverFormProps> = ({ submissionData, changePage }) => {
+const WaiverForm: FC<WaiverFormProps> = ({ changePage }) => {
+  const formState = useFormStore((state) => state.formState);
   const canvasRef = useRef(null);
   const containerRef = useRef<View>(null);
   const [pdfModalStatus, setPdfModalStatus] = useState<{ visible: boolean; signature: string }>({ visible: false, signature: "" });
@@ -107,7 +109,7 @@ const WaiverForm: FC<WaiverFormProps> = ({ submissionData, changePage }) => {
   };
   return (
     <View style={styles.container}>
-      <WaiverTexts clientName={`${submissionData.firstName} ${submissionData.lastName}`} handleBack={handleBackPress} />
+      <WaiverTexts clientName={`${formState.firstName} ${formState.lastName}`} handleBack={handleBackPress} />
       <View style={SignatureBoxStyles.container}>
         <View style={SignatureBoxStyles.canvasCont} onTouchMove={onTouchMove} onTouchEnd={onTouchEnd}>
           {paths.multiple.length == 0 && paths.single.length == 0 && (

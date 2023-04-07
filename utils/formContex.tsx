@@ -1,10 +1,11 @@
 import { create } from "zustand";
-import { addSubmissions, SubmissionProps } from "./database";
+import { addSubmissions, SubmissionProps, retrieveSetting } from "./database";
 export type StateType = { formState: Partial<SubmissionProps> };
+
 export interface FormAction {
   updateState: (data: StateType) => void;
   // handleAddSubmission: () => Promise<unknown>;
-  handleAddSubmission: () => void;
+  handleAddSubmission: (pdfBase64: string) => void;
   resetState: () => void;
 }
 
