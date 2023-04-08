@@ -9,6 +9,7 @@
     "web": "expo start --web"
   },
   "dependencies": {
+    "@hookform/resolvers": "^3.0.1",
     "@react-native-community/datetimepicker": "6.7.3",
     "@react-native-community/netinfo": "9.3.7",
     "@react-navigation/native": "^6.1.6",
@@ -36,6 +37,7 @@
     "react-native-view-shot": "3.5.0",
     "react-native-webview": "11.26.0",
     "react-query": "^3.39.3",
+    "zod": "^3.21.4",
     "zustand": "^4.3.6"
   },
   "devDependencies": {

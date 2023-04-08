@@ -1,12 +1,12 @@
 import { FC, useState } from "react";
-import { useForm } from "react-hook-form";
+import { FieldValues, useForm } from "react-hook-form";
 import { View, Text, StyleSheet, Pressable, KeyboardAvoidingView, Platform, Dimensions } from "react-native";
 import DateTimePicker, { DateTimePickerEvent } from "@react-native-community/datetimepicker";
 
 //-----components
 import { colors, shadow } from "../../styles/variables";
 import { SubmissionProps } from "../../utils/database";
-import { useFormStore } from "../../utils/formContex";
+import { useGlobalStore } from "../../utils/formContex";
 import FormInputField from "../FormInputField";
 import CameraShowButton from "./parts/buttons/CameraShowButton";
 import CameraModal from "./parts/CameraModal";
@@ -18,41 +18,31 @@ interface ProfileFormProps {
 }
 
 const ProfileForm: FC<ProfileFormProps> = ({ changePage }) => {
-  const [resetForm, updateState] = useFormStore((state) => [state.resetState, state.updateState]);
+  const [formState, resetFormState, updateFormState] = useGlobalStore((state) => [
+    state.formState,
+    state.resetFormState,
+    state.updateFormState,
+  ]);
   const {
     control,
     handleSubmit,
     reset,
-    formState: { isSubmitting, errors, isDirty },
+    formState: { isSubmitted, isSubmitting, errors, isDirty },
   } = useForm();
-  const [imageStatus, setImageStatus] = useState<{
-    profileUri: string | undefined;
-    profileError: boolean;
-    photoIdUri: string | undefined;
-    photoIdError: boolean;
-  }>({
-    profileUri: undefined,
-    photoIdUri: undefined,
-    profileError: false,
-    photoIdError: false,
-  });
-  const [datePickerStatus, setDatePickerStatus] = useState({ date: new Date(), picked: false, show: false, error: false });
+
+  const [datePickerShow, setDatePickerShow] = useState(false);
   const [cameraStatus, setCameraStatus] = useState({ profileShow: false, idShow: false });
+
+  //handle camera and date modals and input
   const onDateChange = (event: DateTimePickerEvent, date?: Date) => {
     if (event.type !== "set") {
-      setDatePickerStatus((curr) => ({
-        ...curr,
-        show: false,
-      }));
+      setDatePickerShow(false);
       return;
     }
-    setDatePickerStatus((curr) => ({
-      ...curr,
-      date: date as Date,
-      picked: true,
-      show: false,
-      error: false,
-    }));
+    setDatePickerShow(false);
+    updateFormState({
+      dataOfBirth: date,
+    });
   };
   const handleCameraShowPress = (selected: "profile" | "photoId", open: boolean) => {
     setCameraStatus((curr) => ({
@@ -62,75 +52,31 @@ const ProfileForm: FC<ProfileFormProps> = ({ changePage }) => {
     }));
   };
   const handleCameraInput = (forId: "profile" | "photoId", photoUri: string) => {
-    setImageStatus((curr) => ({
-      ...curr,
-      profileUri: forId === "profile" ? photoUri : curr.profileUri,
-      photoIdUri: forId === "photoId" ? photoUri : curr.photoIdUri,
-      profileError: curr.profileError && forId !== "profile",
-      photoIdError: curr.photoIdError && forId !== "photoId",
-    }));
+    updateFormState({
+      profileUri: forId === "profile" ? photoUri : formState.profileUri,
+      photoIdUri: forId === "photoId" ? photoUri : formState.photoIdUri,
+    });
   };
 
   //----on submit and on error handler
   const handleFormSubmit = (data: Partial<SubmissionProps>) => {
-    if (!datePickerStatus.picked || !imageStatus.profileUri || !imageStatus.photoIdUri) {
-      setImageStatus((curr) => ({
-        ...curr,
-        profileError: !imageStatus.profileUri,
-        photoIdError: !imageStatus.photoIdUri,
-      }));
-      setDatePickerStatus((curr) => ({
-        ...curr,
-        error: !!!datePickerStatus.picked,
-      }));
-      return;
-    }
-    updateState({
-      formState: {
-        ...data,
-        dataOfBirth: datePickerStatus.date,
-        profileUri: imageStatus.profileUri,
-        photoIdUri: imageStatus.photoIdUri,
-      },
+    if (!formState.dataOfBirth || !formState.photoIdUri || !formState.profileUri) return;
+    updateFormState({
+      ...data,
     });
     changePage(1);
   };
-  const handleFormError = () => {
-    !datePickerStatus.picked &&
-      setDatePickerStatus((curr) => ({
-        ...curr,
-        error: !!!datePickerStatus.picked,
-      }));
-    (!imageStatus.profileUri || !imageStatus.photoIdUri) &&
-      setImageStatus((curr) => ({
-        ...curr,
-        profileError: !imageStatus.profileUri,
-        photoIdError: !imageStatus.photoIdUri,
-      }));
-  };
   const handleResetPress = () => {
     reset();
-    resetForm();
-    setImageStatus((curr) => ({
-      ...curr,
-      profileUri: undefined,
-      photoIdUri: undefined,
-      profileError: false,
-      photoIdError: false,
-    }));
-    setDatePickerStatus((curr) => ({
-      ...curr,
-      date: new Date(),
-      picked: false,
-      show: false,
-      error: false,
-    }));
+    resetFormState();
+    setDatePickerShow(false);
     setCameraStatus((curr) => ({
       ...curr,
       profileShow: false,
       idShow: false,
     }));
   };
+
   return (
     <>
       {isSubmitting && <LoadingView style={{ position: "absolute", top: 0, left: 0, height: "100%", width: "100%", zIndex: 1 }} />}
@@ -191,11 +137,11 @@ const ProfileForm: FC<ProfileFormProps> = ({ changePage }) => {
             }}
           />
           <View style={styles.datePickerCont}>
-            {datePickerStatus.picked && (
+            {formState.dataOfBirth && (
               <Text style={styles.defaultFont}>
                 Date of Birth:{" "}
                 <Text style={{ fontWeight: "bold" }}>
-                  {datePickerStatus.date.toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" })}
+                  {formState.dataOfBirth.toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" })}
                 </Text>
               </Text>
             )}
@@ -203,24 +149,28 @@ const ProfileForm: FC<ProfileFormProps> = ({ changePage }) => {
               style={[styles.DOBButton, shadow]}
               android_ripple={{ color: colors.lightBlue }}
               onPress={() => {
-                setDatePickerStatus((curr) => ({ ...curr, show: true }));
+                setDatePickerShow(true);
               }}
             >
               <Text
                 style={[
                   styles.defaultFont,
-                  { color: datePickerStatus.error ? colors.amber : colors.baseBlack, fontWeight: "bold", textTransform: "uppercase" },
+                  {
+                    color: isSubmitted && !formState.dataOfBirth ? colors.amber : colors.baseBlack,
+                    fontWeight: "bold",
+                    textTransform: "uppercase",
+                  },
                 ]}
               >
                 Pick Date of Birth
               </Text>
             </Pressable>
-            {datePickerStatus.error && <Text style={styles.datePickerError}>Date of Birth is Required!</Text>}
-            {datePickerStatus.show && (
+            {isSubmitted && !formState.dataOfBirth && <Text style={styles.datePickerError}>Date of Birth is Required!</Text>}
+            {datePickerShow && (
               <DateTimePicker
                 testID="mainFormDateTimePicker"
                 id="mainFormDateTimePicker"
-                value={datePickerStatus.date}
+                value={formState.dataOfBirth || new Date()}
                 mode="date"
                 is24Hour={true}
                 onChange={onDateChange}
@@ -230,10 +180,10 @@ const ProfileForm: FC<ProfileFormProps> = ({ changePage }) => {
         </View>
         <View style={styles.cameraCont}>
           <CameraShowButton
-            text={imageStatus.profileError ? "Profile Required" : imageStatus.profileUri ? "Retake Profile Picture" : "Profile"}
-            style={imageStatus.profileError ? { backgroundColor: "#fd858b" } : {}}
+            text={isSubmitted && !formState.profileUri ? "Profile Required" : formState.profileUri ? "Retake Profile Picture" : "Profile"}
+            style={isSubmitted && !formState.profileUri ? { backgroundColor: "#fd858b" } : {}}
             onPress={handleCameraShowPress.bind(null, "profile", true)}
-            backgroundImg={imageStatus.profileUri || undefined}
+            backgroundImg={formState.profileUri || undefined}
           />
           {cameraStatus.profileShow && (
             <CameraModal forId="profile" closeModal={handleCameraShowPress} handleCameraInput={handleCameraInput} />
@@ -241,10 +191,12 @@ const ProfileForm: FC<ProfileFormProps> = ({ changePage }) => {
         </View>
         <View style={styles.cameraCont}>
           <CameraShowButton
-            text={imageStatus.photoIdError ? "Photo ID Required" : imageStatus.photoIdUri ? "Retake Photo ID Picture" : "Photo ID"}
-            style={imageStatus.photoIdError ? { backgroundColor: "#fd858b" } : {}}
+            text={
+              isSubmitted && !formState.photoIdUri ? "Photo ID Required" : formState.photoIdUri ? "Retake Photo ID Picture" : "Photo ID"
+            }
+            style={isSubmitted && !formState.photoIdUri ? { backgroundColor: "#fd858b" } : {}}
             onPress={handleCameraShowPress.bind(null, "photoId", true)}
-            backgroundImg={imageStatus.photoIdUri || undefined}
+            backgroundImg={formState.photoIdUri || undefined}
           />
           {cameraStatus.idShow && <CameraModal forId="photoId" closeModal={handleCameraShowPress} handleCameraInput={handleCameraInput} />}
         </View>
@@ -265,7 +217,7 @@ const ProfileForm: FC<ProfileFormProps> = ({ changePage }) => {
             }}
             text="NextPage"
           />
-          <NextButton onPress={handleSubmit(handleFormSubmit, handleFormError)} text="Next" />
+          <NextButton onPress={handleSubmit(handleFormSubmit)} text="Next" />
         </View>
       </KeyboardAvoidingView>
     </>

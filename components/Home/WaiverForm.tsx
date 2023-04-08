@@ -7,7 +7,7 @@ import Constants from "expo-constants";
 import { colors } from "../../styles/variables";
 import { SubmissionProps } from "../../utils/database";
 import { retrieveSetting } from "../../utils/database";
-import { useFormStore } from "../../utils/formContex";
+import { useGlobalStore } from "../../utils/formContex";
 import WaiverTexts from "./parts/WaiverTexts";
 import NextButton from "./parts/buttons/NextButton";
 import RotateButton from "./parts/buttons/RotateButton";
@@ -22,7 +22,7 @@ type measurement = {
   y: number;
 };
 const WaiverForm: FC<WaiverFormProps> = ({ changePage }) => {
-  const formState = useFormStore((state) => state.formState);
+  const formState = useGlobalStore((state) => state.formState);
   const canvasRef = useRef(null);
   const containerRef = useRef<View>(null);
   const [pdfModalStatus, setPdfModalStatus] = useState<{ visible: boolean; signature: string }>({ visible: false, signature: "" });

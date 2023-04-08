@@ -1,12 +1,13 @@
 import { create } from "zustand";
-import { addSubmissions, SubmissionProps, retrieveSetting } from "./database";
-export type StateType = { formState: Partial<SubmissionProps> };
+import { addSubmissions, SubmissionProps, retrieveSetting, SettingProps } from "./database";
+export type StateType = { formState: Partial<SubmissionProps>; settingState: Partial<SettingProps> };
 
 export interface FormAction {
-  updateState: (data: StateType) => void;
+  updateFormState: (data: Partial<SubmissionProps>) => void;
+  updateSettingState: (data: Partial<SettingProps>) => void;
+  resetFormState: () => void;
   // handleAddSubmission: () => Promise<unknown>;
   handleAddSubmission: (pdfBase64: string) => void;
-  resetState: () => void;
 }
 
 //var yyyyMMdd = date.toISOString().slice(0,10);
@@ -16,25 +17,41 @@ export interface FormAction {
 
 const initialState: StateType = {
   formState: {
-    firstName: "",
-    lastName: "",
-    email: "",
-    phoneNumber: "",
-    dataOfBirth: new Date(),
-    profileUri: "",
-    photoIdUri: "",
-    pdfUri: "",
+    firstName: undefined,
+    lastName: undefined,
+    email: undefined,
+    phoneNumber: undefined,
+    dataOfBirth: undefined,
+    profileUri: undefined,
+    photoIdUri: undefined,
+    pdfUri: undefined,
+  },
+  settingState: {
+    host: undefined,
+    email: undefined,
+    password: undefined,
+    designatedEmail: undefined,
+    saveSubmission: 0,
   },
 };
 
-export const useFormStore = create<StateType & FormAction>((set, get) => ({
+export const useGlobalStore = create<StateType & FormAction>((set, get) => ({
   ...initialState,
-  updateState: (data: StateType) =>
+  updateFormState: (data: Partial<SubmissionProps>) =>
     set((state) => ({
-      ...state.formState,
-      ...data,
+      formState: {
+        ...state.formState,
+        ...data,
+      },
     })),
-  resetState: () => {
+  updateSettingState: (data: Partial<SettingProps>) =>
+    set((state) => ({
+      settingState: {
+        ...state.settingState,
+        ...data,
+      },
+    })),
+  resetFormState: () => {
     set({ ...initialState });
   },
   handleAddSubmission: () => {

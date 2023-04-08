@@ -4,6 +4,7 @@ import { Camera, CameraType } from "expo-camera";
 import { deleteAsync } from "expo-file-system";
 //------components, etc
 import { colors, shadow } from "../../../styles/variables";
+import { useFormStore } from "../../../utils/formContex";
 import CloseButton from "./buttons/CloseButton";
 import PersonOutline from "../../../assets/icons/person-outline.svg";
 import ShootButton from "./buttons/ShootButton";

@@ -1,216 +1,128 @@
 import { FC, useEffect, useLayoutEffect, useState } from "react";
 import { View, Text, Switch, StyleSheet, Pressable, KeyboardAvoidingView, Platform } from "react-native";
-import { useForm } from "react-hook-form";
-import { FieldValues } from "react-hook-form/dist/types";
+import { FieldValues, useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
 import { useNavigation } from "@react-navigation/native";
 import { StackNavigationProp } from "@react-navigation/stack";
 //--components
+import { colors } from "../../styles/variables";
+import { addSetting, updateSetting, SettingProps } from "../../utils/database";
+import { RootStackParamList } from "../../App";
+import { useGlobalStore } from "../../utils/formContex";
 import FormButton from "./parts/FormButton";
 import LoadingView from "../LoadingView";
 import HorizontalRule from "../HorizontalRule";
 import BackIcon from "../navigation/BackIcon";
 import FormInputField from "../FormInputField";
-import { colors } from "../../styles/variables";
-import { addSetting, updateSetting, SettingProps } from "../../utils/database";
-import { RootStackParamList } from "../../App";
 
-interface SettingsProps {
-  settingData: settingDataProp;
-}
+interface SettingsProps {}
 
-export type settingDataProp = { email: string; password: string; designatedEmail: string; saveSubmission: 1 | 0; [rest: string]: any };
+const settingSchema = z.object({
+  host: z.string().min(1, { message: "Host Address is Required" }),
+  email: z.string().email({ message: "Valid Email is Required" }).min(1, { message: "Email is Required" }),
+  password: z.string().min(1, { message: "Password is required" }),
+  designatedEmail: z.string().email({ message: "Valid Email is Required" }).min(1, { message: "Designated Email is Required" }),
+});
 
-const Settings: FC<SettingsProps> = ({ settingData }) => {
+const Settings: FC<SettingsProps> = ({}) => {
   const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
-  const [settingStatus, setSettingStatus] = useState({
-    initialized: !!settingData,
-    update: false,
-    host: settingData?.host,
-    email: settingData?.email,
-    password: settingData?.password,
-    designatedEmail: settingData?.designatedEmail,
-  });
-  const [saveSub, setSaveSub] = useState(+settingData?.saveSubmission === 1);
+  const [settingState, updateSettingState] = useGlobalStore((state) => [state.settingState, state.updateSettingState]);
+  const initialized = !!settingState.host && !!settingState.email && !!settingState.password && !!settingState.designatedEmail;
+
+  const [updateSettingToggle, setUpdateSettingToggle] = useState(false);
+  const [saveSub, setSaveSub] = useState<1 | 0>(settingState.saveSubmission || 0);
   const {
     control,
     handleSubmit,
     setValue,
-    formState: { isSubmitting, errors },
+    formState: { isSubmitted, isSubmitting, errors },
   } = useForm({
+    resolver: zodResolver(settingSchema),
     defaultValues: {
-      host: settingStatus.host || "",
-      email: settingStatus.email || "",
-      password: settingStatus.password || "",
-      designatedEmail: settingStatus.designatedEmail || "",
+      host: settingState.host || "",
+      email: settingState.email || "",
+      password: settingState.password || "",
+      designatedEmail: settingState.designatedEmail || "",
     },
   });
-  const handleSettingSubmit = async (data: SettingProps) => {
-    const formData = {
+
+  const handleSettingSubmit = async (data: Omit<SettingProps, "saveSubmission">) => {
+    const formData: SettingProps = {
       host: data.host,
       email: data.email,
       password: data.password,
       designatedEmail: data.designatedEmail,
       saveSubmission: saveSub,
     };
-    if (!settingStatus.initialized) {
+    if (!initialized) {
       await addSetting(formData);
       navigation.navigate("Home");
     } else {
       await updateSetting(formData);
     }
-    setSettingStatus((curr) => ({
-      ...curr,
-      initialized: true,
-      update: false,
-      host: data.host,
-      email: data.email,
-      password: data.password,
-      designatedEmail: data.designatedEmail,
-    }));
-  };
-  const handleSettingError = (error: FieldValues) => {
-    console.error(error);
+    setUpdateSettingToggle(false);
+    updateSettingState({
+      ...settingState,
+      ...formData,
+    });
   };
   const handleCancel = () => {
-    setValue("host", settingStatus.host);
-    setValue("email", settingStatus.email);
-    setValue("password", settingStatus.password);
-    setValue("designatedEmail", settingStatus.designatedEmail);
-    setSettingStatus((curr) => ({
-      ...curr,
-      update: false,
-    }));
-    setSaveSub(+settingData?.saveSubmission === 1);
+    //check on transition
+    setValue("host", settingState.host || "");
+    setValue("email", settingState.email || "");
+    setValue("password", settingState.password || "");
+    setValue("designatedEmail", settingState.designatedEmail || "");
+    setSaveSub(settingState.saveSubmission || 0);
+    setUpdateSettingToggle(false);
   };
   const handleSubmissionsRedirect = () => {
     navigation.navigate("Submissions");
   };
-  useEffect(() => {
-    setSettingStatus((curr) => ({
-      ...curr,
-      initialized: !!settingData,
-      update: false,
-      host: settingData?.host,
-      email: settingData?.email,
-      password: settingData?.password,
-      designatedEmail: settingData?.designatedEmail,
-    }));
-    setSaveSub(+settingData?.saveSubmission === 1);
-    setValue("email", settingData?.email);
-    setValue("password", settingData?.password);
-    setValue("designatedEmail", settingData?.designatedEmail);
-  }, [settingData]);
+
   useLayoutEffect(() => {
     navigation.setOptions({
-      title: settingStatus.initialized ? "Settings" : "Initial Settings",
+      title: initialized ? "Settings" : "Initial Settings",
       headerLeft: () => {
-        return settingStatus.initialized && <BackIcon onPress={() => navigation.navigate("Home")} />;
+        return (
+          initialized && (
+            <BackIcon
+              onPress={() => {
+                handleCancel();
+                navigation.navigate("Home");
+              }}
+            />
+          )
+        );
       },
     });
-  }, [navigation, settingData]);
+  }, [navigation]);
   return (
     <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"} style={styles.container}>
-      {!settingStatus.initialized || settingStatus.update ? (
-        !isSubmitting ? (
-          <View style={styles.settingForm}>
-            <FormInputField
-              control={control}
-              rules={{
-                required: "Host Address is required",
-              }}
-              name="host"
-              label="Host"
-              error={errors.host}
-            />
-            <FormInputField
-              control={control}
-              rules={{
-                required: "Email is required",
-                pattern: {
-                  value: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
-                  message: "Please Type in Valid Email",
-                },
-              }}
-              name="email"
-              label="Email"
-              error={errors.email}
-              keyboardType={"email-address"}
-            />
-            <FormInputField
-              control={control}
-              rules={{
-                required: "Password is required",
-              }}
-              name="password"
-              label="Password"
-              error={errors.password}
-            />
-            <HorizontalRule />
-            <FormInputField
-              control={control}
-              rules={{
-                required: "Designated Email is required",
-                pattern: {
-                  value: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
-                  message: "Please Type in Valid Email",
-                },
-              }}
-              name="designatedEmail"
-              label="Designated Email"
-              error={errors.designatedEmail}
-              keyboardType={"email-address"}
-            />
-            <View style={styles.saveSubCont}>
-              <Switch
-                trackColor={{ false: "#767577", true: colors.darkBlue }}
-                thumbColor={saveSub ? colors.lightBlue : colors.amber}
-                ios_backgroundColor="#3e3e3e"
-                onValueChange={() => setSaveSub((curr) => !curr)}
-                value={saveSub}
-              />
-              <Text style={[styles.defaultText, styles.saveSubmissionLabel]}>Save Submission</Text>
-            </View>
-            <View style={styles.buttonCont}>
-              <FormButton onPress={handleSubmit(handleSettingSubmit, handleSettingError)} style={styles.submitBtn}>
-                {!settingStatus.initialized ? "Register" : "Update"}
-              </FormButton>
-              {settingStatus.initialized && (
-                <FormButton onPress={handleCancel} style={styles.cancelBtn}>
-                  Cancel
-                </FormButton>
-              )}
-            </View>
-          </View>
-        ) : (
-          <LoadingView />
-        )
-      ) : (
+      {initialized && !updateSettingToggle ? (
         <>
           <View style={styles.settingForm}>
             <Text style={styles.settingInfoText}>
-              Host: <Text style={styles.settingInfoTitle}>{settingStatus.host}</Text>
+              Host: <Text style={styles.settingInfoTitle}>{settingState.host}</Text>
             </Text>
             <Text style={styles.settingInfoText}>
-              Email: <Text style={styles.settingInfoTitle}>{settingStatus.email}</Text>
+              Email: <Text style={styles.settingInfoTitle}>{settingState.email}</Text>
             </Text>
             <Text style={styles.settingInfoText}>
-              Password: <Text style={styles.settingInfoTitle}>{settingStatus.password.replace(/[\w\W]/g, "*")}</Text>
+              Password: <Text style={styles.settingInfoTitle}>{settingState.password?.replace(/[\w\W]/g, "*")}</Text>
             </Text>
             <Text style={styles.settingInfoText}>
-              Designated Email: <Text style={styles.settingInfoTitle}>{settingStatus.designatedEmail}</Text>
+              Designated Email: <Text style={styles.settingInfoTitle}>{settingState.designatedEmail}</Text>
             </Text>
             <Text style={styles.settingInfoText}>
-              Save Submission: <Text style={styles.settingInfoTitle}>{saveSub.toString()}</Text>
+              Save Submission: <Text style={styles.settingInfoTitle}>{saveSub === 1 ? "True" : "False"}</Text>
             </Text>
             <View style={{ flexDirection: "row" }}>
               <FormButton
                 style={styles.updateBtn}
                 textStyle={{ color: colors.darkBlack }}
                 onPress={() => {
-                  setSettingStatus((curr) => ({
-                    ...curr,
-                    update: true,
-                  }));
+                  setUpdateSettingToggle(true);
                 }}
               >
                 Update
@@ -221,6 +133,78 @@ const Settings: FC<SettingsProps> = ({ settingData }) => {
             <Text style={[styles.defaultText, { fontWeight: "bold" }]}>Previous Submissions</Text>
           </Pressable>
         </>
+      ) : isSubmitting ? (
+        <LoadingView />
+      ) : (
+        <View style={styles.settingForm}>
+          <FormInputField
+            control={control}
+            rules={{
+              required: "Host Address is required",
+            }}
+            name="host"
+            label="Host"
+            error={errors?.host}
+          />
+          <FormInputField
+            control={control}
+            rules={{
+              required: "Email is required",
+              pattern: {
+                value: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
+                message: "Please Type in Valid Email",
+              },
+            }}
+            name="email"
+            label="Email"
+            error={errors?.email}
+            keyboardType={"email-address"}
+          />
+          <FormInputField
+            control={control}
+            name="password"
+            label="Password"
+            error={errors?.password}
+            rules={{
+              required: "Password is required",
+            }}
+          />
+          <HorizontalRule />
+          <FormInputField
+            control={control}
+            name="designatedEmail"
+            label="Designated Email"
+            error={errors?.designatedEmail}
+            keyboardType={"email-address"}
+            rules={{
+              required: "Designated Email is required",
+              pattern: {
+                value: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
+                message: "Please Type in Valid Email",
+              },
+            }}
+          />
+          <View style={styles.saveSubCont}>
+            <Switch
+              trackColor={{ false: "#767577", true: colors.darkBlue }}
+              thumbColor={saveSub ? colors.lightBlue : colors.amber}
+              ios_backgroundColor="#3e3e3e"
+              onValueChange={() => setSaveSub(saveSub === 1 ? 0 : 1)}
+              value={saveSub === 1}
+            />
+            <Text style={[styles.defaultText, styles.saveSubmissionLabel]}>Save Submission</Text>
+          </View>
+          <View style={styles.buttonCont}>
+            <FormButton onPress={handleSubmit(handleSettingSubmit)} style={styles.submitBtn}>
+              {!initialized ? "Register" : "Update"}
+            </FormButton>
+            {initialized && (
+              <FormButton onPress={handleCancel} style={styles.cancelBtn}>
+                Cancel
+              </FormButton>
+            )}
+          </View>
+        </View>
       )}
     </KeyboardAvoidingView>
   );
