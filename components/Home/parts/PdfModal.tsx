@@ -1,10 +1,11 @@
-import { FC } from "react";
+import { FC, useState } from "react";
 import { Modal, View, StyleSheet, Button } from "react-native";
 import { WebView } from "react-native-webview";
-import { printAsync, printToFileAsync } from "expo-print";
-import { WaiverHtml, waiverFormHtml } from "./WaiverFormHTML";
+
+import { waiverFormHtml } from "./WaiverFormHTML";
 import { colors } from "../../../styles/variables";
 import NextButton from "./buttons/NextButton";
+import LoadingView from "../../LoadingView";
 
 interface PdfModalProps {
   signatureString: string;

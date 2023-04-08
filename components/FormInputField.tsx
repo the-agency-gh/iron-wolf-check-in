@@ -9,28 +9,17 @@ interface FormInputFieldProps {
   error?: FieldError | Merge<FieldError, FieldErrorsImpl<any>> | undefined;
   name: string;
   label: string;
-  rules?: object;
   style?: StyleProp<any>;
   placeholder?: string;
   keyboardType?: KeyboardTypeOptions;
 }
 
-const FormInputField: FC<FormInputFieldProps> = ({
-  style,
-  control,
-  error,
-  name,
-  label,
-  rules,
-  placeholder = "",
-  keyboardType = "default",
-}) => {
+const FormInputField: FC<FormInputFieldProps> = ({ style, control, error, name, label, placeholder = "", keyboardType = "default" }) => {
   return (
     <View style={[styles.inputCont, style]}>
       <Text style={[styles.defaultText, styles.label]}>{label}</Text>
       <Controller
         control={control}
-        rules={rules}
         render={({ field: { onChange, onBlur, value, ...fields } }) => (
           <TextInput
             id={name}

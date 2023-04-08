@@ -1,13 +1,13 @@
 import { FC, useEffect, useLayoutEffect, useState } from "react";
-import { View, Text, Switch, StyleSheet, Pressable, KeyboardAvoidingView, Platform } from "react-native";
-import { FieldValues, useForm } from "react-hook-form";
+import { View, Text, Switch, StyleSheet, Pressable } from "react-native";
+import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useNavigation } from "@react-navigation/native";
 import { StackNavigationProp } from "@react-navigation/stack";
 //--components
 import { colors } from "../../styles/variables";
-import { addSetting, updateSetting, SettingProps } from "../../utils/database";
+import { addSetting, updateSetting, SettingsProps } from "../../utils/database";
 import { RootStackParamList } from "../../App";
 import { useGlobalStore } from "../../utils/formContex";
 import FormButton from "./parts/FormButton";
@@ -16,16 +16,21 @@ import HorizontalRule from "../HorizontalRule";
 import BackIcon from "../navigation/BackIcon";
 import FormInputField from "../FormInputField";
 
-interface SettingsProps {}
+interface SettingsCompProps {}
 
 const settingSchema = z.object({
-  host: z.string().min(1, { message: "Host Address is Required" }),
-  email: z.string().email({ message: "Valid Email is Required" }).min(1, { message: "Email is Required" }),
-  password: z.string().min(1, { message: "Password is required" }),
-  designatedEmail: z.string().email({ message: "Valid Email is Required" }).min(1, { message: "Designated Email is Required" }),
+  host: z.string().trim().toLowerCase().min(1, { message: "Host Address is Required" }),
+  email: z.string().trim().toLowerCase().min(1, { message: "Email is Required" }).email({ message: "Valid Email is Required" }),
+  password: z.string().trim().min(1, { message: "Password is required" }),
+  designatedEmail: z
+    .string()
+    .trim()
+    .toLowerCase()
+    .min(1, { message: "Designated Email is Required" })
+    .email({ message: "Valid Email is Required" }),
 });
 
-const Settings: FC<SettingsProps> = ({}) => {
+const Settings: FC<SettingsCompProps> = ({}) => {
   const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
   const [settingState, updateSettingState] = useGlobalStore((state) => [state.settingState, state.updateSettingState]);
   const initialized = !!settingState.host && !!settingState.email && !!settingState.password && !!settingState.designatedEmail;
@@ -36,7 +41,7 @@ const Settings: FC<SettingsProps> = ({}) => {
     control,
     handleSubmit,
     setValue,
-    formState: { isSubmitted, isSubmitting, errors },
+    formState: { isSubmitting, errors },
   } = useForm({
     resolver: zodResolver(settingSchema),
     defaultValues: {
@@ -47,8 +52,8 @@ const Settings: FC<SettingsProps> = ({}) => {
     },
   });
 
-  const handleSettingSubmit = async (data: Omit<SettingProps, "saveSubmission">) => {
-    const formData: SettingProps = {
+  const handleSettingSubmit = async (data: Omit<SettingsProps, "saveSubmission">) => {
+    const formData: SettingsProps = {
       host: data.host,
       email: data.email,
       password: data.password,
@@ -68,7 +73,6 @@ const Settings: FC<SettingsProps> = ({}) => {
     });
   };
   const handleCancel = () => {
-    //check on transition
     setValue("host", settingState.host || "");
     setValue("email", settingState.email || "");
     setValue("password", settingState.password || "");
@@ -76,10 +80,6 @@ const Settings: FC<SettingsProps> = ({}) => {
     setSaveSub(settingState.saveSubmission || 0);
     setUpdateSettingToggle(false);
   };
-  const handleSubmissionsRedirect = () => {
-    navigation.navigate("Submissions");
-  };
-
   useLayoutEffect(() => {
     navigation.setOptions({
       title: initialized ? "Settings" : "Initial Settings",
@@ -96,9 +96,9 @@ const Settings: FC<SettingsProps> = ({}) => {
         );
       },
     });
-  }, [navigation]);
+  }, [navigation, initialized]);
   return (
-    <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"} style={styles.container}>
+    <View style={styles.container}>
       {initialized && !updateSettingToggle ? (
         <>
           <View style={styles.settingForm}>
@@ -129,7 +129,12 @@ const Settings: FC<SettingsProps> = ({}) => {
               </FormButton>
             </View>
           </View>
-          <Pressable style={styles.submissionButton} onPress={handleSubmissionsRedirect}>
+          <Pressable
+            style={styles.submissionButton}
+            onPress={() => {
+              navigation.navigate("Submissions");
+            }}
+          >
             <Text style={[styles.defaultText, { fontWeight: "bold" }]}>Previous Submissions</Text>
           </Pressable>
         </>
@@ -137,38 +142,9 @@ const Settings: FC<SettingsProps> = ({}) => {
         <LoadingView />
       ) : (
         <View style={styles.settingForm}>
-          <FormInputField
-            control={control}
-            rules={{
-              required: "Host Address is required",
-            }}
-            name="host"
-            label="Host"
-            error={errors?.host}
-          />
-          <FormInputField
-            control={control}
-            rules={{
-              required: "Email is required",
-              pattern: {
-                value: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
-                message: "Please Type in Valid Email",
-              },
-            }}
-            name="email"
-            label="Email"
-            error={errors?.email}
-            keyboardType={"email-address"}
-          />
-          <FormInputField
-            control={control}
-            name="password"
-            label="Password"
-            error={errors?.password}
-            rules={{
-              required: "Password is required",
-            }}
-          />
+          <FormInputField control={control} name="host" label="Host" error={errors?.host} />
+          <FormInputField control={control} name="email" label="Email" error={errors?.email} keyboardType={"email-address"} />
+          <FormInputField control={control} name="password" label="Password" error={errors?.password} />
           <HorizontalRule />
           <FormInputField
             control={control}
@@ -176,13 +152,6 @@ const Settings: FC<SettingsProps> = ({}) => {
             label="Designated Email"
             error={errors?.designatedEmail}
             keyboardType={"email-address"}
-            rules={{
-              required: "Designated Email is required",
-              pattern: {
-                value: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
-                message: "Please Type in Valid Email",
-              },
-            }}
           />
           <View style={styles.saveSubCont}>
             <Switch
@@ -206,7 +175,7 @@ const Settings: FC<SettingsProps> = ({}) => {
           </View>
         </View>
       )}
-    </KeyboardAvoidingView>
+    </View>
   );
 };
 

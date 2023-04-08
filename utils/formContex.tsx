@@ -1,13 +1,19 @@
+import axios from "axios";
 import { create } from "zustand";
-import { addSubmissions, SubmissionProps, retrieveSetting, SettingProps } from "./database";
-export type StateType = { formState: Partial<SubmissionProps>; settingState: Partial<SettingProps> };
+import { addSubmissions, SubmissionProps, SettingsProps } from "./database";
+
+type Base64 = { profileBase64: string; photoIdBase64: string };
+export type StateType = {
+  formState: Partial<SubmissionProps & Base64>;
+  settingState: Partial<SettingsProps>;
+};
 
 export interface FormAction {
-  updateFormState: (data: Partial<SubmissionProps>) => void;
-  updateSettingState: (data: Partial<SettingProps>) => void;
+  updateFormState: (data: Partial<SubmissionProps & Base64>) => void;
+  updateSettingState: (data: Partial<SettingsProps>) => void;
   resetFormState: () => void;
-  // handleAddSubmission: () => Promise<unknown>;
-  handleAddSubmission: (pdfBase64: string) => void;
+  // addSubmission: () => Promise<unknown>;
+  addSubmissionsPromise: (pdfBase64: string) => void;
 }
 
 //var yyyyMMdd = date.toISOString().slice(0,10);
@@ -23,7 +29,9 @@ const initialState: StateType = {
     phoneNumber: undefined,
     dataOfBirth: undefined,
     profileUri: undefined,
+    profileBase64: undefined,
     photoIdUri: undefined,
+    photoIdBase64: undefined,
     pdfUri: undefined,
   },
   settingState: {
@@ -37,14 +45,14 @@ const initialState: StateType = {
 
 export const useGlobalStore = create<StateType & FormAction>((set, get) => ({
   ...initialState,
-  updateFormState: (data: Partial<SubmissionProps>) =>
+  updateFormState: (data: Partial<SubmissionProps & Base64>) =>
     set((state) => ({
       formState: {
         ...state.formState,
         ...data,
       },
     })),
-  updateSettingState: (data: Partial<SettingProps>) =>
+  updateSettingState: (data: Partial<SettingsProps>) =>
     set((state) => ({
       settingState: {
         ...state.settingState,
@@ -54,11 +62,9 @@ export const useGlobalStore = create<StateType & FormAction>((set, get) => ({
   resetFormState: () => {
     set({ ...initialState });
   },
-  handleAddSubmission: () => {
-    console.log(get());
-    // set((state) => ({
-    //   ...initialState
-    // }))
+  addSubmissionsPromise: async () => {
+    const { formState, settingState } = get();
+    await axios;
     // return addSubmissions(get());
   },
 }));

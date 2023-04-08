@@ -1,7 +1,9 @@
 import { FC, useState } from "react";
-import { FieldValues, useForm } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { View, Text, StyleSheet, Pressable, KeyboardAvoidingView, Platform, Dimensions } from "react-native";
 import DateTimePicker, { DateTimePickerEvent } from "@react-native-community/datetimepicker";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
 
 //-----components
 import { colors, shadow } from "../../styles/variables";
@@ -16,6 +18,16 @@ import LoadingView from "../LoadingView";
 interface ProfileFormProps {
   changePage: (toPage: 0 | 1) => void;
 }
+const formSchema = z.object({
+  firstName: z.string().trim().min(1, { message: "First Name is Required" }),
+  lastName: z.string().trim().min(1, { message: "last Name is Required" }),
+  email: z.string().trim().toLowerCase().min(1, { message: "last Name is Required" }).email({ message: "Please Type in Valid Email" }),
+  phoneNumber: z
+    .string()
+    .trim()
+    .min(1, { message: "last Name is Required" })
+    .regex(/^(\+\d{1,2}\s?)?\(?\d{3}\)?[\s.-]?\d{3}[\s.-]?\d{4}$/, { message: "Please Type in Valid Phone Number" }),
+});
 
 const ProfileForm: FC<ProfileFormProps> = ({ changePage }) => {
   const [formState, resetFormState, updateFormState] = useGlobalStore((state) => [
@@ -28,7 +40,15 @@ const ProfileForm: FC<ProfileFormProps> = ({ changePage }) => {
     handleSubmit,
     reset,
     formState: { isSubmitted, isSubmitting, errors, isDirty },
-  } = useForm();
+  } = useForm({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      firstName: "",
+      lastName: "",
+      email: "",
+      phoneNumber: "",
+    },
+  });
 
   const [datePickerShow, setDatePickerShow] = useState(false);
   const [cameraStatus, setCameraStatus] = useState({ profileShow: false, idShow: false });
@@ -51,10 +71,12 @@ const ProfileForm: FC<ProfileFormProps> = ({ changePage }) => {
       idShow: selected === "photoId" && open,
     }));
   };
-  const handleCameraInput = (forId: "profile" | "photoId", photoUri: string) => {
+  const handleCameraInput = (forId: "profile" | "photoId", photoUri: string, imageBase64: string) => {
     updateFormState({
       profileUri: forId === "profile" ? photoUri : formState.profileUri,
+      profileBase64: forId === "profile" ? imageBase64 : formState.profileBase64,
       photoIdUri: forId === "photoId" ? photoUri : formState.photoIdUri,
+      photoIdBase64: forId === "photoId" ? imageBase64 : formState.photoIdBase64,
     });
   };
 
@@ -89,9 +111,6 @@ const ProfileForm: FC<ProfileFormProps> = ({ changePage }) => {
               name="firstName"
               label="First Name"
               placeholder="Iron"
-              rules={{
-                required: "First Name is Required",
-              }}
               error={errors?.firstName}
             />
             <FormInputField
@@ -100,9 +119,6 @@ const ProfileForm: FC<ProfileFormProps> = ({ changePage }) => {
               name="lastName"
               label="Last Name"
               placeholder="Wolf"
-              rules={{
-                required: "Last Name is Required",
-              }}
               error={errors?.lastName}
             />
           </View>
@@ -113,13 +129,6 @@ const ProfileForm: FC<ProfileFormProps> = ({ changePage }) => {
             error={errors?.email}
             placeholder="email@email.com"
             keyboardType={"email-address"}
-            rules={{
-              required: "Email is Required",
-              pattern: {
-                value: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
-                message: "Please Type in Valid Email",
-              },
-            }}
           />
           <FormInputField
             control={control}
@@ -128,13 +137,6 @@ const ProfileForm: FC<ProfileFormProps> = ({ changePage }) => {
             error={errors?.phoneNumber}
             placeholder="000-000-0000"
             keyboardType={"number-pad"}
-            rules={{
-              required: "Phone Number is Required",
-              pattern: {
-                value: /^(\+\d{1,2}\s?)?\(?\d{3}\)?[\s.-]?\d{3}[\s.-]?\d{4}$/,
-                message: "Please Type in Valid Phone Number",
-              },
-            }}
           />
           <View style={styles.datePickerCont}>
             {formState.dataOfBirth && (

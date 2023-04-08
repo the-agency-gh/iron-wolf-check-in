@@ -142,14 +142,14 @@ export function retrieveSubmission(id: string) {
   });
 }
 // settings query
-export interface SettingProps {
+export interface SettingsProps {
   host: string;
   email: string;
   password: string;
   designatedEmail: string;
   saveSubmission: 0 | 1;
 }
-export function addSetting({ host, email, password, designatedEmail, saveSubmission = 0 }: SettingProps) {
+export function addSetting({ host, email, password, designatedEmail, saveSubmission = 0 }: SettingsProps) {
   return new Promise(async (resolve, reject) => {
     const currentSetting = await retrieveSetting();
     if (currentSetting) {
@@ -171,7 +171,7 @@ export function addSetting({ host, email, password, designatedEmail, saveSubmiss
     });
   });
 }
-export async function updateSetting({ host, email, password, designatedEmail, saveSubmission = 0 }: SettingProps) {
+export async function updateSetting({ host, email, password, designatedEmail, saveSubmission = 0 }: SettingsProps) {
   await resetSetting();
   return addSetting({ host, email, password, designatedEmail, saveSubmission });
 }

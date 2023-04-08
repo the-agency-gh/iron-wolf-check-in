@@ -8,12 +8,13 @@ import NetInfo from "@react-native-community/netinfo";
 import { SafeAreaView, StyleSheet, Text, View } from "react-native";
 import { QueryClient, QueryClientProvider } from "react-query";
 //custom funcs or vars
-import { initializeTable, retrieveSetting } from "./utils/database";
+import { SettingsProps, initializeTable, retrieveSetting } from "./utils/database";
 import { colors } from "./styles/variables";
 //Screens
 import HomeScreen from "./screens/HomeScreen";
 import SettingsScreen from "./screens/SettingsScreen";
 import SubmissionsScreen from "./screens/SubmissionsScreen";
+import { useGlobalStore } from "./utils/formContex";
 
 SplashScreen.preventAutoHideAsync();
 export type RootStackParamList = {
@@ -25,6 +26,7 @@ const Stack = createStackNavigator<RootStackParamList>();
 const queryClient = new QueryClient();
 
 export default function App() {
+  const updateSettingState = useGlobalStore((state) => state.updateSettingState);
   //initializer
   const [initialState, setInitialState] = useState({
     loaded: false,
@@ -48,6 +50,9 @@ export default function App() {
           loaded: true,
           settingInitialized: !!initSetting,
         }));
+        if (!!initSetting) {
+          updateSettingState(initSetting as SettingsProps);
+        }
       } catch (err) {
         console.error(err);
         setInitialState((curr) => ({

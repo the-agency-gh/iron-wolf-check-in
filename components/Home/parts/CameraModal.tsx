@@ -4,7 +4,6 @@ import { Camera, CameraType } from "expo-camera";
 import { deleteAsync } from "expo-file-system";
 //------components, etc
 import { colors, shadow } from "../../../styles/variables";
-import { useFormStore } from "../../../utils/formContex";
 import CloseButton from "./buttons/CloseButton";
 import PersonOutline from "../../../assets/icons/person-outline.svg";
 import ShootButton from "./buttons/ShootButton";
@@ -14,16 +13,23 @@ import LoadingView from "../../LoadingView";
 interface CameraModalProps {
   forId: "profile" | "photoId";
   closeModal: (selected: "profile" | "photoId", open: boolean) => void;
-  handleCameraInput: (forId: "profile" | "photoId", photoUri: string) => void;
+  handleCameraInput: (forId: "profile" | "photoId", photoUri: string, imageBase64: string) => void;
 }
 
 const CameraModal: FC<CameraModalProps> = ({ forId, closeModal, handleCameraInput }) => {
   const camera = useRef<Camera>(null);
-  const [cameraState, setCameraState] = useState<{ ready: boolean; loading: boolean; type: CameraType; imageUri: string | undefined }>({
+  const [cameraState, setCameraState] = useState<{
+    ready: boolean;
+    loading: boolean;
+    type: CameraType;
+    imageUri: string | undefined;
+    imageBase64: string | undefined;
+  }>({
     ready: false,
     loading: false,
     type: CameraType.front,
     imageUri: undefined,
+    imageBase64: undefined,
   });
   const [permission, requestPermission] = Camera.useCameraPermissions();
   if (!permission) {
@@ -61,9 +67,11 @@ const CameraModal: FC<CameraModalProps> = ({ forId, closeModal, handleCameraInpu
   const handlePhotoShoot = async () => {
     if (!cameraState.ready || !camera.current) return;
     setCameraState((curr) => ({ ...curr, loading: true }));
-    const camOptions = {};
-    const photo = await camera.current.takePictureAsync();
-    setCameraState((curr) => ({ ...curr, loading: false, imageUri: photo.uri }));
+    const camOptions = {
+      base64: true,
+    };
+    const photo = await camera.current.takePictureAsync(camOptions);
+    setCameraState((curr) => ({ ...curr, loading: false, imageUri: photo.uri, imageBase64: photo.base64 }));
   };
   const handleRetake = async () => {
     setCameraState((curr) => ({
@@ -79,11 +87,12 @@ const CameraModal: FC<CameraModalProps> = ({ forId, closeModal, handleCameraInpu
       ...curr,
       loading: false,
       imageUri: undefined,
+      imageBase64: undefined,
     }));
   };
   const handleConfirm = () => {
     if (!cameraState.imageUri) return;
-    handleCameraInput(forId, cameraState.imageUri as string);
+    handleCameraInput(forId, cameraState.imageUri as string, cameraState.imageBase64 as string);
     setCameraState((curr) => ({
       ...curr,
       imageUri: undefined,
