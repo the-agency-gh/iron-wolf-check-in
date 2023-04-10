@@ -12,6 +12,7 @@ import SettingsIcon from "../components/navigation/SettingsIcon";
 import CompleteForm from "../components/Home/CompleteForm";
 
 const HomeScreen: FC = () => {
+  const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
   const updateSettingState = useGlobalStore((state) => state.updateSettingState);
   useQuery({
     queryKey: ["settingData"],
@@ -29,7 +30,6 @@ const HomeScreen: FC = () => {
       }
     },
   });
-  const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
 
   useLayoutEffect(() => {
     navigation.setOptions({
