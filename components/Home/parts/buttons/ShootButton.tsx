@@ -1,5 +1,5 @@
-import { FC, useRef } from "react";
-import { Pressable, View, StyleSheet, Animated } from "react-native";
+import { FC } from "react";
+import { Pressable, View, StyleSheet } from "react-native";
 import { colors } from "../../../../styles/variables";
 
 interface ShootButtonProps {
@@ -7,35 +7,9 @@ interface ShootButtonProps {
 }
 
 const ShootButton: FC<ShootButtonProps> = ({ onPress }) => {
-  const animatedRef = useRef(new Animated.Value(0)).current;
-  const AnimatablePressable = Animated.createAnimatedComponent(Pressable);
-  const handlePress = () => {
-    const defaultOptions = {
-      duration: 75,
-      useNativeDriver: true,
-    };
-    Animated.sequence([
-      Animated.timing(animatedRef, { ...defaultOptions, toValue: 2 }),
-      Animated.timing(animatedRef, { ...defaultOptions, toValue: 0 }),
-    ]).start(({ finished }) => {
-      finished && onPress();
-    });
-  };
   return (
     <View style={styles.buttonCont}>
-      <AnimatablePressable
-        onPress={handlePress}
-        style={[
-          styles.button,
-          {
-            transform: [
-              {
-                translateY: animatedRef,
-              },
-            ],
-          },
-        ]}
-      ></AnimatablePressable>
+      <Pressable onPress={onPress} style={[styles.button]}></Pressable>
     </View>
   );
 };

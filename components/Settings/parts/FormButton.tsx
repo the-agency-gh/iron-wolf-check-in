@@ -24,10 +24,8 @@ const styles = StyleSheet.create({
     backgroundColor: colors.darkBlue,
     flex: 1,
     alignItems: "center",
-    paddingTop: 10,
-    paddingBottom: 10,
-    paddingRight: 20,
-    paddingLeft: 20,
+    paddingVertical: 10,
+    paddingHorizontal: 20,
     borderRadius: 5,
   },
   buttonText: {

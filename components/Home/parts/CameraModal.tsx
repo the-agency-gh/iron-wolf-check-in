@@ -1,7 +1,7 @@
 import { FC, useRef, useState } from "react";
 import { Modal, Text, StyleSheet, View, Pressable, Image } from "react-native";
-import { Camera, CameraType } from "expo-camera";
-import { deleteAsync } from "expo-file-system";
+import { Camera, CameraType, CameraPictureOptions } from "expo-camera";
+import { deleteAsync, getInfoAsync } from "expo-file-system";
 //------components, etc
 import { colors, shadow } from "../../../styles/variables";
 import CloseButton from "./buttons/CloseButton";
@@ -18,20 +18,21 @@ interface CameraModalProps {
 
 const CameraModal: FC<CameraModalProps> = ({ forId, closeModal, handleCameraInput }) => {
   const camera = useRef<Camera>(null);
+  const [permission, requestPermission] = Camera.useCameraPermissions();
   const [cameraState, setCameraState] = useState<{
     ready: boolean;
     loading: boolean;
-    type: CameraType;
     imageUri: string | undefined;
     imageBase64: string | undefined;
+    type: CameraType;
   }>({
     ready: false,
     loading: false,
-    type: CameraType.front,
     imageUri: undefined,
     imageBase64: undefined,
+    type: CameraType.front,
   });
-  const [permission, requestPermission] = Camera.useCameraPermissions();
+
   if (!permission) {
     return (
       <Modal style={styles.screen} animationType="fade">
@@ -67,8 +68,10 @@ const CameraModal: FC<CameraModalProps> = ({ forId, closeModal, handleCameraInpu
   const handlePhotoShoot = async () => {
     if (!cameraState.ready || !camera.current) return;
     setCameraState((curr) => ({ ...curr, loading: true }));
-    const camOptions = {
+    const camOptions: CameraPictureOptions = {
       base64: true,
+      exif: false,
+      quality: 0.5,
     };
     const photo = await camera.current.takePictureAsync(camOptions);
     setCameraState((curr) => ({ ...curr, loading: false, imageUri: photo.uri, imageBase64: photo.base64 }));
@@ -99,7 +102,6 @@ const CameraModal: FC<CameraModalProps> = ({ forId, closeModal, handleCameraInpu
     }));
     closeModal(forId, false);
   };
-
   return (
     <Modal style={styles.screen} animationType="fade">
       <View style={styles.container}>
@@ -182,9 +184,8 @@ const styles = StyleSheet.create({
     columnGap: 25,
   },
   permissionButton: {
-    padding: 10,
-    paddingLeft: 20,
-    paddingRight: 20,
+    paddingHorizontal: 20,
+    paddingVertical: 10,
     borderColor: colors.white,
     borderRadius: 10,
     flex: 1,

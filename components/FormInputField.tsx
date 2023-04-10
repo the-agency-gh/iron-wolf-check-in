@@ -12,9 +12,19 @@ interface FormInputFieldProps {
   style?: StyleProp<any>;
   placeholder?: string;
   keyboardType?: KeyboardTypeOptions;
+  secureTextEntry?: boolean;
 }
 
-const FormInputField: FC<FormInputFieldProps> = ({ style, control, error, name, label, placeholder = "", keyboardType = "default" }) => {
+const FormInputField: FC<FormInputFieldProps> = ({
+  style,
+  control,
+  error,
+  name,
+  label,
+  placeholder = "",
+  keyboardType = "default",
+  secureTextEntry = false,
+}) => {
   return (
     <View style={[styles.inputCont, style]}>
       <Text style={[styles.defaultText, styles.label]}>{label}</Text>
@@ -30,6 +40,9 @@ const FormInputField: FC<FormInputFieldProps> = ({ style, control, error, name, 
             placeholder={placeholder}
             placeholderTextColor={"#777777"}
             keyboardType={keyboardType}
+            autoCapitalize="none"
+            spellCheck={false}
+            secureTextEntry={secureTextEntry}
             {...fields}
           />
         )}

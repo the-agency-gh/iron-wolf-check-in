@@ -1,20 +1,19 @@
 import "react-native-gesture-handler";
-import { useEffect, useState, useCallback, FC } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { StatusBar } from "expo-status-bar";
 import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
 import * as SplashScreen from "expo-splash-screen";
 import NetInfo from "@react-native-community/netinfo";
 import { SafeAreaView, StyleSheet, Text, View } from "react-native";
-import { QueryClient, QueryClientProvider } from "react-query";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 //custom funcs or vars
-import { SettingsProps, initializeTable, retrieveSetting } from "./utils/database";
+import { initializeTable } from "./utils/database";
 import { colors } from "./styles/variables";
 //Screens
 import HomeScreen from "./screens/HomeScreen";
 import SettingsScreen from "./screens/SettingsScreen";
 import SubmissionsScreen from "./screens/SubmissionsScreen";
-import { useGlobalStore } from "./utils/formContex";
 
 SplashScreen.preventAutoHideAsync();
 export type RootStackParamList = {
@@ -26,11 +25,9 @@ const Stack = createStackNavigator<RootStackParamList>();
 const queryClient = new QueryClient();
 
 export default function App() {
-  const updateSettingState = useGlobalStore((state) => state.updateSettingState);
   //initializer
   const [initialState, setInitialState] = useState({
     loaded: false,
-    settingInitialized: false,
     error: false,
     isConnected: true,
   });
@@ -44,21 +41,15 @@ export default function App() {
     (async () => {
       try {
         await initializeTable();
-        const initSetting = await retrieveSetting();
         setInitialState((curr) => ({
           ...curr,
           loaded: true,
-          settingInitialized: !!initSetting,
         }));
-        if (!!initSetting) {
-          updateSettingState(initSetting as SettingsProps);
-        }
       } catch (err) {
         console.error(err);
         setInitialState((curr) => ({
           ...curr,
           loaded: true,
-          settingInitialized: false,
           error: true,
         }));
       }
@@ -87,7 +78,7 @@ export default function App() {
           ) : (
             <NavigationContainer>
               <Stack.Navigator
-                initialRouteName={initialState.settingInitialized ? "Home" : "Settings"}
+                initialRouteName="Home"
                 screenOptions={{
                   headerStyle: {
                     backgroundColor: colors.baseBlack,

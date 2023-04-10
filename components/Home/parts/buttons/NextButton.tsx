@@ -21,9 +21,8 @@ export default NextButton;
 
 const styles = StyleSheet.create({
   button: {
-    padding: 10,
-    paddingLeft: 15,
-    paddingRight: 15,
+    paddingHorizontal: 15,
+    paddingVertical: 10,
     borderRadius: 5,
     backgroundColor: colors.yellow,
     width: "45%",

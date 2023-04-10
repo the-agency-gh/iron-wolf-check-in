@@ -25,15 +25,22 @@ type measurement = {
   y: number;
 };
 const WaiverForm: FC<WaiverFormProps> = ({ changePage }) => {
-  const [formState, addSubmissionsPromise] = useGlobalStore((state) => [state.formState, state.addSubmissionsPromise]);
+  const [formState, addSubmissionsPromise, resetFormState] = useGlobalStore((state) => [
+    state.formState,
+    state.addSubmissionsPromise,
+    state.resetFormState,
+  ]);
   const canvasRef = useRef(null);
   const containerRef = useRef<View>(null);
-  const [pdfStatus, setPdfStatus] = useState<{ loading: boolean; submitted: boolean; visible: boolean; signature: string }>({
-    loading: false,
-    submitted: false,
-    visible: false,
-    signature: "",
-  });
+  const [pdfStatus, setPdfStatus] = useState<{ loading: boolean; submitted: boolean; error: boolean; visible: boolean; signature: string }>(
+    {
+      loading: false,
+      submitted: false,
+      error: false,
+      visible: false,
+      signature: "",
+    }
+  );
   const [boxBound, setBoxBound] = useState<measurement | null>(null);
   const [paths, setPaths] = useState<{ single: string[]; multiple: string[] }>({ single: [], multiple: [] });
 
@@ -93,7 +100,9 @@ const WaiverForm: FC<WaiverFormProps> = ({ changePage }) => {
     setPdfStatus((prev) => ({
       ...prev,
       visible: false,
+      submitted: false,
       signature: "",
+      error: false,
     }));
   };
   const handleBackPress = () => {
@@ -122,13 +131,26 @@ const WaiverForm: FC<WaiverFormProps> = ({ changePage }) => {
       html: waiverFormHtml(pdfStatus.signature),
       base64: true,
     });
-    await addSubmissionsPromise(signedPdf.base64 as string);
-    setPdfStatus((prev) => ({ ...prev, signature: "", loading: false, submitted: false }));
+    const submissionRes = await addSubmissionsPromise(signedPdf.uri, signedPdf.base64 as string);
+    resetFormState();
+    setPdfStatus((prev) => ({
+      ...prev,
+      loading: false,
+      submitted: true,
+      error: (submissionRes as { data: { status: string }; [rest: string]: any }).data.status !== "successful",
+    }));
   };
   return (
     <View style={styles.container}>
       {pdfStatus.loading ? (
         <LoadingView />
+      ) : pdfStatus.submitted ? (
+        <View style={styles.submittedContainer}>
+          <Text style={[styles.submittedTitle, { color: pdfStatus.error ? colors.amber : colors.white }]}>
+            {pdfStatus.error ? "Something went wrong! \nPlease Try again" : "Thank you for your submission!"}
+          </Text>
+          <NextButton onPress={handleBackPress} text="Continue" style={styles.continueBtn} />
+        </View>
       ) : (
         <>
           <WaiverTexts clientName={`${formState.firstName} ${formState.lastName}`} handleBack={handleBackPress} />
@@ -201,6 +223,22 @@ const styles = StyleSheet.create({
     paddingBottom: 25,
     justifyContent: "space-between",
     rowGap: 15,
+  },
+  submittedContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    rowGap: 40,
+  },
+  submittedTitle: {
+    fontSize: 25,
+    fontWeight: "bold",
+    textAlign: "center",
+  },
+  continueBtn: {
+    width: "30%",
+    alignSelf: "center",
+    backgroundColor: colors.lightBlue,
   },
 });
 

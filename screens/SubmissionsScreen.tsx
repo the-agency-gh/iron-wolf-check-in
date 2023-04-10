@@ -1,10 +1,11 @@
 import { useNavigation } from "@react-navigation/native";
-import { StackNavigationProp, StackScreenProps } from "@react-navigation/stack";
+import { StackNavigationProp } from "@react-navigation/stack";
 import { FC, useLayoutEffect } from "react";
-import { StyleSheet, SafeAreaView, View, Text, ScrollView } from "react-native";
-
+import { StyleSheet, SafeAreaView } from "react-native";
+//-------components and func
 import { RootStackParamList } from "../App";
 import BackIcon from "../components/navigation/BackIcon";
+import SubmissionsList from "../components/Submissions/SubmissionsList";
 
 const SubmissionsScreen: FC = () => {
   const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
@@ -17,8 +18,7 @@ const SubmissionsScreen: FC = () => {
   }, [navigation]);
   return (
     <SafeAreaView style={styles.screen}>
-      <Text>SubmissionsScreen</Text>
-      <Text>SubmissionsScreen</Text>
+      <SubmissionsList />
     </SafeAreaView>
   );
 };

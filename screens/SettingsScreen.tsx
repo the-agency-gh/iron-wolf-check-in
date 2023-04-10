@@ -1,5 +1,6 @@
 import { FC } from "react";
 import { StyleSheet, SafeAreaView } from "react-native";
+//-------components and func
 import Settings from "../components/Settings/Settings";
 
 const SettingsScreen: FC = () => {

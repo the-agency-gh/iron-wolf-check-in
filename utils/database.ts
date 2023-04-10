@@ -1,6 +1,5 @@
 import * as SQLite from "expo-sqlite";
 import { deleteAsync } from "expo-file-system";
-
 const database = SQLite.openDatabase("iron_wolf");
 
 //initialize tables
@@ -14,7 +13,7 @@ export function initializeTable() {
             lastName TEXT NOT NULL,
             email TEXT NOT NULL,
             phoneNumber TEXT NOT NULL,
-            dataOfBirth DATE NOT NULL,
+            dateOfBirth DATE NOT NULL,
             profileUri TEXT NOT NULL,
             photoIdUri TEXT NOT NULL,
             pdfUri TEXT NOT NULL,
@@ -36,6 +35,8 @@ export function initializeTable() {
       tx.executeSql(
         `CREATE TABLE IF NOT EXISTS settings (
             id INTEGER PRIMARY KEY NOT NULL,
+            apiUrl TEXT NOT NULL,
+            apiToken TEXT NOT NULL,
             host TEXT NOT NULL,
             email TEXT NOT NULL,
             password TEXT NOT NULL,
@@ -62,17 +63,18 @@ export interface SubmissionProps {
   lastName: string;
   email: string;
   phoneNumber: string;
-  dataOfBirth: Date;
+  dateOfBirth: Date;
   profileUri: string;
   photoIdUri: string;
   pdfUri: string;
 }
-export function addSubmissions({ firstName, lastName, email, phoneNumber, dataOfBirth, profileUri, photoIdUri, pdfUri }: SubmissionProps) {
+export function addSubmissions({ firstName, lastName, email, phoneNumber, dateOfBirth, profileUri, photoIdUri, pdfUri }: SubmissionProps) {
   return new Promise((resolve, reject) => {
+    const stringDOB = dateOfBirth.toISOString().substring(0, 10);
     database.transaction((tx) => {
       tx.executeSql(
-        "INSERT INTO submissions (firstName, lastName, email, phoneNumber, dataOfBirth, profileUri, photoIdUri, pdfUri) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
-        [firstName, lastName, email, phoneNumber, dataOfBirth.toString(), profileUri, photoIdUri, pdfUri],
+        "INSERT INTO submissions (firstName, lastName, email, phoneNumber, dateOfBirth, profileUri, photoIdUri, pdfUri) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+        [firstName, lastName, email, phoneNumber, stringDOB, profileUri, photoIdUri, pdfUri],
         (_, result) => {
           resolve(result);
         },
@@ -84,7 +86,7 @@ export function addSubmissions({ firstName, lastName, email, phoneNumber, dataOf
     });
   });
 }
-export function deleteSubmission(id: string) {
+export function deleteSubmission(id: number) {
   return new Promise(async (resolve, reject) => {
     const selected = (await retrieveSubmission(id)) as SubmissionProps;
     database.transaction((tx) => {
@@ -123,7 +125,7 @@ export function retrieveSubmissions() {
     });
   });
 }
-export function retrieveSubmission(id: string) {
+export function retrieveSubmission(id: number) {
   return new Promise((resolve, reject) => {
     database.transaction((tx) => {
       tx.executeSql(
@@ -143,13 +145,15 @@ export function retrieveSubmission(id: string) {
 }
 // settings query
 export interface SettingsProps {
+  apiUrl: string;
+  apiToken: string;
   host: string;
   email: string;
   password: string;
   designatedEmail: string;
   saveSubmission: 0 | 1;
 }
-export function addSetting({ host, email, password, designatedEmail, saveSubmission = 0 }: SettingsProps) {
+export function addSetting({ apiUrl, apiToken, host, email, password, designatedEmail, saveSubmission = 0 }: SettingsProps) {
   return new Promise(async (resolve, reject) => {
     const currentSetting = await retrieveSetting();
     if (currentSetting) {
@@ -158,8 +162,8 @@ export function addSetting({ host, email, password, designatedEmail, saveSubmiss
     }
     database.transaction((tx) => {
       tx.executeSql(
-        "INSERT INTO settings (host, email, password, designatedEmail, saveSubmission) VALUES(?, ?, ?, ?, ?)",
-        [host, email, password, designatedEmail, saveSubmission ? 1 : 0],
+        "INSERT INTO settings (apiUrl, apiToken, host, email, password, designatedEmail, saveSubmission) VALUES(?, ?, ?, ?, ?, ?, ?)",
+        [apiUrl, apiToken, host, email, password, designatedEmail, saveSubmission ? 1 : 0],
         (_, result) => {
           resolve(result);
         },
@@ -171,9 +175,9 @@ export function addSetting({ host, email, password, designatedEmail, saveSubmiss
     });
   });
 }
-export async function updateSetting({ host, email, password, designatedEmail, saveSubmission = 0 }: SettingsProps) {
+export async function updateSetting({ apiUrl, apiToken, host, email, password, designatedEmail, saveSubmission = 0 }: SettingsProps) {
   await resetSetting();
-  return addSetting({ host, email, password, designatedEmail, saveSubmission });
+  return addSetting({ apiUrl, apiToken, host, email, password, designatedEmail, saveSubmission });
 }
 export function resetSetting() {
   return new Promise((resolve, reject) => {

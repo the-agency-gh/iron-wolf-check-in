@@ -18,7 +18,11 @@ const CameraShowButton: FC<CameraShowButtonProps> = ({ text, style, onPress, bac
           <CameraIcon />
         </View>
       ) : (
-        <ImageBackground source={{ uri: backgroundImg }} resizeMode="cover" style={[styles.indicatorCont, { padding: 0, opacity: 0.7 }]} />
+        <ImageBackground
+          source={{ uri: `data:image/png;base64,${backgroundImg}` }}
+          resizeMode="cover"
+          style={[styles.indicatorCont, { padding: 0, opacity: 0.7 }]}
+        />
       )}
       <Text style={[styles.text, { color: !backgroundImg ? colors.darkBlack : colors.darkBlue }]}>{text}</Text>
     </Pressable>
