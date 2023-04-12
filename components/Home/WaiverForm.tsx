@@ -1,5 +1,5 @@
 import { FC, useEffect, useRef, useState } from "react";
-import { View, Text, StyleSheet, Dimensions, GestureResponderEvent, Alert } from "react-native";
+import { View, Text, StyleSheet, Dimensions, GestureResponderEvent, Alert, ScrollView } from "react-native";
 import { Svg, Path } from "react-native-svg";
 import ViewShot, { captureRef } from "react-native-view-shot";
 import { printAsync, printToFileAsync } from "expo-print";
@@ -43,7 +43,7 @@ const WaiverForm: FC<WaiverFormProps> = ({ changePage }) => {
   );
   const [boxBound, setBoxBound] = useState<measurement | null>(null);
   const [paths, setPaths] = useState<{ single: string[]; multiple: string[] }>({ single: [], multiple: [] });
-
+  const [enableScroll, setEnableScroll] = useState(true);
   useEffect(() => {
     setTimeout(() => {
       containerRef.current?.measure((fx, fy, width, height, px, py) => {
@@ -60,6 +60,7 @@ const WaiverForm: FC<WaiverFormProps> = ({ changePage }) => {
   }, []);
   //-----touch handle functions
   const onTouchMove = (e: GestureResponderEvent) => {
+    setEnableScroll(false);
     const completePath = [...paths.single];
     const {
       nativeEvent: { locationX: touchX, locationY: touchY, pageX, pageY },
@@ -84,6 +85,7 @@ const WaiverForm: FC<WaiverFormProps> = ({ changePage }) => {
     }));
   };
   const onTouchEnd = () => {
+    setEnableScroll(true);
     setPaths((prev) => ({
       ...prev,
       multiple: [...prev.multiple, prev.single.join("")],
@@ -152,7 +154,7 @@ const WaiverForm: FC<WaiverFormProps> = ({ changePage }) => {
           <NextButton onPress={handleBackPress} text="Continue" style={styles.continueBtn} />
         </View>
       ) : (
-        <>
+        <ScrollView scrollEnabled={enableScroll}>
           <WaiverTexts clientName={`${formState.firstName} ${formState.lastName}`} handleBack={handleBackPress} />
           <View style={SignatureBoxStyles.container}>
             <View style={SignatureBoxStyles.canvasCont} onTouchMove={onTouchMove} onTouchEnd={onTouchEnd}>
@@ -188,16 +190,14 @@ const WaiverForm: FC<WaiverFormProps> = ({ changePage }) => {
                 </ViewShot>
               </View>
             </View>
-            <View style={SignatureBoxStyles.buttonsCont}>
-              <View>{paths.multiple.length > 0 && <RotateButton onPress={resetSignature} style={SignatureBoxStyles.resetBtnCont} />}</View>
-              <NextButton
-                onPress={handleVerify}
-                text="Verify"
-                style={{ width: "100%", backgroundColor: colors.lightBlue }}
-                textStyle={{ color: colors.darkBlack }}
-              />
-            </View>
+            <View>{paths.multiple.length > 0 && <RotateButton onPress={resetSignature} style={SignatureBoxStyles.resetBtnCont} />}</View>
           </View>
+          <NextButton
+            onPress={handleVerify}
+            text="Verify"
+            style={{ width: "100%", backgroundColor: colors.lightBlue }}
+            textStyle={{ color: colors.darkBlack }}
+          />
           <PdfModal
             visible={pdfStatus.visible}
             signatureString={pdfStatus.signature}
@@ -206,7 +206,7 @@ const WaiverForm: FC<WaiverFormProps> = ({ changePage }) => {
               setPdfStatus((prev) => ({ ...prev, visible: false }));
             }}
           />
-        </>
+        </ScrollView>
       )}
     </View>
   );

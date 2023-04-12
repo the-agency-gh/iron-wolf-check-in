@@ -19,8 +19,8 @@ const CompleteForm: FC<CompleteFormProps> = () => {
 
   return (
     <ScrollView ref={scrollableForm} style={styles.formContainer} scrollEnabled={false} horizontal={true}>
-      <ProfileForm changePage={handleChangePage} />
       <WaiverForm changePage={handleChangePage} />
+      <ProfileForm changePage={handleChangePage} />
     </ScrollView>
   );
 };

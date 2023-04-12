@@ -14,47 +14,50 @@ const WaiverTexts: FC<WaiverTextsProps> = ({ clientName, handleBack }) => {
         <Pressable style={styles.button} onPress={handleBack}>
           <LeftArrow />
         </Pressable>
-        <Text style={[styles.titleFont]}>
-          Name: <Text style={{ fontWeight: "bold" }}>{clientName}</Text>
-        </Text>
+        <Text style={[styles.titleFont, styles.bold]}>Iron Wolf Fitness ONE-TIME Daily Pass and Agreement</Text>
       </View>
+      <Text style={[styles.defaultFonts, styles.bold, { marginVertical: 10 }]}>Gym Policies</Text>
+      <Text style={[styles.defaultFonts, styles.bold, { marginTop: 10 }]}>1. Disclaimers.</Text>
+      <Text style={styles.defaultFonts}>Iron Wolf is not responsible for any loss or damage to personal belongings.</Text>
       <Text style={styles.defaultFonts}>
-        In consideration of being allowed to participate in any way in the program, related events and activities, and use of equipment, I
-        the undersigned, acknowledge, appreciate, and agree that:
+        Applicant must be 18 or older to sign up. If under the age of 18, applicant must get waiver approved by parentor legal guardian and
+        use of their credit and bank information.
+      </Text>
+      <Text style={[styles.defaultFonts, styles.bold, { marginTop: 10 }]}>
+        Release and Waiver of Liability and Code of Conduct Conformity
       </Text>
       <Text style={styles.defaultFonts}>
-        1. The risk of injury from the activities involved in this program is significant, including the potential for permanent paralysis
-        and death.
+        In consideration of being permitted to utilize the facilities, services, and programs of Iron Wolf Fitness Studio, but not limited
+        to, observation or use of facilities and equipment and participation in any program, I, on behalf of myself and any y children,
+        dependents, or personal representatives, hereby:
       </Text>
-      <Text style={styles.defaultFonts}>
-        2. <Text style={styles.bold}>I KNOWINGLY AND FREELY ASSUME ALL SUCH RISKS</Text>, both known and unknown,
-        <Text style={styles.bold}>EVEN IF ARISING FROM THE NEGLIGENCE OF THE RELEASEES</Text> or others, and assume full responsibility for
-        my participation.
+      <Text style={[styles.defaultFonts, { marginTop: 10 }]}>
+        1. Acknowledge that | have: (a) read this release and waiver of liability; (b) had the opportunity to inspect Iron Wolf Fitness
+        Studio's facilities and equipment or will immediately upon entering or participating and will inspect and carefully consider such
+        premises, facilities, or programs; (c) accept the facilities, equipment, and programs as being safe and reasonably suited for the
+        purposes intended and (d) voluntarily sign this release and waiver of liability.
       </Text>
-      <Text style={styles.defaultFonts}>
-        4. I, for myself and on behalf of my heirs, assigns, personal representatives and next of kin,{" "}
-        <Text style={styles.bold}>HEREBY RELEASE, INDEMNIFY, AND HOLD HARMLESS</Text>{" "}
-        <Text style={[styles.bold, styles.underline]}>Iron Wolf Fitness</Text> its officers, officials, agents and/or employees, other
-        participants, sponsors, advertisers, and, if applicable, owners and lessors of premises used to conduct the event (RELEASEES), from
-        any and all claims, demands, losses, and liability arising out of or related to any{" "}
-        <Text style={styles.bold}>INJURY, DISABILITY OR DEATH</Text> I may suffer, or loss or damage to person or property,{" "}
-        <Text style={styles.bold}>WHETHER ARISING FROM THE NEGLIGENCE OF THE RELEASEES OR OTHERWISE</Text>, to the fullest extent permitted
-        by law.
+      <Text style={[styles.defaultFonts, { marginTop: 10 }]}>
+        2. Release Iron Wolf Fitness Studio, its directors, officers, employees, and volunteers (collectively "gym releases") from all
+        liability to me for any loss or damage to property or injury or death to person, whether caused by the ordinary negligence of the
+        gym's releases or any other person, and while I am in, upon or about any gym equipment therein or participating in any program or
+        service affiliated with the Iron Wolf Fitness Studio.
       </Text>
-      <Text style={styles.defaultFonts}>
-        <Text style={styles.bold}>Health Statement</Text>I will notify{" "}
-        <Text style={[styles.bold, styles.underline]}>Iron Wolf Fitness</Text> ownership or employees if I suffer from any medical or health
-        condition that may cause injury to myself, others, or may require emergency care during my participation.
+      <Text style={[styles.defaultFonts, { marginTop: 10 }]}>
+        3. Agree not to sue Iron Wolf Fitness Studio Releases for any loss, liability, damage, injury, or death described above and agree to
+        indemnify and hold harmless the gym releases and each of them from any loss, damage or cost they may incur due to my presence in,
+        upon or about gym Facilities or equipment therein or from my participation in any program or service affiliated with Iron Wolf
+        Fitness Studio whether caused by the ordinary negligence of the gym's releases or by any other person. I assume full responsibility
+        for the risk of such loss, liability, damage, injury, or death.
       </Text>
-      <Text style={styles.defaultFonts}>
-        <Text style={styles.bold}>Media Statement</Text>
-        By signing below, I hereby grant and convey to <Text style={[styles.bold, styles.underline]}>Iron Wolf Fitness</Text> all right,
-        title and interest in and to record my name, image, voice, or statements including any and all photographic images and video or
-        audio recordings made by <Text style={[styles.bold, styles.underline]}>Iron Wolf Fitness</Text>
+      <Text style={[styles.defaultFonts]}>
+        I intend for this release and waiver of liability to be as broad and inclusive as is permitted by the laws of the State of Illinois.
+        If any portion hereof is held invalid, I agree that the balance shall continue in full force and effect. I hereby state that I am
+        joining this fitness studio of my own volition and that I have not been solicited or pressured to join in anyway whatsoever.
       </Text>
-      <Text style={[styles.defaultFonts, styles.bold]}>
-        I HAVE READ THIS RELEASE OF LIABILITY AND ASSUMPTION OF RISK AGREEMENT, FULLY UNDERSTAND ITS TERMS, UNDERSTAND THAT I HAVE GIVEN UP
-        SUBSTANTIAL RIGHTS BY SIGNING IT, AND SIGN IT FREELY AND VOLUNTARILY WITHOUT ANY INDUCEMENT.
+      <Text style={[styles.defaultFonts]}>
+        In addition, I have read the attached Code of Conduct conditions and I agree to be legally obligated to confrom with all rules of
+        the Iron Wolf fitness.
       </Text>
     </View>
   );
@@ -63,14 +66,13 @@ const WaiverTexts: FC<WaiverTextsProps> = ({ clientName, handleBack }) => {
 export default WaiverTexts;
 const styles = StyleSheet.create({
   container: {
-    rowGap: 10,
+    rowGap: 5,
   },
   titleContainer: {
     position: "relative",
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    columnGap: 20,
     marginBottom: 15,
   },
   button: {
