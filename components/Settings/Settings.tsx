@@ -1,5 +1,5 @@
 import { FC, useLayoutEffect, useState } from "react";
-import { View, KeyboardAvoidingView, Text, Switch, StyleSheet, Pressable, Platform } from "react-native";
+import { View, KeyboardAvoidingView, Text, Switch, StyleSheet, Pressable, Platform, ScrollView } from "react-native";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -108,7 +108,7 @@ const Settings: FC<SettingsCompProps> = ({}) => {
   return (
     <View style={styles.container}>
       {initialized && !updateSettingToggle ? (
-        <>
+        <ScrollView>
           <View style={styles.settingForm}>
             <Text style={styles.settingInfoText}>
               API Url: <Text style={styles.settingInfoTitle}>{settingState.apiUrl}</Text>
@@ -151,46 +151,48 @@ const Settings: FC<SettingsCompProps> = ({}) => {
           >
             <Text style={[styles.defaultText, { fontWeight: "bold" }]}>Previous Submissions</Text>
           </Pressable>
-        </>
+        </ScrollView>
       ) : isSubmitting ? (
         <LoadingView />
       ) : (
-        <KeyboardAvoidingView style={styles.settingForm} enabled behavior={Platform.select({ ios: "padding", android: "height" })}>
-          <FormInputField control={control} name="apiUrl" label="API Url" error={errors?.apiUrl} keyboardType="url" />
-          <FormInputField control={control} name="apiToken" label="API Token" error={errors?.apiToken} secureTextEntry={true} />
-          <HorizontalRule />
-          <FormInputField control={control} name="host" label="Host" error={errors?.host} />
-          <FormInputField control={control} name="email" label="Email" error={errors?.email} keyboardType="email-address" />
-          <FormInputField control={control} name="password" label="Password" error={errors?.password} secureTextEntry={true} />
-          <HorizontalRule />
-          <FormInputField
-            control={control}
-            name="designatedEmail"
-            label="Designated Email"
-            error={errors?.designatedEmail}
-            keyboardType="email-address"
-          />
-          <View style={styles.saveSubCont}>
-            <Switch
-              trackColor={{ false: "#767577", true: colors.darkBlue }}
-              thumbColor={saveSub ? colors.lightBlue : colors.amber}
-              ios_backgroundColor="#3e3e3e"
-              onValueChange={() => setSaveSub(saveSub === 1 ? 0 : 1)}
-              value={saveSub === 1}
+        <ScrollView>
+          <View style={styles.settingForm}>
+            <FormInputField control={control} name="apiUrl" label="API Url" error={errors?.apiUrl} keyboardType="url" />
+            <FormInputField control={control} name="apiToken" label="API Token" error={errors?.apiToken} secureTextEntry={true} />
+            <HorizontalRule />
+            <FormInputField control={control} name="host" label="Host" error={errors?.host} />
+            <FormInputField control={control} name="email" label="Email" error={errors?.email} keyboardType="email-address" />
+            <FormInputField control={control} name="password" label="Password" error={errors?.password} secureTextEntry={true} />
+            <HorizontalRule />
+            <FormInputField
+              control={control}
+              name="designatedEmail"
+              label="Designated Email"
+              error={errors?.designatedEmail}
+              keyboardType="email-address"
             />
-            <Text style={[styles.defaultText, styles.saveSubmissionLabel]}>Save Submission</Text>
-          </View>
-          <View style={styles.buttonCont}>
-            <FormButton onPress={handleSubmit(handleSettingSubmit)} style={styles.submitBtn}>
-              {!initialized ? "Register" : "Update"}
-            </FormButton>
-            {initialized && (
-              <FormButton onPress={handleCancel} style={styles.cancelBtn}>
-                Cancel
+            <View style={styles.saveSubCont}>
+              <Switch
+                trackColor={{ false: "#767577", true: colors.darkBlue }}
+                thumbColor={saveSub ? colors.lightBlue : colors.amber}
+                ios_backgroundColor="#3e3e3e"
+                onValueChange={() => setSaveSub(saveSub === 1 ? 0 : 1)}
+                value={saveSub === 1}
+              />
+              <Text style={[styles.defaultText, styles.saveSubmissionLabel]}>Save Submission</Text>
+            </View>
+            <View style={styles.buttonCont}>
+              <FormButton onPress={handleSubmit(handleSettingSubmit)} style={styles.submitBtn}>
+                {!initialized ? "Register" : "Update"}
               </FormButton>
-            )}
+              {initialized && (
+                <FormButton onPress={handleCancel} style={styles.cancelBtn}>
+                  Cancel
+                </FormButton>
+              )}
+            </View>
           </View>
-        </KeyboardAvoidingView>
+        </ScrollView>
       )}
     </View>
   );
@@ -203,8 +205,8 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   settingForm: {
-    minWidth: "100%",
     rowGap: 30,
+    minWidth: "100%",
     borderWidth: 2,
     borderColor: colors.white,
     paddingHorizontal: 25,

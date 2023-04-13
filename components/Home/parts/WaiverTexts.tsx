@@ -1,15 +1,15 @@
 import { FC } from "react";
-import { View, Text, StyleSheet, Pressable } from "react-native";
+import { View, Text, StyleSheet, Pressable, StyleProp } from "react-native";
 import { colors } from "../../../styles/variables";
 import LeftArrow from "../../../assets/icons/arrow-left.svg";
 interface WaiverTextsProps {
-  clientName: string;
+  style: StyleProp<any>;
   handleBack: () => void;
 }
 
-const WaiverTexts: FC<WaiverTextsProps> = ({ clientName, handleBack }) => {
+const WaiverTexts: FC<WaiverTextsProps> = ({ style, handleBack }) => {
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, style]}>
       <View style={styles.titleContainer}>
         <Pressable style={styles.button} onPress={handleBack}>
           <LeftArrow />

@@ -1,4 +1,4 @@
-import { FC, useRef, useState } from "react";
+import { FC, useEffect, useRef, useState } from "react";
 import { View, Text, StyleSheet, GestureResponderEvent, Dimensions } from "react-native";
 import ViewShot, { captureRef } from "react-native-view-shot";
 import { Svg, Path } from "react-native-svg";
@@ -8,14 +8,32 @@ import RotateButton from "./buttons/RotateButton";
 interface SignatureBoxProps {
   resetSignature: () => void;
   enableScroll: (touchState: "started" | "ended") => void;
-  addSignature: (section: "initial" | "applicant" | "guardian", signatureString: string) => void;
 }
-
-const SignatureBox: FC<SignatureBoxProps> = ({ addSignature, resetSignature, enableScroll }) => {
+type measurement = {
+  width: number;
+  height: number;
+  x: number;
+  y: number;
+};
+const SignatureBox: FC<SignatureBoxProps> = ({ resetSignature, enableScroll }) => {
   const canvasRef = useRef(null);
   const containerRef = useRef<View>(null);
+  const [boxBound, setBoxBound] = useState<measurement | null>(null);
   const [paths, setPaths] = useState<{ single: string[]; multiple: string[] }>({ single: [], multiple: [] });
-
+  useEffect(() => {
+    setTimeout(() => {
+      containerRef.current?.measure((fx, fy, width, height, px, py) => {
+        const pageX = px - Dimensions.get("window").width;
+        setBoxBound((prev) => ({
+          ...prev,
+          width,
+          height,
+          x: pageX < 0 ? 15 : pageX,
+          y: py,
+        }));
+      });
+    });
+  }, []);
   //-----touch handle functions
   const onTouchMove = (e: GestureResponderEvent) => {
     enableScroll("started");
@@ -24,6 +42,29 @@ const SignatureBox: FC<SignatureBoxProps> = ({ addSignature, resetSignature, ena
     const {
       nativeEvent: { locationX: touchX, locationY: touchY, pageX, pageY },
     } = e;
+    if (boxBound) {
+      console.log(
+        pageY,
+        boxBound.y,
+        pageX < boxBound.x + 1,
+        pageX > boxBound.x + boxBound.width - 1,
+        pageY < boxBound.y + 1,
+        pageY > boxBound.y + boxBound.height - 1
+      );
+    }
+
+    // if (
+    //   boxBound &&
+    //   (pageX < boxBound.x + 1 ||
+    //     pageX > boxBound.x + boxBound.width - 1 ||
+    //     pageY < boxBound.y + 1 ||
+    //     pageY > boxBound.y + boxBound.height - 1)
+    // ) {
+    //   if (paths.single.length > 0) {
+    //     onTouchEnd();
+    //   }
+    //   return;
+    // }
 
     const newPoint = `${completePath.length === 0 ? "M" : ""}${touchX.toFixed(0)},${touchY.toFixed(0)} `;
     setPaths((prev) => ({
@@ -31,6 +72,7 @@ const SignatureBox: FC<SignatureBoxProps> = ({ addSignature, resetSignature, ena
       single: [...prev.single, newPoint],
     }));
   };
+  console.log(paths);
   const onTouchEnd = () => {
     enableScroll("ended");
     setPaths((prev) => ({
@@ -45,14 +87,6 @@ const SignatureBox: FC<SignatureBoxProps> = ({ addSignature, resetSignature, ena
       single: [],
       multiple: [],
     }));
-    resetSignature();
-  };
-  const captureSignature = async () => {
-    const signature = await captureRef(canvasRef, {
-      format: "png",
-      quality: 1,
-      result: "data-uri",
-    });
   };
   return (
     <View style={SignatureBoxStyles.canvasCont} onTouchMove={onTouchMove} onTouchEnd={onTouchEnd}>

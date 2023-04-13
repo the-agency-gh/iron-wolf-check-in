@@ -1,6 +1,6 @@
 import { FC, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
-import { View, Text, StyleSheet, Pressable, KeyboardAvoidingView, Platform, Dimensions } from "react-native";
+import { View, Text, StyleSheet, Pressable, KeyboardAvoidingView, Platform, Dimensions, ScrollView } from "react-native";
 import DateTimePicker, { DateTimePickerEvent } from "@react-native-community/datetimepicker";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -102,120 +102,130 @@ const ProfileForm: FC<ProfileFormProps> = ({ changePage }) => {
   return (
     <>
       {isSubmitting && <LoadingView style={{ position: "absolute", top: 0, left: 0, height: "100%", width: "100%", zIndex: 1 }} />}
-      <KeyboardAvoidingView enabled={false} style={styles.container}>
-        <View style={styles.formContent}>
-          <View style={styles.nameCont}>
-            <FormInputField
-              style={styles.nameInput}
-              control={control}
-              name="firstName"
-              label="First Name"
-              placeholder="Iron"
-              error={errors?.firstName}
-            />
-            <FormInputField
-              style={styles.nameInput}
-              control={control}
-              name="lastName"
-              label="Last Name"
-              placeholder="Wolf"
-              error={errors?.lastName}
-            />
-          </View>
-          <FormInputField
-            control={control}
-            name="email"
-            label="Email"
-            error={errors?.email}
-            placeholder="email@email.com"
-            keyboardType={"email-address"}
-          />
-          <FormInputField
-            control={control}
-            name="phoneNumber"
-            label="Phone Number"
-            error={errors?.phoneNumber}
-            placeholder="000-000-0000"
-            keyboardType={"number-pad"}
-          />
-          <View style={styles.datePickerCont}>
-            {formState.dateOfBirth && (
-              <Text style={styles.defaultFont}>
-                Date of Birth:{" "}
-                <Text style={{ fontWeight: "bold" }}>
-                  {formState.dateOfBirth.toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" })}
-                </Text>
-              </Text>
-            )}
-            <Pressable
-              style={[styles.DOBButton, shadow]}
-              android_ripple={{ color: colors.lightBlue }}
-              onPress={() => {
-                setDatePickerShow(true);
-              }}
-            >
-              <Text
-                style={[
-                  styles.defaultFont,
-                  {
-                    color: isSubmitted && !formState.dateOfBirth ? colors.amber : colors.baseBlack,
-                    fontWeight: "bold",
-                    textTransform: "uppercase",
-                  },
-                ]}
-              >
-                Pick Date of Birth
-              </Text>
-            </Pressable>
-            {isSubmitted && !formState.dateOfBirth && <Text style={styles.datePickerError}>Date of Birth is Required!</Text>}
-            {datePickerShow && (
-              <DateTimePicker
-                testID="mainFormDateTimePicker"
-                id="mainFormDateTimePicker"
-                value={formState.dateOfBirth || new Date()}
-                mode="date"
-                is24Hour={true}
-                onChange={onDateChange}
+      <ScrollView style={styles.container}>
+        <View style={styles.mainFormContainer}>
+          <View style={[styles.formContent]}>
+            <View style={styles.nameCont}>
+              <FormInputField
+                style={styles.nameInput}
+                control={control}
+                name="firstName"
+                label="First Name"
+                placeholder="Iron"
+                error={errors?.firstName}
               />
+              <FormInputField
+                style={styles.nameInput}
+                control={control}
+                name="lastName"
+                label="Last Name"
+                placeholder="Wolf"
+                error={errors?.lastName}
+              />
+            </View>
+            <FormInputField
+              control={control}
+              name="email"
+              label="Email"
+              error={errors?.email}
+              placeholder="email@email.com"
+              keyboardType={"email-address"}
+            />
+            <FormInputField
+              control={control}
+              name="phoneNumber"
+              label="Phone Number"
+              error={errors?.phoneNumber}
+              placeholder="000-000-0000"
+              keyboardType={"number-pad"}
+            />
+            <View style={styles.datePickerCont}>
+              {formState.dateOfBirth && (
+                <Text style={styles.defaultFont}>
+                  Date of Birth:{" "}
+                  <Text style={{ fontWeight: "bold" }}>
+                    {formState.dateOfBirth.toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" })}
+                  </Text>
+                </Text>
+              )}
+              <Pressable
+                style={[styles.DOBButton, shadow]}
+                android_ripple={{ color: colors.lightBlue }}
+                onPress={() => {
+                  setDatePickerShow(true);
+                }}
+              >
+                <Text
+                  style={[
+                    styles.defaultFont,
+                    {
+                      color: isSubmitted && !formState.dateOfBirth ? colors.amber : colors.baseBlack,
+                      fontWeight: "bold",
+                      textTransform: "uppercase",
+                    },
+                  ]}
+                >
+                  Pick Date of Birth
+                </Text>
+              </Pressable>
+              {isSubmitted && !formState.dateOfBirth && <Text style={styles.datePickerError}>Date of Birth is Required!</Text>}
+              {datePickerShow && (
+                <DateTimePicker
+                  testID="mainFormDateTimePicker"
+                  id="mainFormDateTimePicker"
+                  value={formState.dateOfBirth || new Date()}
+                  mode="date"
+                  is24Hour={true}
+                  onChange={onDateChange}
+                />
+              )}
+            </View>
+          </View>
+          <View style={styles.cameraCont}>
+            <CameraShowButton
+              text={isSubmitted && !formState.profileUri ? "Profile Required" : formState.profileUri ? "Retake Profile Picture" : "Profile"}
+              style={isSubmitted && !formState.profileUri ? { backgroundColor: "#fd858b" } : {}}
+              onPress={handleCameraShowPress.bind(null, "profile", true)}
+              backgroundImg={formState.profileBase64 || undefined}
+            />
+            {cameraStatus.profileShow && (
+              <CameraModal forId="profile" closeModal={handleCameraShowPress} handleCameraInput={handleCameraInput} />
             )}
           </View>
-        </View>
-        <View style={styles.cameraCont}>
-          <CameraShowButton
-            text={isSubmitted && !formState.profileUri ? "Profile Required" : formState.profileUri ? "Retake Profile Picture" : "Profile"}
-            style={isSubmitted && !formState.profileUri ? { backgroundColor: "#fd858b" } : {}}
-            onPress={handleCameraShowPress.bind(null, "profile", true)}
-            backgroundImg={formState.profileBase64 || undefined}
-          />
-          {cameraStatus.profileShow && (
-            <CameraModal forId="profile" closeModal={handleCameraShowPress} handleCameraInput={handleCameraInput} />
-          )}
-        </View>
-        <View style={styles.cameraCont}>
-          <CameraShowButton
-            text={
-              isSubmitted && !formState.photoIdUri ? "Photo ID Required" : formState.photoIdUri ? "Retake Photo ID Picture" : "Photo ID"
-            }
-            style={isSubmitted && !formState.photoIdUri ? { backgroundColor: "#fd858b" } : {}}
-            onPress={handleCameraShowPress.bind(null, "photoId", true)}
-            backgroundImg={formState.photoIdBase64 || undefined}
-          />
-          {cameraStatus.idShow && <CameraModal forId="photoId" closeModal={handleCameraShowPress} handleCameraInput={handleCameraInput} />}
-        </View>
-        <View style={styles.formButtons}>
-          {isDirty ? (
-            <NextButton
-              onPress={handleResetPress}
-              text="Reset"
-              style={[{ backgroundColor: colors.amber }]}
-              textStyle={{ color: colors.white }}
+          <View style={styles.cameraCont}>
+            <CameraShowButton
+              text={
+                isSubmitted && !formState.photoIdUri ? "Photo ID Required" : formState.photoIdUri ? "Retake Photo ID Picture" : "Photo ID"
+              }
+              style={isSubmitted && !formState.photoIdUri ? { backgroundColor: "#fd858b" } : {}}
+              onPress={handleCameraShowPress.bind(null, "photoId", true)}
+              backgroundImg={formState.photoIdBase64 || undefined}
             />
-          ) : (
-            <View></View>
-          )}
-          <NextButton onPress={handleSubmit(handleFormSubmit)} text="Next" />
+            {cameraStatus.idShow && (
+              <CameraModal forId="photoId" closeModal={handleCameraShowPress} handleCameraInput={handleCameraInput} />
+            )}
+          </View>
+          <View style={styles.formButtons}>
+            {isDirty ? (
+              <NextButton
+                onPress={handleResetPress}
+                text="Reset"
+                style={[{ backgroundColor: colors.amber }]}
+                textStyle={{ color: colors.white }}
+              />
+            ) : (
+              <View></View>
+            )}
+            <NextButton
+              onPress={() => {
+                changePage(1);
+              }}
+              text="Next"
+            />
+            <NextButton onPress={handleSubmit(handleFormSubmit)} text="Next" />
+          </View>
         </View>
-      </KeyboardAvoidingView>
+      </ScrollView>
     </>
   );
 };
@@ -223,14 +233,14 @@ const ProfileForm: FC<ProfileFormProps> = ({ changePage }) => {
 export default ProfileForm;
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
     width: Dimensions.get("window").width,
+  },
+  mainFormContainer: {
+    rowGap: 40,
     padding: 25,
-    rowGap: 30,
   },
   formContent: {
     rowGap: 40,
-    marginBottom: 10,
   },
   nameCont: {
     flexDirection: "row",
@@ -266,6 +276,7 @@ const styles = StyleSheet.create({
   cameraCont: {
     flex: 1,
     width: "100%",
+    height: 175,
   },
   formButtons: {
     flexDirection: "row",
