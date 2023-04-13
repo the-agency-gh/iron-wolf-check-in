@@ -29,6 +29,7 @@ const WaiverForm: FC<WaiverFormProps> = ({ changePage }) => {
     state.addSubmissionsPromise,
     state.resetFormState,
   ]);
+  const formInitialized = !!formState.firstName && !!formState.lastName && !!formState.email;
   const canvasRef = useRef(null);
   const [enableScroll, setEnableScroll] = useState(true);
   const [pdfStatus, setPdfStatus] = useState<{ loading: boolean; submitted: boolean; error: boolean; visible: boolean; signature: string }>(
@@ -108,7 +109,16 @@ const WaiverForm: FC<WaiverFormProps> = ({ changePage }) => {
       ) : (
         <ScrollView scrollEnabled={enableScroll}>
           <WaiverTexts style={{ marginTop: 25 }} handleBack={handleBackPress} />
-          <SignatureBox resetSignature={resetSignature} enableScroll={handleEnableScroll} addSignature={handleAddSignature} />
+          <View style={styles.initialContainer}>
+            <Text style={[styles.defaultFonts, { fontWeight: "bold" }]}>Initial:</Text>
+          </View>
+          <SignatureBox
+            resetSignature={resetSignature}
+            formInitialized={formInitialized}
+            placeholder="Signature"
+            enableScroll={handleEnableScroll}
+            addSignature={handleAddSignature}
+          />
           <NextButton onPress={handleVerify} text="Verify" style={styles.verifyBtn} textStyle={{ color: colors.darkBlack }} />
           <PdfModal
             visible={pdfStatus.visible}
@@ -155,61 +165,11 @@ const styles = StyleSheet.create({
     backgroundColor: colors.lightBlue,
     marginVertical: 25,
   },
-});
-
-const SignatureBoxStyles = StyleSheet.create({
-  container: {
-    flex: 1,
-    minHeight: 100,
-    maxHeight: 200,
-    flexDirection: "row",
-    justifyContent: "space-between",
-    columnGap: 25,
+  initialContainer: {
+    marginVertical: 15,
   },
-  canvasCont: {
-    position: "relative",
-    width: "65%",
-    height: "100%",
-    borderWidth: 2,
-    borderColor: colors.white,
-  },
-  buttonsCont: {
-    flex: 1,
-    justifyContent: "space-between",
-  },
-  requiredTextCont: {
-    zIndex: -1,
-    position: "absolute",
-    top: 0,
-    left: 0,
-    width: "100%",
-    height: "100%",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  requiredText: {
-    textAlign: "center",
-    fontSize: 60,
-    textTransform: "uppercase",
+  defaultFonts: {
     color: colors.white,
-  },
-  resetBtnCont: {
-    position: "relative",
-    // top: 10,
-    // right: 0,
-    width: 40,
-    height: 40,
-    aspectRatio: "1/1",
-    padding: 5,
-    marginRight: 0,
-  },
-  resetContainer: {
-    position: "absolute",
-    right: 0,
-    transform: [
-      {
-        translateX: 50,
-      },
-    ],
+    fontSize: 18,
   },
 });

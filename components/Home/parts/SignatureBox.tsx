@@ -1,17 +1,28 @@
-import { FC, useRef, useState } from "react";
-import { View, Text, StyleSheet, GestureResponderEvent, Dimensions } from "react-native";
+import { FC, useEffect, useRef, useState } from "react";
+import { View, Text, StyleSheet, GestureResponderEvent, Dimensions, StyleProp } from "react-native";
 import ViewShot, { captureRef } from "react-native-view-shot";
 import { Svg, Path } from "react-native-svg";
 import { colors } from "../../../styles/variables";
 import RotateButton from "./buttons/RotateButton";
+import { debounce } from "../../../utils/functions";
 
 interface SignatureBoxProps {
+  style?: StyleProp<any>;
+  placeholder?: string;
+  formInitialized: boolean;
   resetSignature: () => void;
   enableScroll: (touchState: "started" | "ended") => void;
   addSignature: (section: "initial" | "applicant" | "guardian", signatureString: string) => void;
 }
 
-const SignatureBox: FC<SignatureBoxProps> = ({ addSignature, resetSignature, enableScroll }) => {
+const SignatureBox: FC<SignatureBoxProps> = ({
+  style,
+  placeholder = "placeholder",
+  formInitialized,
+  addSignature,
+  resetSignature,
+  enableScroll,
+}) => {
   const canvasRef = useRef(null);
   const containerRef = useRef<View>(null);
   const [paths, setPaths] = useState<{ single: string[]; multiple: string[] }>({ single: [], multiple: [] });
@@ -38,6 +49,9 @@ const SignatureBox: FC<SignatureBoxProps> = ({ addSignature, resetSignature, ena
       multiple: [...prev.multiple, prev.single.join("")],
       single: [],
     }));
+    let timeout: NodeJS.Timeout;
+    debounce(captureSignature);
+    console.log("hi/");
   };
   const signatureReset = () => {
     setPaths((prev) => ({
@@ -53,39 +67,45 @@ const SignatureBox: FC<SignatureBoxProps> = ({ addSignature, resetSignature, ena
       quality: 1,
       result: "data-uri",
     });
+    console.log(signature, "fire?");
   };
+  useEffect(() => {
+    !formInitialized && signatureReset();
+  }, [formInitialized]);
   return (
-    <View style={SignatureBoxStyles.canvasCont} onTouchMove={onTouchMove} onTouchEnd={onTouchEnd}>
-      {paths.multiple.length == 0 && paths.single.length == 0 && (
-        <View style={SignatureBoxStyles.requiredTextCont}>
-          <Text style={SignatureBoxStyles.requiredText}>Signature</Text>
+    <View style={[SignatureBoxStyles.container, style]}>
+      <View style={SignatureBoxStyles.canvasCont} onTouchMove={onTouchMove} onTouchEnd={onTouchEnd}>
+        {paths.multiple.length == 0 && paths.single.length == 0 && (
+          <View style={SignatureBoxStyles.requiredTextCont}>
+            <Text style={SignatureBoxStyles.requiredText}>placeholder</Text>
+          </View>
+        )}
+        <View ref={containerRef}>
+          <ViewShot ref={canvasRef}>
+            <Svg height="100%" width="100%">
+              <Path
+                d={paths.single.join("")}
+                stroke={colors.white}
+                fill={"transparent"}
+                strokeWidth={2}
+                strokeLinejoin="round"
+                strokeLinecap="round"
+              />
+              {paths.multiple.length > 0 &&
+                paths.multiple.map((path, i) => (
+                  <Path
+                    key={`path-${i}`}
+                    d={path}
+                    stroke={colors.white}
+                    fill={"transparent"}
+                    strokeWidth={2}
+                    strokeLinejoin="round"
+                    strokeLinecap="round"
+                  />
+                ))}
+            </Svg>
+          </ViewShot>
         </View>
-      )}
-      <View ref={containerRef}>
-        <ViewShot ref={canvasRef}>
-          <Svg height="100%" width="100%">
-            <Path
-              d={paths.single.join("")}
-              stroke={colors.white}
-              fill={"transparent"}
-              strokeWidth={2}
-              strokeLinejoin="round"
-              strokeLinecap="round"
-            />
-            {paths.multiple.length > 0 &&
-              paths.multiple.map((path, i) => (
-                <Path
-                  key={`path-${i}`}
-                  d={path}
-                  stroke={colors.white}
-                  fill={"transparent"}
-                  strokeWidth={2}
-                  strokeLinejoin="round"
-                  strokeLinecap="round"
-                />
-              ))}
-          </Svg>
-        </ViewShot>
       </View>
       <View style={SignatureBoxStyles.resetContainer}>
         {paths.multiple.length > 0 && <RotateButton onPress={signatureReset} style={SignatureBoxStyles.resetBtnCont} />}
@@ -97,26 +117,25 @@ const SignatureBox: FC<SignatureBoxProps> = ({ addSignature, resetSignature, ena
 export default SignatureBox;
 
 const SignatureBoxStyles = StyleSheet.create({
-  canvasCont: {
-    position: "relative",
+  container: {
+    flexDirection: "row",
+    columnGap: 25,
     width: "65%",
     height: "100%",
     minHeight: 100,
     maxHeight: 200,
+  },
+  canvasCont: {
+    flex: 1,
+    position: "relative",
+    height: "100%",
     borderWidth: 2,
     borderColor: colors.white,
+    overflow: "hidden",
   },
   buttonsCont: {
     flex: 1,
     justifyContent: "space-between",
-  },
-  resetBtnCont: {
-    position: "relative",
-    width: 40,
-    height: 40,
-    aspectRatio: "1/1",
-    padding: 5,
-    marginRight: 0,
   },
   requiredTextCont: {
     zIndex: -1,
@@ -130,17 +149,19 @@ const SignatureBoxStyles = StyleSheet.create({
   },
   requiredText: {
     textAlign: "center",
-    fontSize: 60,
+    fontSize: 45,
     textTransform: "uppercase",
     color: colors.white,
   },
   resetContainer: {
-    position: "absolute",
-    right: 0,
-    transform: [
-      {
-        translateX: 50,
-      },
-    ],
+    width: 40,
+    height: 40,
+    aspectRatio: "1/1",
+  },
+  resetBtnCont: {
+    width: "100%",
+    height: "100%",
+    padding: 5,
+    marginRight: 0,
   },
 });
