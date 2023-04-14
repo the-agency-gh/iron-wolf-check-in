@@ -8,17 +8,18 @@ import NextButton from "./buttons/NextButton";
 import LoadingView from "../../LoadingView";
 
 interface PdfModalProps {
-  signatureString: string;
+  applicantName: string;
+  signatures: { initial: string; applicant: string; guardian: string };
   visible: boolean;
   onConfirm: () => void;
   onCancel: () => void;
 }
 
-const PdfModal: FC<PdfModalProps> = ({ signatureString, visible, onConfirm, onCancel }) => {
+const PdfModal: FC<PdfModalProps> = ({ applicantName, signatures, visible, onConfirm, onCancel }) => {
   return (
     <Modal style={styles.modal} visible={visible} animationType="slide">
       <View style={styles.container}>
-        <WebView style={styles.waiverContainer} originWhiteList={"*"} source={{ html: waiverFormHtml(signatureString) }} />
+        <WebView style={styles.waiverContainer} originWhiteList={"*"} source={{ html: waiverFormHtml({ ...signatures, applicantName }) }} />
         <View style={styles.buttonContainer}>
           <NextButton text="Cancel" onPress={onCancel} style={{ backgroundColor: colors.amber3 }} />
           <NextButton text="Confirm" onPress={onConfirm} style={{ backgroundColor: colors.green }} />

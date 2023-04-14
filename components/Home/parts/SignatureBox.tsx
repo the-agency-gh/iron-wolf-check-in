@@ -4,18 +4,19 @@ import ViewShot, { captureRef } from "react-native-view-shot";
 import { Svg, Path } from "react-native-svg";
 import { colors } from "../../../styles/variables";
 import RotateButton from "./buttons/RotateButton";
-import { debounce } from "../../../utils/functions";
 
 interface SignatureBoxProps {
+  forId: "initial" | "applicant" | "guardian";
   style?: StyleProp<any>;
   placeholder?: string;
   formInitialized: boolean;
-  resetSignature: () => void;
+  resetSignature: (section: "initial" | "applicant" | "guardian" | "all") => void;
   enableScroll: (touchState: "started" | "ended") => void;
   addSignature: (section: "initial" | "applicant" | "guardian", signatureString: string) => void;
 }
 
 const SignatureBox: FC<SignatureBoxProps> = ({
+  forId,
   style,
   placeholder = "placeholder",
   formInitialized,
@@ -49,9 +50,7 @@ const SignatureBox: FC<SignatureBoxProps> = ({
       multiple: [...prev.multiple, prev.single.join("")],
       single: [],
     }));
-    let timeout: NodeJS.Timeout;
-    debounce(captureSignature);
-    console.log("hi/");
+    captureSignature();
   };
   const signatureReset = () => {
     setPaths((prev) => ({
@@ -59,7 +58,7 @@ const SignatureBox: FC<SignatureBoxProps> = ({
       single: [],
       multiple: [],
     }));
-    resetSignature();
+    resetSignature(forId);
   };
   const captureSignature = async () => {
     const signature = await captureRef(canvasRef, {
@@ -67,7 +66,7 @@ const SignatureBox: FC<SignatureBoxProps> = ({
       quality: 1,
       result: "data-uri",
     });
-    console.log(signature, "fire?");
+    addSignature(forId, signature);
   };
   useEffect(() => {
     !formInitialized && signatureReset();
@@ -77,7 +76,7 @@ const SignatureBox: FC<SignatureBoxProps> = ({
       <View style={SignatureBoxStyles.canvasCont} onTouchMove={onTouchMove} onTouchEnd={onTouchEnd}>
         {paths.multiple.length == 0 && paths.single.length == 0 && (
           <View style={SignatureBoxStyles.requiredTextCont}>
-            <Text style={SignatureBoxStyles.requiredText}>placeholder</Text>
+            <Text style={SignatureBoxStyles.requiredText}>{placeholder}</Text>
           </View>
         )}
         <View ref={containerRef}>
@@ -121,9 +120,7 @@ const SignatureBoxStyles = StyleSheet.create({
     flexDirection: "row",
     columnGap: 25,
     width: "65%",
-    height: "100%",
-    minHeight: 100,
-    maxHeight: 200,
+    height: 150,
   },
   canvasCont: {
     flex: 1,
