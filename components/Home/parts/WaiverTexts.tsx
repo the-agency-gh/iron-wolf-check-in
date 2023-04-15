@@ -16,7 +16,7 @@ const WaiverTexts: FC<WaiverTextsProps> = ({ style, handleBack }) => {
         </Pressable>
         <Text style={[styles.titleFont, styles.bold]}>Iron Wolf Fitness ONE-TIME Daily Pass and Agreement</Text>
       </View>
-      <Text style={[styles.defaultFonts, styles.bold, { marginVertical: 10 }]}>Gym Policies</Text>
+      <Text style={[styles.defaultFonts, styles.bold]}>Gym Policies</Text>
       <Text style={[styles.defaultFonts, styles.bold, { marginTop: 10 }]}>1. Disclaimers.</Text>
       <Text style={styles.defaultFonts}>Iron Wolf is not responsible for any loss or damage to personal belongings.</Text>
       <Text style={styles.defaultFonts}>
@@ -73,7 +73,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    marginBottom: 15,
+    marginBottom: 20,
   },
   button: {
     position: "absolute",

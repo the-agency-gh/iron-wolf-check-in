@@ -30,6 +30,8 @@ const initialState: StateType = {
     email: undefined,
     phoneNumber: undefined,
     dateOfBirth: undefined,
+    cash: true,
+    memberName: "",
     profileUri: undefined,
     profileBase64: undefined,
     photoIdUri: undefined,
@@ -42,7 +44,7 @@ const initialState: StateType = {
     email: undefined,
     password: undefined,
     designatedEmail: undefined,
-    saveSubmission: 0,
+    saveSubmission: false,
   },
 };
 
@@ -68,7 +70,7 @@ export const useGlobalStore = create<StateType & FormAction>((set, get) => ({
   addSubmissionsPromise: async (pdfUri, pdfBase64) => {
     const { formState, settingState } = get();
     if (!settingState.apiUrl || !settingState.apiToken) return;
-    const { firstName, lastName, email, phoneNumber, dateOfBirth, profileBase64, photoIdBase64, profileUri, photoIdUri } =
+    const { firstName, lastName, email, phoneNumber, dateOfBirth, cash, memberName, profileBase64, photoIdBase64, profileUri, photoIdUri } =
       formState as SubmissionProps & Base64;
     const stringDate = dateOfBirth.toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" });
     //--------add to sqlite db
@@ -87,6 +89,8 @@ export const useGlobalStore = create<StateType & FormAction>((set, get) => ({
         email,
         phoneNumber,
         dateOfBirth,
+        cash,
+        memberName,
         profileUri,
         photoIdUri,
         pdfUri,
@@ -114,11 +118,14 @@ export const useGlobalStore = create<StateType & FormAction>((set, get) => ({
         email,
         phoneNumber,
         dateOfBirth: stringDate,
+        cash,
+        memberName,
         profileBase64: totalFileSize < 1_000_000 ? profileBase64 : "",
         photoIdBase64: totalFileSize < 1_000_000 ? photoIdBase64 : "",
         pdfBase64,
       },
     };
+
     const postConfig = {
       headers: {
         "Content-Type": "application/json",

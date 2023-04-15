@@ -31,6 +31,7 @@ const SignatureBox: FC<SignatureBoxProps> = ({
   //-----touch handle functions
   const onTouchMove = (e: GestureResponderEvent) => {
     enableScroll("started");
+
     const completePath = [...paths.single];
 
     const {
@@ -75,7 +76,7 @@ const SignatureBox: FC<SignatureBoxProps> = ({
     <View style={[SignatureBoxStyles.container, style]}>
       <View style={SignatureBoxStyles.canvasCont} onTouchMove={onTouchMove} onTouchEnd={onTouchEnd}>
         {((paths.multiple.length == 0 && paths.single.length == 0) || !placeholder) && (
-          <View style={SignatureBoxStyles.requiredTextCont}>
+          <View pointerEvents="none" style={SignatureBoxStyles.requiredTextCont}>
             <Text style={SignatureBoxStyles.requiredText}>{placeholder}</Text>
           </View>
         )}
@@ -86,7 +87,7 @@ const SignatureBox: FC<SignatureBoxProps> = ({
                 d={paths.single.join("")}
                 stroke={colors.white}
                 fill={"transparent"}
-                strokeWidth={2}
+                strokeWidth={3}
                 strokeLinejoin="round"
                 strokeLinecap="round"
               />
@@ -97,7 +98,7 @@ const SignatureBox: FC<SignatureBoxProps> = ({
                     d={path}
                     stroke={colors.white}
                     fill={"transparent"}
-                    strokeWidth={2}
+                    strokeWidth={3}
                     strokeLinejoin="round"
                     strokeLinecap="round"
                   />

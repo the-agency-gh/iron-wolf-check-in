@@ -40,6 +40,14 @@ const SubmissionCard: FC<SubmissionCardProps> = ({ data, index, handleDelete }) 
           <Text style={styles.label}>
             Date of Birth: <Text style={styles.info}>{data.dateOfBirth.toString()}</Text>
           </Text>
+          <Text style={styles.label}>
+            Cash Payment: <Text style={styles.info}>{data.cash ? "True" : "False"}</Text>
+          </Text>
+          {!data.cash && (
+            <Text style={styles.label}>
+              Member Name: <Text style={styles.info}>{data.memberName}</Text>
+            </Text>
+          )}
         </View>
       </View>
       <View style={styles.buttonCont}>

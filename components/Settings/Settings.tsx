@@ -1,10 +1,10 @@
 import { FC, useLayoutEffect, useState } from "react";
-import { View, KeyboardAvoidingView, Text, Switch, StyleSheet, Pressable, Platform, ScrollView } from "react-native";
+import { View, Text, Switch, StyleSheet, Pressable, ScrollView } from "react-native";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useNavigation } from "@react-navigation/native";
-import { Header, StackNavigationProp } from "@react-navigation/stack";
+import { StackNavigationProp } from "@react-navigation/stack";
 //--components
 import { colors } from "../../styles/variables";
 import { addSetting, updateSetting, SettingsProps } from "../../utils/database";
@@ -38,7 +38,7 @@ const Settings: FC<SettingsCompProps> = ({}) => {
   const initialized = !!settingState.host && !!settingState.email && !!settingState.password && !!settingState.designatedEmail;
 
   const [updateSettingToggle, setUpdateSettingToggle] = useState(false);
-  const [saveSub, setSaveSub] = useState<1 | 0>(settingState.saveSubmission || 0);
+  const [saveSub, setSaveSub] = useState<boolean>(settingState.saveSubmission || false);
   const {
     control,
     handleSubmit,
@@ -85,7 +85,7 @@ const Settings: FC<SettingsCompProps> = ({}) => {
     setValue("email", settingState.email || "");
     setValue("password", settingState.password || "");
     setValue("designatedEmail", settingState.designatedEmail || "");
-    setSaveSub(settingState.saveSubmission || 0);
+    setSaveSub(settingState.saveSubmission || false);
     setUpdateSettingToggle(false);
   };
   useLayoutEffect(() => {
@@ -129,7 +129,7 @@ const Settings: FC<SettingsCompProps> = ({}) => {
               Designated Email: <Text style={styles.settingInfoTitle}>{settingState.designatedEmail}</Text>
             </Text>
             <Text style={styles.settingInfoText}>
-              Save Submission: <Text style={styles.settingInfoTitle}>{saveSub === 1 ? "True" : "False"}</Text>
+              Save Submission: <Text style={styles.settingInfoTitle}>{saveSub ? "True" : "False"}</Text>
             </Text>
             <View style={{ flexDirection: "row" }}>
               <FormButton
@@ -176,8 +176,8 @@ const Settings: FC<SettingsCompProps> = ({}) => {
                 trackColor={{ false: "#767577", true: colors.darkBlue }}
                 thumbColor={saveSub ? colors.lightBlue : colors.amber}
                 ios_backgroundColor="#3e3e3e"
-                onValueChange={() => setSaveSub(saveSub === 1 ? 0 : 1)}
-                value={saveSub === 1}
+                onValueChange={() => setSaveSub(!saveSub)}
+                value={saveSub}
               />
               <Text style={[styles.defaultText, styles.saveSubmissionLabel]}>Save Submission</Text>
             </View>

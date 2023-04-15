@@ -14,6 +14,8 @@ export function initializeTable() {
             email TEXT NOT NULL,
             phoneNumber TEXT NOT NULL,
             dateOfBirth DATE NOT NULL,
+            cash BOOLEAN DEFAULT FALSE,
+            memberName TEXT NOT NULL,
             profileUri TEXT NOT NULL,
             photoIdUri TEXT NOT NULL,
             pdfUri TEXT NOT NULL,
@@ -64,17 +66,30 @@ export interface SubmissionProps {
   email: string;
   phoneNumber: string;
   dateOfBirth: Date;
+  cash: boolean;
+  memberName?: string;
   profileUri: string;
   photoIdUri: string;
   pdfUri: string;
 }
-export function addSubmissions({ firstName, lastName, email, phoneNumber, dateOfBirth, profileUri, photoIdUri, pdfUri }: SubmissionProps) {
+export function addSubmissions({
+  firstName,
+  lastName,
+  email,
+  phoneNumber,
+  dateOfBirth,
+  cash,
+  memberName = "",
+  profileUri,
+  photoIdUri,
+  pdfUri,
+}: SubmissionProps) {
   return new Promise((resolve, reject) => {
     const stringDOB = dateOfBirth.toISOString().substring(0, 10);
     database.transaction((tx) => {
       tx.executeSql(
-        "INSERT INTO submissions (firstName, lastName, email, phoneNumber, dateOfBirth, profileUri, photoIdUri, pdfUri) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
-        [firstName, lastName, email, phoneNumber, stringDOB, profileUri, photoIdUri, pdfUri],
+        "INSERT INTO submissions (firstName, lastName, email, phoneNumber, dateOfBirth, cash, memberName, profileUri, photoIdUri, pdfUri) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+        [firstName, lastName, email, phoneNumber, stringDOB, cash ? 1 : 0, memberName, profileUri, photoIdUri, pdfUri],
         (_, result) => {
           resolve(result);
         },
@@ -133,6 +148,8 @@ export function retrieveSubmission(id: number) {
         [id],
         (_, result) => {
           const data = result.rows._array[0];
+          data && (data.cash = data.cash === 1);
+          console.log(data, "also data");
           resolve(data);
         },
         (_, error) => {
@@ -151,9 +168,9 @@ export interface SettingsProps {
   email: string;
   password: string;
   designatedEmail: string;
-  saveSubmission: 0 | 1;
+  saveSubmission: boolean;
 }
-export function addSetting({ apiUrl, apiToken, host, email, password, designatedEmail, saveSubmission = 0 }: SettingsProps) {
+export function addSetting({ apiUrl, apiToken, host, email, password, designatedEmail, saveSubmission = false }: SettingsProps) {
   return new Promise(async (resolve, reject) => {
     const currentSetting = await retrieveSetting();
     if (currentSetting) {
@@ -175,7 +192,7 @@ export function addSetting({ apiUrl, apiToken, host, email, password, designated
     });
   });
 }
-export async function updateSetting({ apiUrl, apiToken, host, email, password, designatedEmail, saveSubmission = 0 }: SettingsProps) {
+export async function updateSetting({ apiUrl, apiToken, host, email, password, designatedEmail, saveSubmission = false }: SettingsProps) {
   await resetSetting();
   return addSetting({ apiUrl, apiToken, host, email, password, designatedEmail, saveSubmission });
 }
@@ -203,6 +220,8 @@ export function retrieveSetting() {
         "SELECT * FROM settings LIMIT ?",
         [1],
         (_, result) => {
+          const data = result.rows._array[0];
+          data && (data.saveSubmission = data.saveSubmission === 1);
           resolve(result.rows._array[0]);
         },
         (_, error) => {

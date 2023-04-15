@@ -1,6 +1,6 @@
 import { FC, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
-import { View, Text, StyleSheet, Pressable, KeyboardAvoidingView, Platform, Dimensions, ScrollView } from "react-native";
+import { View, Text, StyleSheet, Pressable, KeyboardAvoidingView, Platform, Dimensions, ScrollView, Switch } from "react-native";
 import DateTimePicker, { DateTimePickerEvent } from "@react-native-community/datetimepicker";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -27,6 +27,7 @@ const formSchema = z.object({
     .trim()
     .min(1, { message: "Phone Number is Required" })
     .regex(/^(\+\d{1,2}\s?)?\(?\d{3}\)?[\s.-]?\d{3}[\s.-]?\d{4}$/, { message: "Please Type in Valid Phone Number" }),
+  memberName: z.string().trim(),
 });
 
 const ProfileForm: FC<ProfileFormProps> = ({ changePage }) => {
@@ -39,6 +40,7 @@ const ProfileForm: FC<ProfileFormProps> = ({ changePage }) => {
     control,
     handleSubmit,
     reset,
+    getValues,
     formState: { isSubmitted, isSubmitting, errors, isDirty },
   } = useForm({
     resolver: zodResolver(formSchema),
@@ -47,10 +49,12 @@ const ProfileForm: FC<ProfileFormProps> = ({ changePage }) => {
       lastName: "",
       email: "",
       phoneNumber: "",
+      memberName: "",
     },
   });
   const formInitialized = !!formState.firstName && !!formState.lastName && !!formState.email;
   const [datePickerShow, setDatePickerShow] = useState(false);
+  const [cashPayment, setCashPayment] = useState(true);
   const [cameraStatus, setCameraStatus] = useState({ profileShow: false, idShow: false });
   //handle camera and date modals and input
   const onDateChange = (event: DateTimePickerEvent, date?: Date) => {
@@ -80,9 +84,10 @@ const ProfileForm: FC<ProfileFormProps> = ({ changePage }) => {
   };
   //----on submit and on error handler
   const handleFormSubmit = (data: Partial<SubmissionProps>) => {
-    if (!formState.dateOfBirth || !formState.photoIdUri || !formState.profileUri) return;
+    if (!formState.dateOfBirth || !formState.photoIdUri || !formState.profileUri || (!cashPayment && !getValues("memberName"))) return;
     updateFormState({
       ...data,
+      cash: cashPayment,
     });
     changePage(1);
   };
@@ -95,10 +100,12 @@ const ProfileForm: FC<ProfileFormProps> = ({ changePage }) => {
       profileShow: false,
       idShow: false,
     }));
+    setCashPayment(true);
   };
   useEffect(() => {
-    !formInitialized && reset();
+    !formInitialized && handleResetPress();
   }, [formInitialized]);
+
   return (
     <>
       {isSubmitting && <LoadingView style={{ position: "absolute", top: 0, left: 0, height: "100%", width: "100%", zIndex: 1 }} />}
@@ -139,7 +146,7 @@ const ProfileForm: FC<ProfileFormProps> = ({ changePage }) => {
               placeholder="000-000-0000"
               keyboardType={"number-pad"}
             />
-            <View style={styles.datePickerCont}>
+            <View style={styles.additionalFieldCont}>
               {formState.dateOfBirth && (
                 <Text style={styles.defaultFont}>
                   Date of Birth:{" "}
@@ -180,6 +187,33 @@ const ProfileForm: FC<ProfileFormProps> = ({ changePage }) => {
                 />
               )}
             </View>
+            <View style={styles.additionalFieldCont}>
+              <View style={styles.paymentValidationCont}>
+                <Text style={styles.defaultFont}>Cash: </Text>
+                <Switch
+                  trackColor={{ false: "#767577", true: colors.darkBlue }}
+                  thumbColor={cashPayment ? colors.lightBlue : colors.amber}
+                  ios_backgroundColor="#3e3e3e"
+                  onValueChange={() => {
+                    setCashPayment(!cashPayment);
+                  }}
+                  value={cashPayment}
+                />
+              </View>
+              <View style={[styles.memberNameInput, { opacity: cashPayment ? 0.25 : 1 }]} pointerEvents={cashPayment ? "none" : "auto"}>
+                <FormInputField
+                  style={{ flex: 1 }}
+                  control={control}
+                  name="memberName"
+                  label="Member's Name"
+                  placeholder="Iron Wolf"
+                  error={errors?.memberName}
+                />
+                {isSubmitted && !cashPayment && getValues("memberName") === "" && (
+                  <Text style={styles.datePickerError}>Membet's Name is Required!</Text>
+                )}
+              </View>
+            </View>
           </View>
           <View style={styles.cameraCont}>
             <CameraShowButton
@@ -216,12 +250,12 @@ const ProfileForm: FC<ProfileFormProps> = ({ changePage }) => {
             ) : (
               <View></View>
             )}
-            <NextButton
+            {/* <NextButton
               onPress={() => {
                 changePage(1);
               }}
               text="Next"
-            />
+            /> */}
             <NextButton onPress={handleSubmit(handleFormSubmit)} text="Next" />
           </View>
         </View>
@@ -260,23 +294,29 @@ const styles = StyleSheet.create({
     backgroundColor: colors.white,
     textTransform: "uppercase",
   },
-  datePickerCont: {
+  additionalFieldCont: {
     position: "relative",
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "space-between",
+    justifyContent: "space-around",
     columnGap: 35,
+  },
+  paymentValidationCont: {
+    flexDirection: "row",
+    alignItems: "center",
   },
   datePickerError: {
     position: "absolute",
-    left: 12,
     bottom: -22,
     color: colors.amber,
+  },
+  memberNameInput: {
+    width: "50%",
   },
   cameraCont: {
     flex: 1,
     width: "100%",
-    height: 175,
+    height: 200,
   },
   formButtons: {
     flexDirection: "row",

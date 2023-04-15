@@ -1,3 +1,4 @@
+import logo from "./Logo";
 type SignatureSetProps = {
   initial: string;
   applicant: string;
@@ -19,13 +20,11 @@ export const waiverFormHtml = ({ initial, applicant, guardian, applicantName }: 
                   display:flex;
                   flex:1; 
                   flex-direction:column; 
-                  padding:30px 20px;
-
                   background-color:white;
                   line-height:20px;
                   }
                   h1{
-                  font-size:25px;
+                  font-size:22px;
                   text-align:center;
                   margin-bottom:30px; 
                   }
@@ -92,8 +91,17 @@ export const waiverFormHtml = ({ initial, applicant, guardian, applicantName }: 
                   width: 85%;
                   height: 25px;
                   }
+                  .logo{
+                  position:absolute;
+                  top:0px;
+                  right:0px;
+                  width:100px;
+                  height:100px;
+                  object-fit:cover;
+                  }
             </style>
             <body>
+                  <!--<img class="logo" src="${logo}" />-->
                   <h1>
                         Iron Wolf Fitness ONE-TIME Daily Pass and Agreement
                   </h1>

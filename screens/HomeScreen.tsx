@@ -30,7 +30,6 @@ const HomeScreen: FC = () => {
       }
     },
   });
-
   useLayoutEffect(() => {
     navigation.setOptions({
       headerTitleAlign: "left",
@@ -46,7 +45,6 @@ const HomeScreen: FC = () => {
       headerLeft: () => null,
     });
   }, [navigation]);
-
   return (
     <SafeAreaView style={styles.screen}>
       <CompleteForm />

@@ -1,7 +1,6 @@
-import { FC, useRef, useState } from "react";
-import { View, Text, StyleSheet, Dimensions, Alert, ScrollView } from "react-native";
-import ViewShot, { captureRef } from "react-native-view-shot";
-import { printAsync, printToFileAsync } from "expo-print";
+import { FC, useEffect, useState } from "react";
+import { View, Text, StyleSheet, Dimensions, Alert, ScrollView, BackHandler } from "react-native";
+import { printToFileAsync } from "expo-print";
 import Constants from "expo-constants";
 
 import { colors } from "../../styles/variables";
@@ -31,8 +30,7 @@ const WaiverForm: FC<WaiverFormProps> = ({ changePage }) => {
     state.addSubmissionsPromise,
     state.resetFormState,
   ]);
-  const applicantAge = Math.floor((Date.now() - new Date("2006-3-16").getTime()) / (365 * 24 * 60 * 60 * 1000));
-  const formInitialized = !!formState.firstName && !!formState.lastName && !!formState.email;
+  const applicantAge = formState.dateOfBirth && Math.floor((Date.now() - formState.dateOfBirth.getTime()) / (365 * 24 * 60 * 60 * 1000));
   const [enableScroll, setEnableScroll] = useState(true);
   const [pdfStatus, setPdfStatus] = useState<pdfStatus>({
     loading: false,
@@ -82,7 +80,11 @@ const WaiverForm: FC<WaiverFormProps> = ({ changePage }) => {
     }));
   };
   const handleVerify = async () => {
-    if (!pdfStatus.signatures.initial || !pdfStatus.signatures.applicant || (applicantAge < 18 && !pdfStatus.signatures.guardian)) {
+    if (
+      !pdfStatus.signatures.initial ||
+      !pdfStatus.signatures.applicant ||
+      (applicantAge && applicantAge < 18 && !pdfStatus.signatures.guardian)
+    ) {
       Alert.alert("Signiture is Required", "");
       return;
     }
@@ -106,6 +108,14 @@ const WaiverForm: FC<WaiverFormProps> = ({ changePage }) => {
       error: (submissionRes as { data: { status: string }; [rest: string]: any }).data.status !== "successful",
     }));
   };
+  useEffect(() => {
+    const handleHardwardBackPress = () => {
+      handleBackPress();
+      return true;
+    };
+    const backHandler = BackHandler.addEventListener("hardwareBackPress", handleHardwardBackPress);
+    return () => backHandler.remove();
+  });
   return (
     <View style={styles.container}>
       {pdfStatus.loading ? (
@@ -143,7 +153,7 @@ const WaiverForm: FC<WaiverFormProps> = ({ changePage }) => {
               addSignature={handleAddSignature}
             />
           </View>
-          {applicantAge < 18 && (
+          {applicantAge && applicantAge < 18 ? (
             <View style={styles.signatureContainer}>
               <Text style={[styles.defaultFonts, styles.signatureTitle]}>Guardian Signature:</Text>
               <SignatureBox
@@ -155,7 +165,7 @@ const WaiverForm: FC<WaiverFormProps> = ({ changePage }) => {
                 addSignature={handleAddSignature}
               />
             </View>
-          )}
+          ) : null}
           <NextButton onPress={handleVerify} text="Verify" style={styles.verifyBtn} textStyle={{ color: colors.darkBlack }} />
           <PdfModal
             applicantName={`${formState.firstName} ${formState.lastName}`}
