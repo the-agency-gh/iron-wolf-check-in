@@ -19,14 +19,15 @@ export const waiverFormHtml = ({ initial, applicant, guardian, applicantName }: 
                   display:flex;
                   flex:1; 
                   flex-direction:column; 
-                  padding:20px;
+                  padding:30px 20px;
 
                   background-color:white;
                   line-height:20px;
                   }
                   h1{
                   font-size:25px;
-                  text-align:center; 
+                  text-align:center;
+                  margin-bottom:30px; 
                   }
                   img{
                   filter:brightness(0);
@@ -70,7 +71,8 @@ export const waiverFormHtml = ({ initial, applicant, guardian, applicantName }: 
                   width:250px;
                   height:70px;
                   object-fit:contain;
-                  object-position: center bottom;
+                  transform:translateY(20%);
+                  
                   }
                   .initial-box{
                   display:flex;

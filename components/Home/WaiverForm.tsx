@@ -31,6 +31,7 @@ const WaiverForm: FC<WaiverFormProps> = ({ changePage }) => {
     state.addSubmissionsPromise,
     state.resetFormState,
   ]);
+  const applicantAge = Math.floor((Date.now() - new Date("2006-3-16").getTime()) / (365 * 24 * 60 * 60 * 1000));
   const formInitialized = !!formState.firstName && !!formState.lastName && !!formState.email;
   const [enableScroll, setEnableScroll] = useState(true);
   const [pdfStatus, setPdfStatus] = useState<pdfStatus>({
@@ -59,7 +60,7 @@ const WaiverForm: FC<WaiverFormProps> = ({ changePage }) => {
       visible: false,
       submitted: false,
       error: false,
-      signature: {
+      signatures: {
         initial: section === "initial" || section === "all" ? "" : prev.signatures.initial,
         applicant: section === "applicant" || section === "all" ? "" : prev.signatures.applicant,
         guardian: section === "guardian" || section === "all" ? "" : prev.signatures.guardian,
@@ -73,7 +74,7 @@ const WaiverForm: FC<WaiverFormProps> = ({ changePage }) => {
   const handleAddSignature = (section: "initial" | "applicant" | "guardian", signatureString: string) => {
     setPdfStatus((prev) => ({
       ...prev,
-      signature: {
+      signatures: {
         initial: section === "initial" ? signatureString : prev.signatures.initial,
         applicant: section === "applicant" ? signatureString : prev.signatures.applicant,
         guardian: section === "guardian" ? signatureString : prev.signatures.guardian,
@@ -81,7 +82,7 @@ const WaiverForm: FC<WaiverFormProps> = ({ changePage }) => {
     }));
   };
   const handleVerify = async () => {
-    if (!pdfStatus.signatures.initial || !pdfStatus.signatures.applicant) {
+    if (!pdfStatus.signatures.initial || !pdfStatus.signatures.applicant || (applicantAge < 18 && !pdfStatus.signatures.guardian)) {
       Alert.alert("Signiture is Required", "");
       return;
     }
@@ -123,25 +124,38 @@ const WaiverForm: FC<WaiverFormProps> = ({ changePage }) => {
             <Text style={styles.defaultFonts}>Initial:</Text>
             <SignatureBox
               forId={"initial"}
-              style={{ width: 150, height: 50 }}
+              style={{ width: 150, height: 50, alignItems: "center" }}
               resetSignature={resetSignature}
-              formInitialized={formInitialized}
+              signatureStat={!!pdfStatus.signatures.initial}
               placeholder=""
               enableScroll={handleEnableScroll}
               addSignature={handleAddSignature}
             />
           </View>
           <View style={styles.signatureContainer}>
-            <Text style={[styles.defaultFonts]}>Applicant Signature:</Text>
+            <Text style={[styles.defaultFonts, styles.signatureTitle]}>Applicant Signature:</Text>
             <SignatureBox
               forId={"applicant"}
               resetSignature={resetSignature}
-              formInitialized={formInitialized}
+              signatureStat={!!pdfStatus.signatures.applicant}
               placeholder="Signature"
               enableScroll={handleEnableScroll}
               addSignature={handleAddSignature}
             />
           </View>
+          {applicantAge < 18 && (
+            <View style={styles.signatureContainer}>
+              <Text style={[styles.defaultFonts, styles.signatureTitle]}>Guardian Signature:</Text>
+              <SignatureBox
+                forId={"guardian"}
+                resetSignature={resetSignature}
+                signatureStat={!!pdfStatus.signatures.guardian}
+                placeholder="Signature"
+                enableScroll={handleEnableScroll}
+                addSignature={handleAddSignature}
+              />
+            </View>
+          )}
           <NextButton onPress={handleVerify} text="Verify" style={styles.verifyBtn} textStyle={{ color: colors.darkBlack }} />
           <PdfModal
             applicantName={`${formState.firstName} ${formState.lastName}`}
@@ -194,9 +208,12 @@ const styles = StyleSheet.create({
     columnGap: 15,
     marginVertical: 15,
   },
+  signatureTitle: {
+    fontSize: 20,
+  },
   signatureContainer: {
-    rowGap: 15,
-    alignItems: "center",
+    rowGap: 10,
+    marginTop: 20,
   },
   defaultFonts: {
     color: colors.white,

@@ -9,7 +9,7 @@ interface SignatureBoxProps {
   forId: "initial" | "applicant" | "guardian";
   style?: StyleProp<any>;
   placeholder?: string;
-  formInitialized: boolean;
+  signatureStat: boolean;
   resetSignature: (section: "initial" | "applicant" | "guardian" | "all") => void;
   enableScroll: (touchState: "started" | "ended") => void;
   addSignature: (section: "initial" | "applicant" | "guardian", signatureString: string) => void;
@@ -19,7 +19,7 @@ const SignatureBox: FC<SignatureBoxProps> = ({
   forId,
   style,
   placeholder = "placeholder",
-  formInitialized,
+  signatureStat,
   addSignature,
   resetSignature,
   enableScroll,
@@ -69,12 +69,12 @@ const SignatureBox: FC<SignatureBoxProps> = ({
     addSignature(forId, signature);
   };
   useEffect(() => {
-    !formInitialized && signatureReset();
-  }, [formInitialized]);
+    !signatureStat && signatureReset();
+  }, [signatureStat]);
   return (
     <View style={[SignatureBoxStyles.container, style]}>
       <View style={SignatureBoxStyles.canvasCont} onTouchMove={onTouchMove} onTouchEnd={onTouchEnd}>
-        {paths.multiple.length == 0 && paths.single.length == 0 && (
+        {((paths.multiple.length == 0 && paths.single.length == 0) || !placeholder) && (
           <View style={SignatureBoxStyles.requiredTextCont}>
             <Text style={SignatureBoxStyles.requiredText}>{placeholder}</Text>
           </View>
