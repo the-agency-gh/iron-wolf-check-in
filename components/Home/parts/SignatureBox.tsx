@@ -1,5 +1,5 @@
 import { FC, useEffect, useRef, useState } from "react";
-import { View, Text, StyleSheet, GestureResponderEvent, Dimensions, StyleProp } from "react-native";
+import { View, Text, StyleSheet, GestureResponderEvent, StyleProp } from "react-native";
 import ViewShot, { captureRef } from "react-native-view-shot";
 import { Svg, Path } from "react-native-svg";
 import { colors } from "../../../styles/variables";

@@ -9,7 +9,7 @@ import TrashCanIcon from "../../../assets/icons/trash-can.svg";
 import PDFICon from "../../../assets/icons/pdf.svg";
 import IdCardIcon from "../../../assets/icons/idCard.svg";
 
-type fetchedSubmission = SubmissionProps & { id: number };
+type fetchedSubmission = SubmissionProps & { id: number; submissionDate: string };
 interface SubmissionCardProps {
   data: fetchedSubmission;
   index: number;
@@ -48,6 +48,9 @@ const SubmissionCard: FC<SubmissionCardProps> = ({ data, index, handleDelete }) 
               Member Name: <Text style={styles.info}>{data.memberName}</Text>
             </Text>
           )}
+          <Text style={styles.label}>
+            Submitted: <Text style={styles.info}>{data.submissionDate?.split(" ")[0]}</Text>
+          </Text>
         </View>
       </View>
       <View style={styles.buttonCont}>
@@ -93,8 +96,8 @@ const styles = StyleSheet.create({
     overflow: "hidden",
   },
   infoContent: {
-    paddingVertical: 20,
-    rowGap: 20,
+    justifyContent: "space-around",
+    paddingVertical: 10,
   },
   label: {
     fontSize: 16,

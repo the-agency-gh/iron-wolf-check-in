@@ -1,11 +1,8 @@
 import { FC, useEffect, useState } from "react";
 import { View, Text, StyleSheet, Dimensions, Alert, ScrollView, BackHandler } from "react-native";
 import { printToFileAsync } from "expo-print";
-import Constants from "expo-constants";
 
 import { colors } from "../../styles/variables";
-import { SubmissionProps } from "../../utils/database";
-import { retrieveSetting } from "../../utils/database";
 import { useGlobalStore } from "../../utils/formContex";
 import WaiverTexts from "./parts/WaiverTexts";
 import NextButton from "./parts/buttons/NextButton";

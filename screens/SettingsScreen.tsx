@@ -1,6 +1,6 @@
 import { FC, useEffect } from "react";
 import { StyleSheet, SafeAreaView, BackHandler } from "react-native";
-import { useFocusEffect, useNavigation } from "@react-navigation/native";
+import { useNavigation } from "@react-navigation/native";
 import { StackNavigationProp } from "@react-navigation/stack";
 //-------components and func
 import Settings from "../components/Settings/Settings";

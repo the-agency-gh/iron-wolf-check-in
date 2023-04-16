@@ -40,9 +40,9 @@ const initialState: StateType = {
   settingState: {
     apiUrl: ENVVARIABLES?.API_URL || undefined,
     apiToken: ENVVARIABLES?.API_TOKEN || undefined,
-    host: undefined,
-    email: undefined,
-    password: undefined,
+    host: ENVVARIABLES?.HOST_ADDRESS || undefined,
+    email: ENVVARIABLES?.SENDER_EMAIL || undefined,
+    password: ENVVARIABLES?.SENDER_PASSWORD || undefined,
     designatedEmail: undefined,
     saveSubmission: false,
   },

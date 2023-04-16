@@ -149,7 +149,6 @@ export function retrieveSubmission(id: number) {
         (_, result) => {
           const data = result.rows._array[0];
           data && (data.cash = data.cash === 1);
-          console.log(data, "also data");
           resolve(data);
         },
         (_, error) => {

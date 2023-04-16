@@ -53,7 +53,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#ffffff",
   },
   waiverContainer: {
-    backgroundColor: colors.baseBlack,
+    backgroundColor: "#ffffff",
   },
   buttonContainer: {
     flexDirection: "row",

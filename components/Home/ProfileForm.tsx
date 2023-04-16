@@ -1,6 +1,6 @@
 import { FC, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
-import { View, Text, StyleSheet, Pressable, KeyboardAvoidingView, Platform, Dimensions, ScrollView, Switch } from "react-native";
+import { View, Text, StyleSheet, Pressable, Dimensions, ScrollView, Switch } from "react-native";
 import DateTimePicker, { DateTimePickerEvent } from "@react-native-community/datetimepicker";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";

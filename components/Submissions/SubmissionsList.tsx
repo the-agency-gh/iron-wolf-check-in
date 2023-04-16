@@ -11,7 +11,7 @@ import SubmissionCard from "./parts/SubmissionCard";
 import { deleteAsync } from "expo-file-system";
 
 interface SubmissionsListProps {}
-type fetchedSubmission = SubmissionProps & { id: number };
+type fetchedSubmission = SubmissionProps & { id: number; submissionDate: string };
 const SubmissionsList: FC<SubmissionsListProps> = () => {
   const [submissions, setSubmissions] = useState<fetchedSubmission[]>([]);
   const { isLoading, error } = useQuery({
