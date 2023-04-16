@@ -22,7 +22,7 @@ export const waiverFormHtml = ({ initial, applicant, guardian, applicantName, fo
                   flex:1; 
                   flex-direction:column; 
                   background-color:white;
-                  line-height:20px;
+                  line-height:${fontSize + 2}px;
                   }
                   h1{
                   font-size:${fontSize + 4}px;
