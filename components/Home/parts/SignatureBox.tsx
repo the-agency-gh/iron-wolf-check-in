@@ -4,6 +4,7 @@ import ViewShot, { captureRef } from "react-native-view-shot";
 import { Svg, Path } from "react-native-svg";
 import { colors } from "../../../styles/variables";
 import RotateButton from "./buttons/RotateButton";
+import LoadingView from "../../LoadingView";
 
 interface SignatureBoxProps {
   forId: "initial" | "applicant" | "guardian";
@@ -26,10 +27,12 @@ const SignatureBox: FC<SignatureBoxProps> = ({
 }) => {
   const canvasRef = useRef(null);
   const containerRef = useRef<View>(null);
+  const [isLoading, setIsLoading] = useState(false);
   const [paths, setPaths] = useState<{ single: string[]; multiple: string[] }>({ single: [], multiple: [] });
 
   //-----touch handle functions
   const onTouchMove = (e: GestureResponderEvent) => {
+    if (isLoading) return;
     enableScroll("started");
 
     const completePath = [...paths.single];
@@ -44,14 +47,16 @@ const SignatureBox: FC<SignatureBoxProps> = ({
       single: [...prev.single, newPoint],
     }));
   };
-  const onTouchEnd = () => {
+  const onTouchEnd = async () => {
+    setIsLoading(true);
     enableScroll("ended");
     setPaths((prev) => ({
       ...prev,
       multiple: [...prev.multiple, prev.single.join("")],
       single: [],
     }));
-    captureSignature();
+    await captureSignature();
+    setIsLoading(false);
   };
   const signatureReset = () => {
     setPaths((prev) => ({
@@ -80,6 +85,7 @@ const SignatureBox: FC<SignatureBoxProps> = ({
             <Text style={SignatureBoxStyles.requiredText}>{placeholder}</Text>
           </View>
         )}
+        {isLoading && <LoadingView style={SignatureBoxStyles.loadingCont} />}
         <View ref={containerRef}>
           <ViewShot ref={canvasRef}>
             <Svg height="100%" width="100%">
@@ -161,5 +167,12 @@ const SignatureBoxStyles = StyleSheet.create({
     height: "100%",
     padding: 5,
     marginRight: 0,
+  },
+  loadingCont: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    width: "100%",
+    height: "100%",
   },
 });

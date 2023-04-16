@@ -6,8 +6,9 @@ type SignatureSetProps = {
 };
 type FormInfos = {
   applicantName: string;
+  fontSize?: number;
 };
-export const waiverFormHtml = ({ initial, applicant, guardian, applicantName }: SignatureSetProps & FormInfos) => {
+export const waiverFormHtml = ({ initial, applicant, guardian, applicantName, fontSize = 18 }: SignatureSetProps & FormInfos) => {
   const date = new Date().toISOString().substring(0, 10);
   return `
             <html>
@@ -24,9 +25,12 @@ export const waiverFormHtml = ({ initial, applicant, guardian, applicantName }: 
                   line-height:20px;
                   }
                   h1{
-                  font-size:22px;
+                  font-size:${fontSize + 4}px;
                   text-align:center;
                   margin-bottom:30px; 
+                  }
+                  p{
+                  font-size: ${fontSize}px;
                   }
                   img{
                   filter:brightness(0);
@@ -110,7 +114,7 @@ export const waiverFormHtml = ({ initial, applicant, guardian, applicantName }: 
                   </b>
                   <p class="text-block">
                         <b >1. Disclaimers.</b>
-                        <span style="display:block;">Iron Wolf is not responsible for any loss or damage to personal belongings.</span><br/>
+                        <span style="display:block;">Iron Wolf is not responsible for any loss or damage to personal belongings.</span>
                         <span>
                               Applicant must be 18 or older to sign up. If under the age of 18, applicant must get waiver approved by parentor legal guardian and use of their credit and bank information.
                         </span>

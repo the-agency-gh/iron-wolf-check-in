@@ -93,7 +93,7 @@ const WaiverForm: FC<WaiverFormProps> = ({ changePage }) => {
   const handleConfirm = async () => {
     setPdfStatus((prev) => ({ ...prev, visible: false, loading: true }));
     const signedPdf = await printToFileAsync({
-      html: waiverFormHtml({ ...pdfStatus.signatures, applicantName: `${formState.firstName} ${formState.lastName}` }),
+      html: waiverFormHtml({ ...pdfStatus.signatures, applicantName: `${formState.firstName} ${formState.lastName}`, fontSize: 14 }),
       base64: true,
     });
     const submissionRes = await addSubmissionsPromise(signedPdf.uri, signedPdf.base64 as string);
