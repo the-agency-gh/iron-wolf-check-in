@@ -27,6 +27,7 @@ const WaiverForm: FC<WaiverFormProps> = ({ changePage, resetModal }) => {
         state.addSubmissionsPromise,
         state.resetFormState,
     ]);
+    const [autoReset, setAutoReset] = useState<NodeJS.Timeout | null>(null);
     const applicantAge = formState.dateOfBirth && Math.floor((Date.now() - formState.dateOfBirth.getTime()) / (365 * 24 * 60 * 60 * 1000));
     const [enableScroll, setEnableScroll] = useState(true);
     const [pdfStatus, setPdfStatus] = useState<pdfStatus>({
@@ -63,6 +64,7 @@ const WaiverForm: FC<WaiverFormProps> = ({ changePage, resetModal }) => {
         }));
     };
     const handleBackPress = () => {
+        !!autoReset && clearTimeout(autoReset);
         resetSignature("all");
         changePage(0);
     };
@@ -116,10 +118,11 @@ const WaiverForm: FC<WaiverFormProps> = ({ changePage, resetModal }) => {
             submitted: true,
             error: (submissionRes as { data: { status: string }; [rest: string]: any }).data.status !== "successful",
         }));
-        setTimeout(() => {
+        let timeout = setTimeout(() => {
             handleBackPress();
             resetModal();
         }, 10000);
+        setAutoReset(timeout);
     };
     useEffect(() => {
         const handleHardwardBackPress = () => {

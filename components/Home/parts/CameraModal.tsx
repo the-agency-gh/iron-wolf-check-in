@@ -5,6 +5,7 @@ import { Image, Modal, Pressable, StyleSheet, Text, View } from "react-native";
 //------components, etc
 import PersonOutline from "../../../assets/icons/person-outline.svg";
 import { colors, shadow } from "../../../styles/variables";
+import { resizeImage } from "../../../utils/imageProcesser";
 import LoadingView from "../../LoadingView";
 import CloseButton from "./buttons/CloseButton";
 import RotateButton from "./buttons/RotateButton";

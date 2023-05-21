@@ -242,10 +242,10 @@ const ProfileForm: FC<ProfileFormProps> = ({ changePage }) => {
                                     error={errors?.memberName}
                                 />
                                 {/* {isSubmitted && getValues("memberName") === "" && (
-                  <Text style={styles.datePickerError}>
-                    Member's Name is Required
-                  </Text>
-                )} */}
+                                    <Text style={styles.datePickerError}>
+                                      Member's Name is Required
+                                    </Text>
+                                  )} */}
                             </View>
                         </View>
                     </View>
