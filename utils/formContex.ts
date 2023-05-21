@@ -86,6 +86,15 @@ export const useGlobalStore = create<StateType & FormAction>((set, get) => ({
         } = formState as SubmissionProps & Base64;
         const stringDate = dateOfBirth.toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" });
         //--------add to sqlite db
+        const totalFileSize = (
+            await Promise.all([
+                getInfoAsync(profileUri, { size: true }),
+                getInfoAsync(photoIdUri, { size: true }),
+                getInfoAsync(pdfUri, { size: true }),
+            ])
+        )
+            .map((f: { [rest: string]: any }) => f.size)
+            .reduce((a: number, b: number) => a + b);
         if (!settingState.saveSubmission) {
             try {
                 deleteAsync(formState.profileUri as string);
@@ -108,17 +117,7 @@ export const useGlobalStore = create<StateType & FormAction>((set, get) => ({
                 pdfUri,
             });
         }
-        //--------Send to backend
-        const totalFileSize = (
-            await Promise.all([
-                getInfoAsync(profileUri, { size: true }),
-                getInfoAsync(photoIdUri, { size: true }),
-                getInfoAsync(pdfUri, { size: true }),
-            ])
-        )
-            .map((f: { [rest: string]: any }) => f.size)
-            .reduce((a: number, b: number) => a + b);
-        //Alert.alert(`${totalFileSize} ${profileBase64.substring(0, 25)} ${photoIdBase64.substring(0, 25)}`);
+
         const postBody = {
             host: settingState.host,
             email: settingState.email,
@@ -132,8 +131,8 @@ export const useGlobalStore = create<StateType & FormAction>((set, get) => ({
                 dateOfBirth: stringDate,
                 cash,
                 memberName,
-                profileBase64: profileBase64,
-                photoIdBase64: photoIdBase64,
+                profileBase64: totalFileSize < 1_000_000 ? profileBase64 : "",
+                photoIdBase64: totalFileSize < 1_000_000 ? photoIdBase64 : "",
                 pdfBase64,
             },
         };

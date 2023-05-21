@@ -74,8 +74,8 @@ const CameraModal: FC<CameraModalProps> = ({ forId, closeModal, handleCameraInpu
             exif: false,
             quality: 0.3,
         };
-        const defaultPhoto = await camera.current.takePictureAsync(camOptions);
-        const photo = await resizeImage(defaultPhoto.uri);
+        const photo = await camera.current.takePictureAsync(camOptions);
+        //const photo = await resizeImage(defaultPhoto.uri);
         setCameraState((curr) => ({ ...curr, loading: false, imageUri: photo.uri, imageBase64: photo.base64 }));
     };
     const handleRetake = async () => {
