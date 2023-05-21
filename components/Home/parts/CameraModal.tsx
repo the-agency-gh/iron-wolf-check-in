@@ -1,14 +1,14 @@
+import { Camera, CameraPictureOptions, CameraType } from "expo-camera";
+import { deleteAsync } from "expo-file-system";
 import { FC, useRef, useState } from "react";
-import { Modal, Text, StyleSheet, View, Pressable, Image } from "react-native";
-import { Camera, CameraType, CameraPictureOptions } from "expo-camera";
-import { deleteAsync, getInfoAsync } from "expo-file-system";
+import { Image, Modal, Pressable, StyleSheet, Text, View } from "react-native";
 //------components, etc
-import { colors, shadow } from "../../../styles/variables";
-import CloseButton from "./buttons/CloseButton";
 import PersonOutline from "../../../assets/icons/person-outline.svg";
-import ShootButton from "./buttons/ShootButton";
-import RotateButton from "./buttons/RotateButton";
+import { colors, shadow } from "../../../styles/variables";
 import LoadingView from "../../LoadingView";
+import CloseButton from "./buttons/CloseButton";
+import RotateButton from "./buttons/RotateButton";
+import ShootButton from "./buttons/ShootButton";
 
 interface CameraModalProps {
     forId: "profile" | "photoId";
