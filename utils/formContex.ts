@@ -1,8 +1,8 @@
 import axios from "axios";
-import { create } from "zustand";
 import Constants from "expo-constants";
-import { addSubmissions, SubmissionProps, SettingsProps } from "./database";
-import { deleteAsync, getInfoAsync, FileInfo } from "expo-file-system";
+import { deleteAsync, getInfoAsync } from "expo-file-system";
+import { create } from "zustand";
+import { SettingsProps, SubmissionProps, addSubmissions } from "./database";
 
 const ENVVARIABLES = Constants.expoConfig?.extra;
 
@@ -16,7 +16,10 @@ export interface FormAction {
   updateFormState: (data: Partial<SubmissionProps & Base64>) => void;
   updateSettingState: (data: Partial<SettingsProps>) => void;
   resetFormState: () => void;
-  addSubmissionsPromise: (pdfUri: string, pdfBase64: string) => Promise<unknown>;
+  addSubmissionsPromise: (
+    pdfUri: string,
+    pdfBase64: string
+  ) => Promise<unknown>;
 }
 
 //var options = { year: 'numeric', month: '2-digit', day: '2-digit' };
@@ -70,9 +73,24 @@ export const useGlobalStore = create<StateType & FormAction>((set, get) => ({
   addSubmissionsPromise: async (pdfUri, pdfBase64) => {
     const { formState, settingState } = get();
     if (!settingState.apiUrl || !settingState.apiToken) return;
-    const { firstName, lastName, email, phoneNumber, dateOfBirth, cash, memberName, profileBase64, photoIdBase64, profileUri, photoIdUri } =
-      formState as SubmissionProps & Base64;
-    const stringDate = dateOfBirth.toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" });
+    const {
+      firstName,
+      lastName,
+      email,
+      phoneNumber,
+      dateOfBirth,
+      cash,
+      memberName,
+      profileBase64,
+      photoIdBase64,
+      profileUri,
+      photoIdUri,
+    } = formState as SubmissionProps & Base64;
+    const stringDate = dateOfBirth.toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+    });
     //--------add to sqlite db
     if (!settingState.saveSubmission) {
       try {

@@ -9,7 +9,6 @@ import {
   Pressable,
   ScrollView,
   StyleSheet,
-  Switch,
   Text,
   View,
 } from "react-native";
@@ -246,7 +245,7 @@ const ProfileForm: FC<ProfileFormProps> = ({ changePage }) => {
               )}
             </View>
             <View style={styles.additionalFieldCont}>
-              <View style={styles.paymentValidationCont}>
+              {/* <View style={styles.paymentValidationCont}>
                 <Text style={styles.defaultFont}>Cash: </Text>
                 <Switch
                   trackColor={{ false: "#767577", true: colors.darkBlue }}
@@ -257,13 +256,21 @@ const ProfileForm: FC<ProfileFormProps> = ({ changePage }) => {
                   }}
                   value={cashPayment}
                 />
-              </View>
+              </View> */}
               <View style={styles.paymentValidationCont}>
-                <Checkbox />
+                <Checkbox
+                  value={cashPayment}
+                  onValueChange={() => setCashPayment(true)}
+                  style={styles.checkbox}
+                />
                 <Text style={styles.defaultFont}>Cash</Text>
               </View>
               <View style={styles.paymentValidationCont}>
-                <Checkbox />
+                <Checkbox
+                  value={!cashPayment}
+                  onValueChange={() => setCashPayment(false)}
+                  style={styles.checkbox}
+                />
                 <Text style={styles.defaultFont}>Charge Member</Text>
               </View>
               <View style={[styles.memberNameInput]}>
@@ -374,6 +381,9 @@ const styles = StyleSheet.create({
   defaultFont: {
     color: colors.white,
     fontSize: 20,
+  },
+  checkbox: {
+    marginRight: 8,
   },
   DOBButton: {
     paddingVertical: 12,
