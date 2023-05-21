@@ -1,8 +1,8 @@
 import axios from "axios";
-import { create } from "zustand";
 import Constants from "expo-constants";
-import { addSubmissions, SubmissionProps, SettingsProps } from "./database";
-import { deleteAsync, getInfoAsync, FileInfo } from "expo-file-system";
+import { deleteAsync, getInfoAsync } from "expo-file-system";
+import { create } from "zustand";
+import { SettingsProps, SubmissionProps, addSubmissions } from "./database";
 
 const ENVVARIABLES = Constants.expoConfig?.extra;
 
