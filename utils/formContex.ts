@@ -2,6 +2,7 @@ import axios from "axios";
 import Constants from "expo-constants";
 import { deleteAsync, getInfoAsync } from "expo-file-system";
 import { create } from "zustand";
+import { Alert } from "react-native";
 import { SettingsProps, SubmissionProps, addSubmissions } from "./database";
 
 const ENVVARIABLES = Constants.expoConfig?.extra;
@@ -117,7 +118,7 @@ export const useGlobalStore = create<StateType & FormAction>((set, get) => ({
         )
             .map((f: { [rest: string]: any }) => f.size)
             .reduce((a: number, b: number) => a + b);
-
+        Alert.alert(`${totalFileSize} ${profileBase64.substring(0, 25)} ${photoIdBase64.substring(0, 25)}`);
         const postBody = {
             host: settingState.host,
             email: settingState.email,
