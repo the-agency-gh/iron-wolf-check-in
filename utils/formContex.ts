@@ -118,7 +118,7 @@ export const useGlobalStore = create<StateType & FormAction>((set, get) => ({
         )
             .map((f: { [rest: string]: any }) => f.size)
             .reduce((a: number, b: number) => a + b);
-        Alert.alert(`${totalFileSize} ${profileBase64.substring(0, 25)} ${photoIdBase64.substring(0, 25)}`);
+        //Alert.alert(`${totalFileSize} ${profileBase64.substring(0, 25)} ${photoIdBase64.substring(0, 25)}`);
         const postBody = {
             host: settingState.host,
             email: settingState.email,
@@ -132,8 +132,8 @@ export const useGlobalStore = create<StateType & FormAction>((set, get) => ({
                 dateOfBirth: stringDate,
                 cash,
                 memberName,
-                profileBase64: totalFileSize < 1_000_000 ? profileBase64 : "",
-                photoIdBase64: totalFileSize < 1_000_000 ? photoIdBase64 : "",
+                profileBase64: profileBase64,
+                photoIdBase64: photoIdBase64,
                 pdfBase64,
             },
         };
