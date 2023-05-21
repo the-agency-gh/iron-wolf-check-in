@@ -1,15 +1,22 @@
-import { FC, useEffect, useState } from "react";
-import { View, Text, StyleSheet, Dimensions, Alert, ScrollView, BackHandler } from "react-native";
 import { printToFileAsync } from "expo-print";
+import { FC, useEffect, useState } from "react";
+import {
+  Alert,
+  BackHandler,
+  Dimensions,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+} from "react-native";
 
 import { colors } from "../../styles/variables";
 import { useGlobalStore } from "../../utils/formContex";
-import WaiverTexts from "./parts/WaiverTexts";
-import NextButton from "./parts/buttons/NextButton";
-import PdfModal from "./parts/PdfModal";
-import { waiverFormHtml } from "./parts/WaiverFormHTML";
 import LoadingView from "../LoadingView";
 import SignatureBox from "./parts/SignatureBox";
+import { waiverFormHtml } from "./parts/WaiverFormHTML";
+import WaiverTexts from "./parts/WaiverTexts";
+import NextButton from "./parts/buttons/NextButton";
 interface WaiverFormProps {
   changePage: (toPage: 0 | 1) => void;
 }
@@ -22,12 +29,19 @@ type pdfStatus = {
 };
 
 const WaiverForm: FC<WaiverFormProps> = ({ changePage }) => {
-  const [formState, addSubmissionsPromise, resetFormState] = useGlobalStore((state) => [
-    state.formState,
-    state.addSubmissionsPromise,
-    state.resetFormState,
-  ]);
-  const applicantAge = formState.dateOfBirth && Math.floor((Date.now() - formState.dateOfBirth.getTime()) / (365 * 24 * 60 * 60 * 1000));
+  const [formState, addSubmissionsPromise, resetFormState] = useGlobalStore(
+    (state) => [
+      state.formState,
+      state.addSubmissionsPromise,
+      state.resetFormState,
+    ]
+  );
+  const applicantAge =
+    formState.dateOfBirth &&
+    Math.floor(
+      (Date.now() - formState.dateOfBirth.getTime()) /
+        (365 * 24 * 60 * 60 * 1000)
+    );
   const [enableScroll, setEnableScroll] = useState(true);
   const [pdfStatus, setPdfStatus] = useState<pdfStatus>({
     loading: false,
@@ -49,16 +63,27 @@ const WaiverForm: FC<WaiverFormProps> = ({ changePage }) => {
     }
   };
   //-----reset signatures
-  const resetSignature = (section: "initial" | "applicant" | "guardian" | "all") => {
+  const resetSignature = (
+    section: "initial" | "applicant" | "guardian" | "all"
+  ) => {
     setPdfStatus((prev) => ({
       ...prev,
       visible: false,
       submitted: false,
       error: false,
       signatures: {
-        initial: section === "initial" || section === "all" ? "" : prev.signatures.initial,
-        applicant: section === "applicant" || section === "all" ? "" : prev.signatures.applicant,
-        guardian: section === "guardian" || section === "all" ? "" : prev.signatures.guardian,
+        initial:
+          section === "initial" || section === "all"
+            ? ""
+            : prev.signatures.initial,
+        applicant:
+          section === "applicant" || section === "all"
+            ? ""
+            : prev.signatures.applicant,
+        guardian:
+          section === "guardian" || section === "all"
+            ? ""
+            : prev.signatures.guardian,
       },
     }));
   };
@@ -66,13 +91,19 @@ const WaiverForm: FC<WaiverFormProps> = ({ changePage }) => {
     resetSignature("all");
     changePage(0);
   };
-  const handleAddSignature = (section: "initial" | "applicant" | "guardian", signatureString: string) => {
+  const handleAddSignature = (
+    section: "initial" | "applicant" | "guardian",
+    signatureString: string
+  ) => {
     setPdfStatus((prev) => ({
       ...prev,
       signatures: {
-        initial: section === "initial" ? signatureString : prev.signatures.initial,
-        applicant: section === "applicant" ? signatureString : prev.signatures.applicant,
-        guardian: section === "guardian" ? signatureString : prev.signatures.guardian,
+        initial:
+          section === "initial" ? signatureString : prev.signatures.initial,
+        applicant:
+          section === "applicant" ? signatureString : prev.signatures.applicant,
+        guardian:
+          section === "guardian" ? signatureString : prev.signatures.guardian,
       },
     }));
   };
@@ -93,16 +124,25 @@ const WaiverForm: FC<WaiverFormProps> = ({ changePage }) => {
   const handleConfirm = async () => {
     setPdfStatus((prev) => ({ ...prev, visible: false, loading: true }));
     const signedPdf = await printToFileAsync({
-      html: waiverFormHtml({ ...pdfStatus.signatures, applicantName: `${formState.firstName} ${formState.lastName}`, fontSize: 14 }),
+      html: waiverFormHtml({
+        ...pdfStatus.signatures,
+        applicantName: `${formState.firstName} ${formState.lastName}`,
+        fontSize: 14,
+      }),
       base64: true,
     });
-    const submissionRes = await addSubmissionsPromise(signedPdf.uri, signedPdf.base64 as string);
+    const submissionRes = await addSubmissionsPromise(
+      signedPdf.uri,
+      signedPdf.base64 as string
+    );
     resetFormState();
     setPdfStatus((prev) => ({
       ...prev,
       loading: false,
       submitted: true,
-      error: (submissionRes as { data: { status: string }; [rest: string]: any }).data.status !== "successful",
+      error:
+        (submissionRes as { data: { status: string }; [rest: string]: any })
+          .data.status !== "successful",
     }));
   };
   useEffect(() => {
@@ -110,7 +150,10 @@ const WaiverForm: FC<WaiverFormProps> = ({ changePage }) => {
       handleBackPress();
       return true;
     };
-    const backHandler = BackHandler.addEventListener("hardwareBackPress", handleHardwardBackPress);
+    const backHandler = BackHandler.addEventListener(
+      "hardwareBackPress",
+      handleHardwardBackPress
+    );
     return () => backHandler.remove();
   });
   return (
@@ -119,10 +162,21 @@ const WaiverForm: FC<WaiverFormProps> = ({ changePage }) => {
         <LoadingView />
       ) : pdfStatus.submitted ? (
         <View style={styles.submittedContainer}>
-          <Text style={[styles.submittedTitle, { color: pdfStatus.error ? colors.amber : colors.white }]}>
-            {pdfStatus.error ? "Something went wrong! \nPlease Try again" : "Thank you for your submission!"}
+          <Text
+            style={[
+              styles.submittedTitle,
+              { color: pdfStatus.error ? colors.amber : colors.white },
+            ]}
+          >
+            {pdfStatus.error
+              ? "Something went wrong! \nPlease Try again"
+              : "Thank you for your submission!"}
           </Text>
-          <NextButton onPress={handleBackPress} text="Continue" style={styles.continueBtn} />
+          <NextButton
+            onPress={handleBackPress}
+            text="Continue"
+            style={styles.continueBtn}
+          />
         </View>
       ) : (
         <ScrollView scrollEnabled={enableScroll}>
@@ -140,7 +194,9 @@ const WaiverForm: FC<WaiverFormProps> = ({ changePage }) => {
             />
           </View>
           <View style={styles.signatureContainer}>
-            <Text style={[styles.defaultFonts, styles.signatureTitle]}>Applicant Signature:</Text>
+            <Text style={[styles.defaultFonts, styles.signatureTitle]}>
+              Applicant Signature:
+            </Text>
             <SignatureBox
               forId={"applicant"}
               resetSignature={resetSignature}
@@ -152,7 +208,9 @@ const WaiverForm: FC<WaiverFormProps> = ({ changePage }) => {
           </View>
           {applicantAge && applicantAge < 18 ? (
             <View style={styles.signatureContainer}>
-              <Text style={[styles.defaultFonts, styles.signatureTitle]}>Guardian Signature:</Text>
+              <Text style={[styles.defaultFonts, styles.signatureTitle]}>
+                Guardian Signature:
+              </Text>
               <SignatureBox
                 forId={"guardian"}
                 resetSignature={resetSignature}
@@ -163,8 +221,13 @@ const WaiverForm: FC<WaiverFormProps> = ({ changePage }) => {
               />
             </View>
           ) : null}
-          <NextButton onPress={handleVerify} text="Verify" style={styles.verifyBtn} textStyle={{ color: colors.darkBlack }} />
-          <PdfModal
+          <NextButton
+            onPress={handleConfirm}
+            text="Confirm"
+            style={styles.verifyBtn}
+            textStyle={{ color: colors.darkBlack }}
+          />
+          {/* <PdfModal
             applicantName={`${formState.firstName} ${formState.lastName}`}
             visible={pdfStatus.visible}
             signatures={pdfStatus.signatures}
@@ -172,7 +235,7 @@ const WaiverForm: FC<WaiverFormProps> = ({ changePage }) => {
             onCancel={() => {
               setPdfStatus((prev) => ({ ...prev, visible: false }));
             }}
-          />
+          /> */}
         </ScrollView>
       )}
     </View>

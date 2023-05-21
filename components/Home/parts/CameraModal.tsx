@@ -1,22 +1,30 @@
+import { Camera, CameraPictureOptions, CameraType } from "expo-camera";
+import { deleteAsync } from "expo-file-system";
 import { FC, useRef, useState } from "react";
-import { Modal, Text, StyleSheet, View, Pressable, Image } from "react-native";
-import { Camera, CameraType, CameraPictureOptions } from "expo-camera";
-import { deleteAsync, getInfoAsync } from "expo-file-system";
+import { Image, Modal, Pressable, StyleSheet, Text, View } from "react-native";
 //------components, etc
-import { colors, shadow } from "../../../styles/variables";
-import CloseButton from "./buttons/CloseButton";
 import PersonOutline from "../../../assets/icons/person-outline.svg";
-import ShootButton from "./buttons/ShootButton";
-import RotateButton from "./buttons/RotateButton";
+import { colors, shadow } from "../../../styles/variables";
 import LoadingView from "../../LoadingView";
+import CloseButton from "./buttons/CloseButton";
+import RotateButton from "./buttons/RotateButton";
+import ShootButton from "./buttons/ShootButton";
 
 interface CameraModalProps {
   forId: "profile" | "photoId";
   closeModal: (selected: "profile" | "photoId", open: boolean) => void;
-  handleCameraInput: (forId: "profile" | "photoId", photoUri: string, imageBase64: string) => void;
+  handleCameraInput: (
+    forId: "profile" | "photoId",
+    photoUri: string,
+    imageBase64: string
+  ) => void;
 }
 
-const CameraModal: FC<CameraModalProps> = ({ forId, closeModal, handleCameraInput }) => {
+const CameraModal: FC<CameraModalProps> = ({
+  forId,
+  closeModal,
+  handleCameraInput,
+}) => {
   const camera = useRef<Camera>(null);
   const [permission, requestPermission] = Camera.useCameraPermissions();
   const [cameraState, setCameraState] = useState<{
@@ -44,17 +52,27 @@ const CameraModal: FC<CameraModalProps> = ({ forId, closeModal, handleCameraInpu
     return (
       <Modal style={styles.screen} animationType="fade">
         <View style={[styles.container, styles.permissionScreen]}>
-          <Text style={[styles.permissionText]}>We need permission to use camera</Text>
+          <Text style={[styles.permissionText]}>
+            We need permission to use camera
+          </Text>
           <View style={styles.permissionBtnCont}>
             <Pressable
-              style={[styles.permissionButton, shadow, { backgroundColor: colors.darkBlue }]}
+              style={[
+                styles.permissionButton,
+                shadow,
+                { backgroundColor: colors.darkBlue },
+              ]}
               onPress={requestPermission}
               android_ripple={{ color: colors.baseBlack }}
             >
               <Text style={styles.permissionBtnTxt}>Grant Permission</Text>
             </Pressable>
             <Pressable
-              style={[styles.permissionButton, shadow, { backgroundColor: colors.amber2 }]}
+              style={[
+                styles.permissionButton,
+                shadow,
+                { backgroundColor: colors.amber2 },
+              ]}
               onPress={() => closeModal(forId, false)}
               android_ripple={{ color: colors.baseBlack }}
             >
@@ -68,13 +86,19 @@ const CameraModal: FC<CameraModalProps> = ({ forId, closeModal, handleCameraInpu
   const handlePhotoShoot = async () => {
     if (!cameraState.ready || !camera.current) return;
     setCameraState((curr) => ({ ...curr, loading: true }));
+    // quality of photo
     const camOptions: CameraPictureOptions = {
       base64: true,
       exif: false,
       quality: 0.5,
     };
     const photo = await camera.current.takePictureAsync(camOptions);
-    setCameraState((curr) => ({ ...curr, loading: false, imageUri: photo.uri, imageBase64: photo.base64 }));
+    setCameraState((curr) => ({
+      ...curr,
+      loading: false,
+      imageUri: photo.uri,
+      imageBase64: photo.base64,
+    }));
   };
   const handleRetake = async () => {
     setCameraState((curr) => ({
@@ -95,7 +119,11 @@ const CameraModal: FC<CameraModalProps> = ({ forId, closeModal, handleCameraInpu
   };
   const handleConfirm = () => {
     if (!cameraState.imageUri) return;
-    handleCameraInput(forId, cameraState.imageUri as string, cameraState.imageBase64 as string);
+    handleCameraInput(
+      forId,
+      cameraState.imageUri as string,
+      cameraState.imageBase64 as string
+    );
     setCameraState((curr) => ({
       ...curr,
       imageUri: undefined,
@@ -105,7 +133,10 @@ const CameraModal: FC<CameraModalProps> = ({ forId, closeModal, handleCameraInpu
   return (
     <Modal style={styles.screen} animationType="fade">
       <View style={styles.container}>
-        <CloseButton style={styles.closeButton} onPress={() => closeModal(forId, false)} />
+        <CloseButton
+          style={styles.closeButton}
+          onPress={() => closeModal(forId, false)}
+        />
         <View style={styles.camera}>
           <Camera
             ref={camera}
@@ -116,13 +147,21 @@ const CameraModal: FC<CameraModalProps> = ({ forId, closeModal, handleCameraInpu
             }}
           >
             <View style={styles.cameraIndicatorCont}>
-              {forId === "profile" ? <PersonOutline /> : <View style={styles.cardShape}></View>}
+              {forId === "profile" ? (
+                <PersonOutline />
+              ) : (
+                <View style={styles.cardShape}></View>
+              )}
             </View>
           </Camera>
           {cameraState.loading && <LoadingView style={styles.previewCont} />}
           {cameraState.imageUri && (
             <View style={[styles.camera, styles.previewCont]}>
-              <Image style={{ flex: 1 }} source={{ uri: cameraState.imageUri }} resizeMode="cover" />
+              <Image
+                style={{ flex: 1 }}
+                source={{ uri: cameraState.imageUri }}
+                resizeMode="cover"
+              />
             </View>
           )}
         </View>
@@ -136,7 +175,10 @@ const CameraModal: FC<CameraModalProps> = ({ forId, closeModal, handleCameraInpu
                   if (!cameraState.ready) return;
                   setCameraState((curr) => ({
                     ...curr,
-                    type: curr.type === CameraType.front ? CameraType.back : CameraType.front,
+                    type:
+                      curr.type === CameraType.front
+                        ? CameraType.back
+                        : CameraType.front,
                   }));
                 }}
               />
@@ -144,10 +186,24 @@ const CameraModal: FC<CameraModalProps> = ({ forId, closeModal, handleCameraInpu
           ) : (
             <>
               <Pressable style={styles.selectionBtn} onPress={handleRetake}>
-                <Text style={[styles.permissionText, { fontWeight: "bold", color: colors.amber }]}>RETAKE</Text>
+                <Text
+                  style={[
+                    styles.permissionText,
+                    { fontWeight: "bold", color: colors.amber },
+                  ]}
+                >
+                  RETAKE
+                </Text>
               </Pressable>
               <Pressable style={styles.selectionBtn} onPress={handleConfirm}>
-                <Text style={[styles.permissionText, { fontWeight: "bold", color: colors.lightBlue }]}>CONFIRM</Text>
+                <Text
+                  style={[
+                    styles.permissionText,
+                    { fontWeight: "bold", color: colors.lightBlue },
+                  ]}
+                >
+                  CONFIRM
+                </Text>
               </Pressable>
             </>
           )}

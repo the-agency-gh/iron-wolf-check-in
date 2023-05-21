@@ -1,19 +1,20 @@
-import { StyleSheet, SafeAreaView } from "react-native";
-import { StackNavigationProp } from "@react-navigation/stack";
-import { FC, useLayoutEffect } from "react";
 import { useNavigation } from "@react-navigation/native";
+import { StackNavigationProp } from "@react-navigation/stack";
 import { useQuery } from "@tanstack/react-query";
+import { FC, useLayoutEffect } from "react";
+import { SafeAreaView, StyleSheet } from "react-native";
 //----------func
 import { RootStackParamList } from "../App";
 import { SettingsProps, retrieveSetting } from "../utils/database";
 import { useGlobalStore } from "../utils/formContex";
 //----------components
-import SettingsIcon from "../components/navigation/SettingsIcon";
 import CompleteForm from "../components/Home/CompleteForm";
 
 const HomeScreen: FC = () => {
   const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
-  const updateSettingState = useGlobalStore((state) => state.updateSettingState);
+  const updateSettingState = useGlobalStore(
+    (state) => state.updateSettingState
+  );
   useQuery({
     queryKey: ["settingData"],
     queryFn: async () => {
@@ -33,15 +34,7 @@ const HomeScreen: FC = () => {
   useLayoutEffect(() => {
     navigation.setOptions({
       headerTitleAlign: "left",
-      headerRight: () => {
-        return (
-          <SettingsIcon
-            onPress={() => {
-              navigation.navigate("Settings");
-            }}
-          />
-        );
-      },
+      headerRight: () => null,
       headerLeft: () => null,
     });
   }, [navigation]);

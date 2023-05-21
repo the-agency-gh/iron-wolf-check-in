@@ -1,5 +1,12 @@
 import { FC } from "react";
-import { Pressable, Text, StyleSheet, StyleProp, ViewStyle, TextStyle } from "react-native";
+import {
+  Pressable,
+  StyleProp,
+  StyleSheet,
+  Text,
+  TextStyle,
+  ViewStyle,
+} from "react-native";
 import { colors } from "../../../../styles/variables";
 
 interface NextButtonProps {
@@ -9,9 +16,18 @@ interface NextButtonProps {
   onPress: () => void;
 }
 
-const NextButton: FC<NextButtonProps> = ({ onPress, text, style, textStyle }) => {
+const NextButton: FC<NextButtonProps> = ({
+  onPress,
+  text,
+  style,
+  textStyle,
+}) => {
   return (
-    <Pressable style={[styles.button, style]} android_ripple={{ color: colors.baseBlack }} onPress={onPress}>
+    <Pressable
+      style={[styles.button, style]}
+      android_ripple={{ color: colors.baseBlack }}
+      onPress={onPress}
+    >
       <Text style={[styles.text, textStyle]}>{text}</Text>
     </Pressable>
   );
@@ -24,7 +40,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 15,
     paddingVertical: 10,
     borderRadius: 5,
-    backgroundColor: colors.yellow,
+    backgroundColor: colors.green,
     width: "45%",
     alignSelf: "flex-end",
     alignItems: "center",
