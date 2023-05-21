@@ -11,6 +11,7 @@ import WaiverTexts from "./parts/WaiverTexts";
 import NextButton from "./parts/buttons/NextButton";
 interface WaiverFormProps {
     changePage: (toPage: 0 | 1) => void;
+    resetModal: () => void;
 }
 type pdfStatus = {
     loading: boolean;
@@ -20,7 +21,7 @@ type pdfStatus = {
     signatures: { initial: string; applicant: string; guardian: string };
 };
 
-const WaiverForm: FC<WaiverFormProps> = ({ changePage }) => {
+const WaiverForm: FC<WaiverFormProps> = ({ changePage, resetModal }) => {
     const [formState, addSubmissionsPromise, resetFormState] = useGlobalStore((state) => [
         state.formState,
         state.addSubmissionsPromise,
@@ -90,6 +91,14 @@ const WaiverForm: FC<WaiverFormProps> = ({ changePage }) => {
         }));
     };
     const handleConfirm = async () => {
+        if (
+            !pdfStatus.signatures.initial ||
+            !pdfStatus.signatures.applicant ||
+            (applicantAge && applicantAge < 18 && !pdfStatus.signatures.guardian)
+        ) {
+            Alert.alert("Signiture is Required", "");
+            return;
+        }
         setPdfStatus((prev) => ({ ...prev, visible: false, loading: true }));
         const signedPdf = await printToFileAsync({
             html: waiverFormHtml({
@@ -107,6 +116,10 @@ const WaiverForm: FC<WaiverFormProps> = ({ changePage }) => {
             submitted: true,
             error: (submissionRes as { data: { status: string }; [rest: string]: any }).data.status !== "successful",
         }));
+        setTimeout(() => {
+            handleBackPress();
+            resetModal();
+        }, 10000);
     };
     useEffect(() => {
         const handleHardwardBackPress = () => {
@@ -168,14 +181,14 @@ const WaiverForm: FC<WaiverFormProps> = ({ changePage }) => {
                     ) : null}
                     <NextButton onPress={handleConfirm} text="Confirm" style={styles.verifyBtn} textStyle={{ color: colors.darkBlack }} />
                     {/* <PdfModal
-            applicantName={`${formState.firstName} ${formState.lastName}`}
-            visible={pdfStatus.visible}
-            signatures={pdfStatus.signatures}
-            onConfirm={handleConfirm}
-            onCancel={() => {
-              setPdfStatus((prev) => ({ ...prev, visible: false }));
-            }}
-          /> */}
+                        applicantName={`${formState.firstName} ${formState.lastName}`}
+                        visible={pdfStatus.visible}
+                        signatures={pdfStatus.signatures}
+                        onConfirm={handleConfirm}
+                        onCancel={() => {
+                        setPdfStatus((prev) => ({ ...prev, visible: false }));
+                        }}
+                    /> */}
                 </ScrollView>
             )}
         </View>

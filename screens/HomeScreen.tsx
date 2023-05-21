@@ -1,4 +1,3 @@
-import { useKeepAwake } from "expo-keep-awake";
 import { useNavigation } from "@react-navigation/native";
 import { StackNavigationProp } from "@react-navigation/stack";
 import { useQuery } from "@tanstack/react-query";
@@ -12,7 +11,6 @@ import { useGlobalStore } from "../utils/formContex";
 import CompleteForm from "../components/Home/CompleteForm";
 
 const HomeScreen: FC = () => {
-    useKeepAwake();
     const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
     const updateSettingState = useGlobalStore((state) => state.updateSettingState);
     useQuery({
