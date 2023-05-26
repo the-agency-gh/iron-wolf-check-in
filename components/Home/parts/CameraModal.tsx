@@ -12,12 +12,13 @@ import RotateButton from "./buttons/RotateButton";
 import ShootButton from "./buttons/ShootButton";
 
 interface CameraModalProps {
-    forId: "profile" | "photoId";
-    closeModal: (selected: "profile" | "photoId", open: boolean) => void;
-    handleCameraInput: (forId: "profile" | "photoId", photoUri: string, imageBase64: string) => void;
+    forId: "profile" | "photoId" | "guardianId";
+    closeModal: (selected: "profile" | "photoId" | "guardianId", open: boolean) => void;
+    handleCameraInput: (forId: "profile" | "photoId" | "guardianId", photoUri: string, imageBase64: string) => void;
 }
 
 const CameraModal: FC<CameraModalProps> = ({ forId, closeModal, handleCameraInput }) => {
+    console.log(forId);
     const camera = useRef<Camera>(null);
     const [permission, requestPermission] = Camera.useCameraPermissions();
     const [cameraState, setCameraState] = useState<{

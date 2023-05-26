@@ -1,16 +1,15 @@
 import logo from "./Logo";
 type SignatureSetProps = {
-  initial: string;
-  applicant: string;
-  guardian: string;
+    applicant: string;
+    guardian: string;
 };
 type FormInfos = {
-  applicantName: string;
-  fontSize?: number;
+    applicantName: string;
+    fontSize?: number;
 };
-export const waiverFormHtml = ({ initial, applicant, guardian, applicantName, fontSize = 18 }: SignatureSetProps & FormInfos) => {
-  const date = new Date().toISOString().substring(0, 10);
-  return `
+export const waiverFormHtml = ({ applicant, guardian, applicantName, fontSize = 18 }: SignatureSetProps & FormInfos) => {
+    const date = new Date().toISOString().substring(0, 10);
+    return `
             <html>
             <style>
                   *{
@@ -34,9 +33,6 @@ export const waiverFormHtml = ({ initial, applicant, guardian, applicantName, fo
                   }
                   img{
                   filter:brightness(0);
-                  }
-                  .initial-container{
-                  column-gap:20;
                   }
                   .signature-section{
                   display:flex;
@@ -76,24 +72,6 @@ export const waiverFormHtml = ({ initial, applicant, guardian, applicantName, fo
                   object-fit:contain;
                   transform:translateY(20%);
                   
-                  }
-                  .initial-box{
-                  display:flex;
-                  align-items:flex-start;
-                  padding:0px;
-                  margin:0px;
-                  }
-                  .initial{
-                  display:flex;
-                  align-items:flex-end;
-                  padding-left:10px;
-                  width: 75px;
-                  height:1rem;
-                  border-bottom:1px solid black;
-                  }
-                  .initial-image{
-                  width: 85%;
-                  height: 25px;
                   }
                   .logo{
                   position:absolute;
@@ -144,14 +122,6 @@ export const waiverFormHtml = ({ initial, applicant, guardian, applicantName, fo
                         <span>
                               In addition, I have read the attached Code of Conduct conditions and I agree to be legally obligated to confrom with all rules of the Iron Wolf fitness. 
                         </span>
-                        <div class="initial-box">
-                              <p>
-                                    initial: 
-                              </p>
-                              <div class="initial">
-                                    <img class="initial-image" src="${initial}"/>
-                              </div>
-                        </div>
                   </p>
                   
                   <div style="margin-top:50px;" class ="signature-section">

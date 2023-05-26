@@ -18,7 +18,7 @@ type pdfStatus = {
     submitted: boolean;
     error: boolean;
     visible: boolean;
-    signatures: { initial: string; applicant: string; guardian: string };
+    signatures: { applicant: string; guardian: string };
 };
 
 const WaiverForm: FC<WaiverFormProps> = ({ changePage, resetModal }) => {
@@ -36,7 +36,6 @@ const WaiverForm: FC<WaiverFormProps> = ({ changePage, resetModal }) => {
         error: false,
         visible: false,
         signatures: {
-            initial: "",
             applicant: "",
             guardian: "",
         },
@@ -50,14 +49,13 @@ const WaiverForm: FC<WaiverFormProps> = ({ changePage, resetModal }) => {
         }
     };
     //-----reset signatures
-    const resetSignature = (section: "initial" | "applicant" | "guardian" | "all") => {
+    const resetSignature = (section: "applicant" | "guardian" | "all") => {
         setPdfStatus((prev) => ({
             ...prev,
             visible: false,
             submitted: false,
             error: false,
             signatures: {
-                initial: section === "initial" || section === "all" ? "" : prev.signatures.initial,
                 applicant: section === "applicant" || section === "all" ? "" : prev.signatures.applicant,
                 guardian: section === "guardian" || section === "all" ? "" : prev.signatures.guardian,
             },
@@ -68,35 +66,19 @@ const WaiverForm: FC<WaiverFormProps> = ({ changePage, resetModal }) => {
         resetSignature("all");
         changePage(0);
     };
-    const handleAddSignature = (section: "initial" | "applicant" | "guardian", signatureString: string) => {
+    const handleAddSignature = (section: "applicant" | "guardian", signatureString: string) => {
         setPdfStatus((prev) => ({
             ...prev,
             signatures: {
-                initial: section === "initial" ? signatureString : prev.signatures.initial,
                 applicant: section === "applicant" ? signatureString : prev.signatures.applicant,
                 guardian: section === "guardian" ? signatureString : prev.signatures.guardian,
             },
         }));
     };
-    const handleVerify = async () => {
-        if (
-            !pdfStatus.signatures.initial ||
-            !pdfStatus.signatures.applicant ||
-            (applicantAge && applicantAge < 18 && !pdfStatus.signatures.guardian)
-        ) {
-            Alert.alert("Signiture is Required", "");
-            return;
-        }
-        setPdfStatus((prev) => ({
-            ...prev,
-            visible: true,
-        }));
-    };
     const handleConfirm = async () => {
         if (
-            !pdfStatus.signatures.initial ||
             !pdfStatus.signatures.applicant ||
-            (applicantAge && applicantAge < 18 && !pdfStatus.signatures.guardian)
+            (applicantAge !== undefined && (applicantAge === 0 || applicantAge < 18) && !pdfStatus.signatures.guardian)
         ) {
             Alert.alert("Signiture is Required", "");
             return;
@@ -146,18 +128,6 @@ const WaiverForm: FC<WaiverFormProps> = ({ changePage, resetModal }) => {
             ) : (
                 <ScrollView scrollEnabled={enableScroll}>
                     <WaiverTexts style={{ marginTop: 25 }} handleBack={handleBackPress} />
-                    <View style={styles.initialContainer}>
-                        <Text style={styles.defaultFonts}>Initial:</Text>
-                        <SignatureBox
-                            forId={"initial"}
-                            style={{ width: 150, height: 50, alignItems: "center" }}
-                            resetSignature={resetSignature}
-                            signatureStat={!!pdfStatus.signatures.initial}
-                            placeholder=""
-                            enableScroll={handleEnableScroll}
-                            addSignature={handleAddSignature}
-                        />
-                    </View>
                     <View style={styles.signatureContainer}>
                         <Text style={[styles.defaultFonts, styles.signatureTitle]}>Applicant Signature:</Text>
                         <SignatureBox
@@ -169,7 +139,7 @@ const WaiverForm: FC<WaiverFormProps> = ({ changePage, resetModal }) => {
                             addSignature={handleAddSignature}
                         />
                     </View>
-                    {applicantAge && applicantAge < 18 ? (
+                    {applicantAge == 0 && applicantAge < 18 ? (
                         <View style={styles.signatureContainer}>
                             <Text style={[styles.defaultFonts, styles.signatureTitle]}>Guardian Signature:</Text>
                             <SignatureBox
@@ -228,11 +198,6 @@ const styles = StyleSheet.create({
         width: "100%",
         backgroundColor: colors.lightBlue,
         marginVertical: 25,
-    },
-    initialContainer: {
-        flexDirection: "row",
-        columnGap: 15,
-        marginVertical: 15,
     },
     signatureTitle: {
         fontSize: 20,

@@ -61,6 +61,7 @@ const ProfileForm: FC<ProfileFormProps> = ({ changePage }) => {
     const [cameraStatus, setCameraStatus] = useState({
         profileShow: false,
         idShow: false,
+        guardianId: false,
     });
     //handle camera and date modals and input
     const onDateChange = (event: DateTimePickerEvent, date?: Date) => {
@@ -73,24 +74,29 @@ const ProfileForm: FC<ProfileFormProps> = ({ changePage }) => {
             dateOfBirth: date,
         });
     };
-    const handleCameraShowPress = (selected: "profile" | "photoId", open: boolean) => {
+    const handleCameraShowPress = (selected: "profile" | "photoId" | "guardianId", open: boolean) => {
+        console.log(selected, open);
         setCameraStatus((curr) => ({
             ...curr,
             profileShow: selected === "profile" && open,
             idShow: selected === "photoId" && open,
+            guardianId: selected === "guardianId" && open,
         }));
     };
-    const handleCameraInput = (forId: "profile" | "photoId", photoUri: string, imageBase64: string) => {
+    console.log(cameraStatus);
+    const handleCameraInput = (forId: "profile" | "photoId" | "guardianId", photoUri: string, imageBase64: string) => {
         updateFormState({
             profileUri: forId === "profile" ? photoUri : formState.profileUri,
             profileBase64: forId === "profile" ? imageBase64 : formState.profileBase64,
             photoIdUri: forId === "photoId" ? photoUri : formState.photoIdUri,
             photoIdBase64: forId === "photoId" ? imageBase64 : formState.photoIdBase64,
+            guardianPhotoIdUri: forId === "guardianId" ? photoUri : formState.guardianPhotoIdUri,
+            guardianPhotoIdBase64: forId === "guardianId" ? imageBase64 : formState.guardianPhotoIdBase64,
         });
     };
     //----on submit and on error handler
     const handleFormSubmit = (data: Partial<SubmissionProps>) => {
-        if (!formState.dateOfBirth || !formState.photoIdUri || !formState.profileUri || (!cashPayment && !getValues("memberName"))) return;
+        if (!formState.dateOfBirth || !formState.photoIdUri || !formState.profileUri || (!applicantAge && !formState.profileUri)) return;
         updateFormState({
             ...data,
             cash: cashPayment,
@@ -105,9 +111,11 @@ const ProfileForm: FC<ProfileFormProps> = ({ changePage }) => {
             ...curr,
             profileShow: false,
             idShow: false,
+            guardianId: false,
         }));
         setCashPayment(true);
     };
+    const applicantAge = formState.dateOfBirth && Math.floor((Date.now() - formState.dateOfBirth.getTime()) / (365 * 24 * 60 * 60 * 1000));
     useEffect(() => {
         !formInitialized && handleResetPress();
     }, [formInitialized]);
@@ -279,6 +287,25 @@ const ProfileForm: FC<ProfileFormProps> = ({ changePage }) => {
                             <CameraModal forId="photoId" closeModal={handleCameraShowPress} handleCameraInput={handleCameraInput} />
                         )}
                     </View>
+                    {applicantAge !== undefined && (applicantAge === 0 || applicantAge < 18) && (
+                        <View style={styles.cameraCont}>
+                            <CameraShowButton
+                                text={
+                                    isSubmitted && !formState.guardianPhotoIdUri
+                                        ? "Guardian Photo ID Required"
+                                        : formState.guardianPhotoIdUri
+                                        ? "Retake Guardian Photo ID"
+                                        : "Guardian Photo ID"
+                                }
+                                style={isSubmitted && !formState.guardianPhotoIdUri ? { backgroundColor: "#fd858b" } : {}}
+                                onPress={handleCameraShowPress.bind(null, "guardianId", true)}
+                                backgroundImg={formState.guardianPhotoIdBase64 || undefined}
+                            />
+                            {cameraStatus.guardianId && (
+                                <CameraModal forId="guardianId" closeModal={handleCameraShowPress} handleCameraInput={handleCameraInput} />
+                            )}
+                        </View>
+                    )}
                     <View style={styles.formButtons}>
                         {isDirty ? (
                             <NextButton
