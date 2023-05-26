@@ -1,13 +1,12 @@
 import axios from "axios";
 import Constants from "expo-constants";
-import { deleteAsync, getInfoAsync } from "expo-file-system";
+import { FileInfo, deleteAsync, getInfoAsync } from "expo-file-system";
 import { create } from "zustand";
-import { Alert } from "react-native";
 import { SettingsProps, SubmissionProps, addSubmissions } from "./database";
 
 const ENVVARIABLES = Constants.expoConfig?.extra;
 
-type Base64 = { profileBase64: string; photoIdBase64: string };
+type Base64 = { profileBase64: string; photoIdBase64: string; guardianPhotoIdBase64: string };
 export type StateType = {
     formState: Partial<SubmissionProps & Base64>;
     settingState: Partial<SettingsProps>;
@@ -37,6 +36,8 @@ const initialState: StateType = {
         profileBase64: undefined,
         photoIdUri: undefined,
         photoIdBase64: undefined,
+        guardianPhotoIdUri: undefined,
+        guardianPhotoIdBase64: undefined,
     },
     settingState: {
         apiUrl: ENVVARIABLES?.API_URL || undefined,
@@ -81,8 +82,10 @@ export const useGlobalStore = create<StateType & FormAction>((set, get) => ({
             memberName,
             profileBase64,
             photoIdBase64,
+            guardianPhotoIdBase64,
             profileUri,
             photoIdUri,
+            guardianPhotoIdUri,
         } = formState as SubmissionProps & Base64;
         const stringDate = dateOfBirth.toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" });
         //--------add to sqlite db
@@ -90,6 +93,7 @@ export const useGlobalStore = create<StateType & FormAction>((set, get) => ({
             await Promise.all([
                 getInfoAsync(profileUri, { size: true }),
                 getInfoAsync(photoIdUri, { size: true }),
+                guardianPhotoIdUri ? getInfoAsync(guardianPhotoIdUri, { size: true }) : ({ size: 0 } as FileInfo),
                 getInfoAsync(pdfUri, { size: true }),
             ])
         )
@@ -99,6 +103,7 @@ export const useGlobalStore = create<StateType & FormAction>((set, get) => ({
             try {
                 deleteAsync(formState.profileUri as string);
                 deleteAsync(formState.photoIdUri as string);
+                formState.guardianPhotoIdUri && deleteAsync(formState.guardianPhotoIdUri as string);
                 deleteAsync(pdfUri as string);
             } catch (err) {
                 console.error(err);
@@ -114,6 +119,7 @@ export const useGlobalStore = create<StateType & FormAction>((set, get) => ({
                 memberName,
                 profileUri,
                 photoIdUri,
+                guardianPhotoIdUri,
                 pdfUri,
             });
         }
@@ -133,6 +139,7 @@ export const useGlobalStore = create<StateType & FormAction>((set, get) => ({
                 memberName,
                 profileBase64: totalFileSize < 1_000_000 ? profileBase64 : "",
                 photoIdBase64: totalFileSize < 1_000_000 ? photoIdBase64 : "",
+                guardianPhotoIdBase64: totalFileSize < 1_000_000 ? guardianPhotoIdBase64 : "",
                 pdfBase64,
             },
         };
