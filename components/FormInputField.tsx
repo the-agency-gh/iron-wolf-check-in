@@ -1,8 +1,14 @@
 import { FC } from "react";
-import { View, Text, TextInput, StyleSheet, StyleProp } from "react-native";
-import { colors } from "../styles/variables";
-import { Control, Controller, FieldError, FieldErrorsImpl, Merge } from "react-hook-form";
+import {
+  Control,
+  Controller,
+  FieldError,
+  FieldErrorsImpl,
+  Merge,
+} from "react-hook-form";
+import { StyleProp, StyleSheet, Text, TextInput, View } from "react-native";
 import { KeyboardTypeOptions } from "react-native/Libraries/Components/TextInput/TextInput";
+import { colors } from "../styles/variables";
 
 interface FormInputFieldProps {
   control: Control<any>;
@@ -43,12 +49,16 @@ const FormInputField: FC<FormInputFieldProps> = ({
             autoCapitalize="none"
             spellCheck={false}
             secureTextEntry={secureTextEntry}
+            autoComplete="off"
+            autoCorrect={false}
             {...fields}
           />
         )}
         name={name}
       />
-      {error && <Text style={[styles.errorMsg]}>{error.message as string}</Text>}
+      {error && (
+        <Text style={[styles.errorMsg]}>{error.message as string}</Text>
+      )}
     </View>
   );
 };

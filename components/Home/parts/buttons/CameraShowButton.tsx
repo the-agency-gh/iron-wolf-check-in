@@ -40,14 +40,7 @@ const CameraShowButton: FC<CameraShowButtonProps> = ({
           style={[styles.indicatorCont, { padding: 0, opacity: 0.7 }]}
         />
       )}
-      <Text
-        style={[
-          styles.text,
-          { color: !backgroundImg ? colors.white : colors.darkBlack },
-        ]}
-      >
-        {text}
-      </Text>
+      <Text style={[styles.text]}>{text}</Text>
     </Pressable>
   );
 };
@@ -59,6 +52,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     backgroundColor: colors.darkBlack,
+    color: colors.white,
     borderWidth: 5,
     borderColor: colors.white,
     borderRadius: 20,
@@ -71,6 +65,7 @@ const styles = StyleSheet.create({
     fontSize: 26,
     fontWeight: "bold",
     textTransform: "uppercase",
+    color: colors.white,
   },
   indicatorCont: {
     zIndex: -1,
