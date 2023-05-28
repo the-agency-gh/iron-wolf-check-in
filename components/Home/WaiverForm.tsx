@@ -72,6 +72,10 @@ const WaiverForm: FC<WaiverFormProps> = ({ currentPage, changePage, resetModal }
         resetSignature("all");
         changePage(0);
     };
+    const handleContinuePress = () => {
+        handleBackPress();
+        resetModal();
+    };
     const handleAddSignature = (section: "applicant" | "guardian", signatureString: string) => {
         setPdfStatus((prev) => ({
             ...prev,
