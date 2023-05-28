@@ -145,7 +145,7 @@ const WaiverForm: FC<WaiverFormProps> = ({ currentPage, changePage, resetModal }
                     <Text style={[styles.submittedTitle, { color: pdfStatus.error ? colors.amber : colors.white }]}>
                         {pdfStatus.error ? "Something went wrong! \nPlease Try again" : "Thank you for your submission!"}
                     </Text>
-                    <NextButton onPress={handleBackPress} text="Continue" style={styles.continueBtn} />
+                    <NextButton onPress={handleContinuePress} text="Continue" style={styles.continueBtn} />
                 </View>
             ) : (
                 <ScrollView scrollEnabled={enableScroll}>
