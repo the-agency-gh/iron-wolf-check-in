@@ -2,6 +2,10 @@ import { printToFileAsync } from "expo-print";
 import { FC, useEffect, useState } from "react";
 import { Alert, BackHandler, Dimensions, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 
+import { useNavigation } from "@react-navigation/native";
+import { StackNavigationProp } from "@react-navigation/stack";
+import { RootStackParamList } from "../../App";
+import LeftArrow from "../../assets/icons/arrow-left.svg";
 import { colors } from "../../styles/variables";
 import { useGlobalStore } from "../../utils/formContex";
 import LoadingView from "../LoadingView";
@@ -9,10 +13,6 @@ import SignatureBox from "./parts/SignatureBox";
 import { waiverFormHtml } from "./parts/WaiverFormHTML";
 import WaiverTexts from "./parts/WaiverTexts";
 import NextButton from "./parts/buttons/NextButton";
-import { useNavigation } from "@react-navigation/native";
-import { StackNavigationProp } from "@react-navigation/stack";
-import { RootStackParamList } from "../../App";
-import LeftArrow from "../../assets/icons/arrow-left.svg";
 interface WaiverFormProps {
     currentPage: 0 | 1;
     changePage: (toPage: 0 | 1) => void;
@@ -174,7 +174,7 @@ const WaiverForm: FC<WaiverFormProps> = ({ currentPage, changePage, resetModal }
                             />
                         </View>
                     ) : null}
-                    <NextButton onPress={handleConfirm} text="Confirm" style={styles.verifyBtn} textStyle={{ color: colors.darkBlack }} />
+                    <NextButton onPress={handleConfirm} text="Confirm" style={styles.verifyBtn} textStyle={{ color: colors.white }} />
                     {/* <PdfModal
                         applicantName={`${formState.firstName} ${formState.lastName}`}
                         visible={pdfStatus.visible}
@@ -214,12 +214,14 @@ const styles = StyleSheet.create({
     continueBtn: {
         width: "30%",
         alignSelf: "center",
-        backgroundColor: colors.lightBlue,
+        borderWidth: 1,
+        borderColor: colors.green,
     },
     verifyBtn: {
         width: "100%",
-        backgroundColor: colors.lightBlue,
         marginVertical: 25,
+        borderWidth: 1,
+        borderColor: colors.green,
     },
     signatureTitle: {
         fontSize: 20,
