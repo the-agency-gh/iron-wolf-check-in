@@ -1,6 +1,6 @@
 import { printToFileAsync } from "expo-print";
 import { FC, useEffect, useState } from "react";
-import { Alert, BackHandler, Dimensions, ScrollView, StyleSheet, Text, View } from "react-native";
+import { Alert, BackHandler, Dimensions, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 
 import { colors } from "../../styles/variables";
 import { useGlobalStore } from "../../utils/formContex";
@@ -9,7 +9,12 @@ import SignatureBox from "./parts/SignatureBox";
 import { waiverFormHtml } from "./parts/WaiverFormHTML";
 import WaiverTexts from "./parts/WaiverTexts";
 import NextButton from "./parts/buttons/NextButton";
+import { useNavigation } from "@react-navigation/native";
+import { StackNavigationProp } from "@react-navigation/stack";
+import { RootStackParamList } from "../../App";
+import LeftArrow from "../../assets/icons/arrow-left.svg";
 interface WaiverFormProps {
+    currentPage: 0 | 1;
     changePage: (toPage: 0 | 1) => void;
     resetModal: () => void;
 }
@@ -21,7 +26,8 @@ type pdfStatus = {
     signatures: { applicant: string; guardian: string };
 };
 
-const WaiverForm: FC<WaiverFormProps> = ({ changePage, resetModal }) => {
+const WaiverForm: FC<WaiverFormProps> = ({ currentPage, changePage, resetModal }) => {
+    const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
     const [formState, addSubmissionsPromise, resetFormState] = useGlobalStore((state) => [
         state.formState,
         state.addSubmissionsPromise,
@@ -112,8 +118,20 @@ const WaiverForm: FC<WaiverFormProps> = ({ changePage, resetModal }) => {
             return true;
         };
         const backHandler = BackHandler.addEventListener("hardwareBackPress", handleHardwardBackPress);
+        const headerRightOpt = currentPage == 1 ? { headerRight: () => null } : {};
+        navigation.setOptions({
+            title: currentPage === 1 ? "Waiver" : "Guest Sign In",
+            headerLeft: () =>
+                currentPage == 1 ? (
+                    <Pressable style={styles.backButton} onPress={handleBackPress}>
+                        <LeftArrow />
+                    </Pressable>
+                ) : null,
+            ...headerRightOpt,
+        });
         return () => backHandler.remove();
-    });
+    }, [currentPage]);
+
     return (
         <View style={styles.container}>
             {pdfStatus.loading ? (
@@ -139,7 +157,7 @@ const WaiverForm: FC<WaiverFormProps> = ({ changePage, resetModal }) => {
                             addSignature={handleAddSignature}
                         />
                     </View>
-                    {applicantAge && (applicantAge === 0 || applicantAge < 18) ? (
+                    {applicantAge !== undefined && (applicantAge === 0 || applicantAge < 18) ? (
                         <View style={styles.signatureContainer}>
                             <Text style={[styles.defaultFonts, styles.signatureTitle]}>Guardian Signature:</Text>
                             <SignatureBox
@@ -210,5 +228,18 @@ const styles = StyleSheet.create({
         color: colors.white,
         fontSize: 18,
         fontWeight: "bold",
+    },
+    backButton: {
+        width: 50,
+        height: 40,
+        marginLeft: 15,
+    },
+    resetButton: {
+        marginRight: 15,
+    },
+    resetText: {
+        fontSize: 18,
+        color: colors.white,
+        fontWeight: "600",
     },
 });

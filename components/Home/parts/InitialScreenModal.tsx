@@ -16,7 +16,7 @@ const InitialScreenModal: FC<InitialScreenModalProps> = ({ visible, closeModal }
                 <Pressable onPress={closeModal}>
                     <View style={styles.logoImage}>
                         <Image style={styles.image} source={{ uri: logo }} resizeMode="cover" />
-                        <RippleEffect rippleCount={4} color={colors.white} looped={true} duration={1500} />
+                        <RippleEffect rippleCount={4} color={colors.white} looped={true} duration={2000} />
                     </View>
                 </Pressable>
                 <Text style={[styles.Text]}>Tap To Start</Text>
@@ -51,7 +51,7 @@ const styles = StyleSheet.create({
         flex: 1,
         width: "100%",
         height: "100%",
-        transform: [{ scale: 1.1 }],
+        transform: [{ scale: 1.15 }],
     },
     Text: {
         color: colors.white,

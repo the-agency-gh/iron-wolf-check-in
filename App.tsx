@@ -95,13 +95,7 @@ export default function App() {
                                     },
                                 }}
                             >
-                                <Stack.Screen
-                                    name="Home"
-                                    component={HomeScreen}
-                                    options={{
-                                        title: "Waiver Form",
-                                    }}
-                                />
+                                <Stack.Screen name="Home" component={HomeScreen} options={{ headerTitleAlign: "center" }} />
                                 <Stack.Screen name="Settings" component={SettingsScreen} />
                                 <Stack.Screen name="Submissions" component={SubmissionsScreen} />
                             </Stack.Navigator>

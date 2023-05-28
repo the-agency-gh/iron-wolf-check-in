@@ -29,13 +29,6 @@ const HomeScreen: FC = () => {
             }
         },
     });
-    useLayoutEffect(() => {
-        navigation.setOptions({
-            headerTitleAlign: "left",
-            headerRight: () => null,
-            headerLeft: () => null,
-        });
-    }, [navigation]);
     return (
         <SafeAreaView style={styles.screen}>
             <CompleteForm />

@@ -70,6 +70,7 @@ export const useGlobalStore = create<StateType & FormAction>((set, get) => ({
         set({ formState: { ...initialState.formState } });
     },
     addSubmissionsPromise: async (pdfUri, pdfBase64) => {
+        const controller = new AbortController();
         const { formState, settingState } = get();
         if (!settingState.apiUrl || !settingState.apiToken) return;
         const {
@@ -149,9 +150,13 @@ export const useGlobalStore = create<StateType & FormAction>((set, get) => ({
                 "Content-Type": "application/json",
                 Authorization: `bearer ${settingState.apiToken}`,
             },
+            signal: controller.signal,
         };
         //------- send request
         try {
+            setTimeout(() => {
+                controller.abort();
+            }, 30000);
             return await axios.post(settingState.apiUrl, postBody, postConfig);
         } catch (err) {
             console.error(JSON.stringify(err, null, 2));

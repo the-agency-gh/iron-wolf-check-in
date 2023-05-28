@@ -11,9 +11,9 @@ const WaiverTexts: FC<WaiverTextsProps> = ({ style, handleBack }) => {
     return (
         <View style={[styles.container, style]}>
             <View style={styles.titleContainer}>
-                <Pressable style={styles.button} onPress={handleBack}>
+                {/* <Pressable style={styles.button} onPress={handleBack}>
                     <LeftArrow />
-                </Pressable>
+                </Pressable> */}
                 <Text style={[styles.titleFont, styles.bold]}>Iron Wolf Fitness ONE-TIME Daily Pass and Agreement</Text>
             </View>
             <Text style={[styles.defaultFonts, styles.bold]}>Gym Policies</Text>

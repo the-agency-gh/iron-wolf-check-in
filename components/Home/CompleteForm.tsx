@@ -10,9 +10,11 @@ interface CompleteFormProps {}
 const windowWidth = Dimensions.get("window").width;
 
 const CompleteForm: FC<CompleteFormProps> = () => {
+    const [currentPage, setCurrentPage] = useState<0 | 1>(0);
     const [isInital, setIsIntial] = useState<boolean>(true);
     const scrollableForm = useRef<ScrollView>(null);
     const handleChangePage = (toPage: 0 | 1) => {
+        setCurrentPage(toPage);
         scrollableForm.current?.scrollTo({
             y: windowWidth * toPage,
             animated: true,
@@ -28,9 +30,10 @@ const CompleteForm: FC<CompleteFormProps> = () => {
                 }}
             />
             <ScrollView ref={scrollableForm} style={styles.formContainer} scrollEnabled={false} horizontal={true}>
-                <ProfileForm changePage={handleChangePage} />
+                <ProfileForm changePage={handleChangePage} currentPage={currentPage} />
                 <WaiverForm
                     changePage={handleChangePage}
+                    currentPage={currentPage}
                     resetModal={() => {
                         setIsIntial(true);
                     }}

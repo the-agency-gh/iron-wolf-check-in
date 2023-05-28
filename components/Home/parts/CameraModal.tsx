@@ -18,7 +18,6 @@ interface CameraModalProps {
 }
 
 const CameraModal: FC<CameraModalProps> = ({ forId, closeModal, handleCameraInput }) => {
-    console.log(forId);
     const camera = useRef<Camera>(null);
     const [permission, requestPermission] = Camera.useCameraPermissions();
     const [cameraState, setCameraState] = useState<{
