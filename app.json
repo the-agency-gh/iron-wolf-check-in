@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "iron_wolf",
-    "slug": "iron_wolf",
+    "slug": "iron-wolf-checkin",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -11,26 +11,22 @@
         {
           "cameraPermission": "Allow Iron Wolf to access your camera."
         }
-      ]      
+      ]
     ],
-    "platforms":[
-      "android"
-    ],
+    "platforms": ["android"],
     "userInterfaceStyle": "light",
     "splash": {
       "image": "./assets/splash.png",
       "resizeMode": "contain",
       "backgroundColor": "#161616"
     },
-    "assetBundlePatterns": [
-      "**/*"
-    ],
+    "assetBundlePatterns": ["**/*"],
     "ios": {
       "supportsTablet": true
     },
     "android": {
       "versionCode": 1,
-      "package":"com.github.theagency.ironwolfcheckin",
+      "package": "com.github.theagency.ironwolfcheckin",
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#161616"

@@ -11,7 +11,7 @@ module.exports = ({ config }) => {
       SENDER_EMAIL: process.env.SENDER_EMAIL,
       SENDER_PASSWORD: process.env.SENDER_PASSWORD,
       eas: {
-        projectId: "a8aa5340-dcb4-4193-823f-c7ee6e32d72f",
+        projectId: "68c10eb8-03cd-4d7e-b0dd-c2f9f84f9603",
       },
     },
   };
