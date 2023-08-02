@@ -291,19 +291,6 @@ const ProfileForm: FC<ProfileFormProps> = ({ currentPage, changePage }) => {
                             </View> */}
               <View style={styles.paymentValidationCont}>
                 <Checkbox
-                  value={cashPayment}
-                  onValueChange={() => setCashPayment(true)}
-                  style={styles.checkbox}
-                />
-                <Text
-                  style={styles.defaultFont}
-                  onPress={() => setCashPayment(true)}
-                >
-                  Cash
-                </Text>
-              </View>
-              <View style={styles.paymentValidationCont}>
-                <Checkbox
                   value={!cashPayment}
                   onValueChange={() => setCashPayment(false)}
                   style={styles.checkbox}
@@ -313,6 +300,19 @@ const ProfileForm: FC<ProfileFormProps> = ({ currentPage, changePage }) => {
                   onPress={() => setCashPayment(false)}
                 >
                   Charge Member
+                </Text>
+              </View>
+              <View style={styles.paymentValidationCont}>
+                <Checkbox
+                  value={cashPayment}
+                  onValueChange={() => setCashPayment(true)}
+                  style={styles.checkbox}
+                />
+                <Text
+                  style={styles.defaultFont}
+                  onPress={() => setCashPayment(true)}
+                >
+                  Cash
                 </Text>
               </View>
               <View style={[styles.memberNameInput]}>
