@@ -61,6 +61,7 @@ const ProfileForm: FC<ProfileFormProps> = ({ currentPage, changePage }) => {
     control,
     handleSubmit,
     reset,
+    setValue,
     formState: { isSubmitted, isSubmitting, errors, isDirty },
   } = useForm({
     resolver: zodResolver(formSchema),
@@ -75,7 +76,7 @@ const ProfileForm: FC<ProfileFormProps> = ({ currentPage, changePage }) => {
   const formInitialized =
     !!formState.firstName && !!formState.lastName && !!formState.email;
   const [datePickerShow, setDatePickerShow] = useState(false);
-  const [cashPayment, setCashPayment] = useState(true);
+  const [cashPayment, setCashPayment] = useState<boolean>(false);
   const [cameraStatus, setCameraStatus] = useState({
     profileShow: false,
     idShow: false,
@@ -135,6 +136,13 @@ const ProfileForm: FC<ProfileFormProps> = ({ currentPage, changePage }) => {
       ...data,
       cash: cashPayment,
     });
+    console.log(data);
+    console.log(
+      formState.guardianPhotoIdUri,
+      formState.photoIdUri,
+      formState.profileUri
+    );
+    // console.log("formState: ", formState);
     changePage(1);
   };
   const handleResetPress = () => {
@@ -147,7 +155,8 @@ const ProfileForm: FC<ProfileFormProps> = ({ currentPage, changePage }) => {
       idShow: false,
       guardianId: false,
     }));
-    setCashPayment(true);
+    // sets initial
+    setCashPayment(false);
   };
   const applicantAge =
     formState.dateOfBirth &&
@@ -172,6 +181,15 @@ const ProfileForm: FC<ProfileFormProps> = ({ currentPage, changePage }) => {
         ) : null,
     });
   }, [resetButtonActive, currentPage, navigation]);
+
+  function setProfileDetails() {
+    setValue("firstName", "adam");
+    setValue("lastName", "bob");
+    setValue("email", "jimbo@gmail.com");
+    setValue("memberName", "joseph");
+    setValue("phoneNumber", "8477304180");
+  }
+
   return (
     <>
       {isSubmitting && (
@@ -190,6 +208,18 @@ const ProfileForm: FC<ProfileFormProps> = ({ currentPage, changePage }) => {
         <View style={styles.mainFormContainer}>
           <View style={[styles.formContent]}>
             <View style={styles.nameCont}>
+              {/* <Pressable
+                style={[styles.DOBButton, shadow]}
+                onPress={() => navigation.navigate("Settings")}
+              >
+                <Text>Settings</Text>
+              </Pressable>
+              <Pressable
+                style={[styles.DOBButton, shadow]}
+                onPress={() => setProfileDetails()}
+              >
+                <Text>prefill</Text>
+              </Pressable> */}
               <FormInputField
                 style={styles.nameInput}
                 control={control}
@@ -256,7 +286,9 @@ const ProfileForm: FC<ProfileFormProps> = ({ currentPage, changePage }) => {
                     },
                   ]}
                 >
-                  Select Date of Birth
+                  {formState.dateOfBirth
+                    ? "Update Date of Birth"
+                    : "Select Date of Birth"}
                 </Text>
               </Pressable>
               {isSubmitted && !formState.dateOfBirth && (
@@ -277,18 +309,6 @@ const ProfileForm: FC<ProfileFormProps> = ({ currentPage, changePage }) => {
               )}
             </View>
             <View style={styles.additionalFieldCont}>
-              {/* <View style={styles.paymentValidationCont}>
-                              <Text style={styles.defaultFont}>Cash: </Text>
-                              <Switch
-                                trackColor={{ false: "#767577", true: colors.darkBlue }}
-                                thumbColor={cashPayment ? colors.lightBlue : colors.amber}
-                                ios_backgroundColor="#3e3e3e"
-                                onValueChange={() => {
-                                  setCashPayment(!cashPayment);
-                                }}
-                                value={cashPayment}
-                              />
-                            </View> */}
               <View style={styles.paymentValidationCont}>
                 <Checkbox
                   value={!cashPayment}
@@ -304,7 +324,7 @@ const ProfileForm: FC<ProfileFormProps> = ({ currentPage, changePage }) => {
               </View>
               <View style={styles.paymentValidationCont}>
                 <Checkbox
-                  value={cashPayment}
+                  value={cashPayment === true}
                   onValueChange={() => setCashPayment(true)}
                   style={styles.checkbox}
                 />
@@ -324,11 +344,6 @@ const ProfileForm: FC<ProfileFormProps> = ({ currentPage, changePage }) => {
                   placeholder="Iron Wolf"
                   error={errors?.memberName}
                 />
-                {/* {isSubmitted && getValues("memberName") === "" && (
-                                    <Text style={styles.datePickerError}>
-                                      Member's Name is Required
-                                    </Text>
-                                  )} */}
               </View>
             </View>
           </View>
@@ -411,16 +426,6 @@ const ProfileForm: FC<ProfileFormProps> = ({ currentPage, changePage }) => {
               </View>
             )}
           <View style={styles.formButtons}>
-            {/* {isDirty || formState.profileUri || formState.photoIdUri ? (
-                            <NextButton
-                                onPress={handleResetPress}
-                                text="Reset"
-                                style={[{ borderColor: colors.amber }]}
-                                textStyle={{ color: colors.white }}
-                            />
-                        ) : (
-                            <View></View>
-                        )} */}
             <NextButton onPress={handleSubmit(handleFormSubmit)} text="Next" />
           </View>
         </View>

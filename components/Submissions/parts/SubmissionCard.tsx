@@ -1,29 +1,40 @@
-import { FC, useState } from "react";
-import { View, Image, StyleSheet, Text, Pressable } from "react-native";
 import { shareAsync } from "expo-sharing";
+import { FC } from "react";
+import { Image, Pressable, StyleSheet, Text, View } from "react-native";
 //---------------funcs
-import { SubmissionProps } from "../../../utils/database";
 import { colors } from "../../../styles/variables";
+import { SubmissionProps } from "../../../utils/database";
 //--------------comps
-import TrashCanIcon from "../../../assets/icons/trash-can.svg";
-import PDFICon from "../../../assets/icons/pdf.svg";
 import IdCardIcon from "../../../assets/icons/idCard.svg";
+import PDFICon from "../../../assets/icons/pdf.svg";
+import TrashCanIcon from "../../../assets/icons/trash-can.svg";
 
-type fetchedSubmission = SubmissionProps & { id: number; submissionDate: string };
+type fetchedSubmission = SubmissionProps & {
+  id: number;
+  submissionDate: string;
+};
 interface SubmissionCardProps {
   data: fetchedSubmission;
   index: number;
   handleDelete: (data: fetchedSubmission, index: number) => void;
 }
 
-const SubmissionCard: FC<SubmissionCardProps> = ({ data, index, handleDelete }) => {
+const SubmissionCard: FC<SubmissionCardProps> = ({
+  data,
+  index,
+  handleDelete,
+}) => {
   const handleDataPress = async (dataType: "id" | "pdf") => {
     await shareAsync(dataType === "id" ? data.photoIdUri : data.pdfUri);
   };
   return (
     <View style={styles.container}>
       <View style={styles.infoCont}>
-        <Image style={styles.profileImg} source={{ uri: data.profileUri }} resizeMode="cover" />
+        <Image
+          style={styles.profileImg}
+          source={{ uri: data.profileUri }}
+          resizeMode="cover"
+        />
         <View style={styles.infoContent}>
           <Text style={styles.label}>
             Name:{" "}
@@ -38,10 +49,12 @@ const SubmissionCard: FC<SubmissionCardProps> = ({ data, index, handleDelete }) 
             Phone Number: <Text style={styles.info}>{data.phoneNumber}</Text>
           </Text>
           <Text style={styles.label}>
-            Date of Birth: <Text style={styles.info}>{data.dateOfBirth.toString()}</Text>
+            Date of Birth:{" "}
+            <Text style={styles.info}>{data.dateOfBirth.toString()}</Text>
           </Text>
           <Text style={styles.label}>
-            Cash Payment: <Text style={styles.info}>{data.cash ? "True" : "False"}</Text>
+            Cash Payment:{" "}
+            <Text style={styles.info}>{data.cash ? "True" : "False"}</Text>
           </Text>
           {!data.cash && (
             <Text style={styles.label}>
@@ -49,15 +62,26 @@ const SubmissionCard: FC<SubmissionCardProps> = ({ data, index, handleDelete }) 
             </Text>
           )}
           <Text style={styles.label}>
-            Submitted: <Text style={styles.info}>{data.submissionDate?.split(" ")[0]}</Text>
+            Submitted:{" "}
+            <Text style={styles.info}>
+              {data.submissionDate?.split(" ")[0]}
+            </Text>
           </Text>
         </View>
       </View>
       <View style={styles.buttonCont}>
-        <Pressable style={styles.button} android_ripple={{ color: colors.baseBlack }} onPress={handleDataPress.bind(null, "id")}>
+        <Pressable
+          style={styles.button}
+          android_ripple={{ color: colors.baseBlack }}
+          onPress={handleDataPress.bind(null, "id")}
+        >
           <IdCardIcon />
         </Pressable>
-        <Pressable style={styles.button} android_ripple={{ color: colors.baseBlack }} onPress={handleDataPress.bind(null, "pdf")}>
+        <Pressable
+          style={styles.button}
+          android_ripple={{ color: colors.baseBlack }}
+          onPress={handleDataPress.bind(null, "pdf")}
+        >
           <PDFICon />
         </Pressable>
         <Pressable
