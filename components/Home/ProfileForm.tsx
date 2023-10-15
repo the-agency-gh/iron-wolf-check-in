@@ -166,6 +166,7 @@ const ProfileForm: FC<ProfileFormProps> = ({ currentPage, changePage }) => {
     );
   const resetButtonActive =
     isDirty || formState.profileUri || formState.photoIdUri;
+
   useEffect(() => {
     !formInitialized && handleResetPress();
   }, [formInitialized]);
